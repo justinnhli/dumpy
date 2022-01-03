@@ -134,7 +134,18 @@ class Matrix: # pylint: disable = too-many-public-methods
         self.vals = values
         self.height = len(values)
         self.width = len(values[0])
+        self._cols = None # type: list[list[float]]
         self._inverse = None # type: Optional[Matrix]
+
+    @property
+    def cols(self):
+        # type: () -> list[list[float]]
+        if self._cols is None:
+            self._cols = [
+                [self.rows[r][c] for r in range(self.height)]
+                for c in range(self.width)
+            ]
+        return self._cols
 
     @property
     def is_tuple(self):
@@ -256,7 +267,7 @@ class Matrix: # pylint: disable = too-many-public-methods
             row = self.vals[r]
             result_row = []
             for c in range(other.width):
-                col = [other_row[c] for other_row in other.vals]
+                col = other.cols[c]
                 result_row.append(sum(a * b for a, b in zip(row, col)))
             result.append(result_row)
         if is_tuple:
@@ -288,10 +299,7 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def transpose(self):
         # type: () -> Matrix
-        return Matrix([
-            [self.vals[r][c] for r in range(self.height)]
-            for c in range(self.width)
-        ])
+        return Matrix(self.cols)
 
     @property
     def determinant(self):
