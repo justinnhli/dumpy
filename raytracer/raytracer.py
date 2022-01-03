@@ -24,23 +24,23 @@ class Matrix: # pylint: disable = too-many-public-methods
     >>> Vector(3, 2, 1) - Vector(5, 6, 7)
     Vector(-2, -4, -6)
 
-    >>> Tuple4(1, -2, 3, -4) * 3.5
-    Tuple4(3.5, -7.0, 10.5, -14.0)
+    >>> Tuple4(1, -2, 3, -4) * 3.5 == Tuple4(3.5, -7, 10.5, -14)
+    True
 
-    >>> 0.5 * Tuple4(1, -2, 3, -4)
-    Tuple4(0.5, -1.0, 1.5, -2.0)
+    >>> 0.5 * Tuple4(1, -2, 3, -4) == Tuple4(0.5, -1, 1.5, -2)
+    True
 
-    >>> Tuple4(1, -2, 3, -4) / 2
-    Tuple4(0.5, -1.0, 1.5, -2.0)
+    >>> Tuple4(1, -2, 3, -4) / 2 == Tuple4(0.5, -1, 1.5, -2)
+    True
 
-    >>> Vector(1, 0, 0).magnitude
-    1.0
+    >>> Vector(1, 0, 0).magnitude == 1
+    True
 
-    >>> Vector(0, 1, 0).magnitude
-    1.0
+    >>> Vector(0, 1, 0).magnitude == 1
+    True
 
-    >>> Vector(0, 0, 1).magnitude
-    1.0
+    >>> Vector(0, 0, 1).magnitude == 1
+    True
 
     >>> Vector(1, 2, 3).magnitude == sqrt(14)
     True
@@ -48,11 +48,11 @@ class Matrix: # pylint: disable = too-many-public-methods
     >>> Vector(-1, -2, -3).magnitude == sqrt(14)
     True
 
-    >>> Vector(4, 0, 0).normalize()
-    Vector(1.0, 0.0, 0.0)
+    >>> Vector(4, 0, 0).normalize() == Vector(1, 0, 0)
+    True
 
-    >>> Vector(1, 2, 3).normalize().magnitude
-    1.0
+    >>> Vector(1, 2, 3).normalize().magnitude == 1
+    True
 
     >>> Vector(1, 2, 3).dot(Vector(2, 3, 4))
     20
@@ -131,7 +131,7 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def __init__(self, values):
         # type: (list[list[float]]) -> None
-        self.vals = values
+        self.rows = values
         self.height = len(values)
         self.width = len(values[0])
         self._cols = None # type: list[list[float]]
@@ -155,32 +155,32 @@ class Matrix: # pylint: disable = too-many-public-methods
     @property
     def is_vector(self):
         # type: () -> bool
-        return self.is_tuple and self.vals[0][3] == 0
+        return self.is_tuple and self.rows[0][3] == 0
 
     @property
     def is_point(self):
         # type: () -> bool
-        return self.is_tuple and self.vals[0][3] == 1
+        return self.is_tuple and self.rows[0][3] == 1
 
     @property
     def x(self):
         # type: () -> float
-        return self.vals[0][0]
+        return self.rows[0][0]
 
     @property
     def y(self):
         # type: () -> float
-        return self.vals[0][1]
+        return self.rows[0][1]
 
     @property
     def z(self):
         # type: () -> float
-        return self.vals[0][2]
+        return self.rows[0][2]
 
     @property
     def w(self): # pylint: disable = invalid-name
         # type: () -> float
-        return self.vals[0][3]
+        return self.rows[0][3]
 
     @property
     def magnitude(self):
@@ -193,7 +193,7 @@ class Matrix: # pylint: disable = too-many-public-methods
             self.height == other.height and self.width == other.width
             and all(
                 isclose(self_val, other_val, abs_tol=EPSILON)
-                for self_row, other_row in zip(self.vals, other.vals)
+                for self_row, other_row in zip(self.rows, other.rows)
                 for self_val, other_val in zip(self_row, other_row)
             )
         )
@@ -213,33 +213,33 @@ class Matrix: # pylint: disable = too-many-public-methods
             else:
                 return f'Tuple4({", ".join(vals)})'
         else:
-            return f'Matrix({str(self.vals)})'
+            return f'Matrix({str(self.rows)})'
 
     def __add__(self, other):
         # type: (Matrix) -> Matrix
         return Matrix([
             [val1 + val2 for val1, val2 in zip(row1, row2)]
-            for row1, row2 in zip(self.vals, other.vals)
+            for row1, row2 in zip(self.rows, other.rows)
         ])
 
     def __sub__(self, other):
         # type: (Matrix) -> Matrix
         return Matrix([
             [val1 - val2 for val1, val2 in zip(row1, row2)]
-            for row1, row2 in zip(self.vals, other.vals)
+            for row1, row2 in zip(self.rows, other.rows)
         ])
 
     def __neg__(self):
         # type: () -> Matrix
         return Matrix([
             [-val for val in row]
-            for row in self.vals
+            for row in self.rows
         ])
 
     def __mul__(self, other):
         # type: (Union[int,float]) -> Matrix
         result = []
-        for row in self.vals:
+        for row in self.rows:
             result.append([val * other for val in row])
         return Matrix(result)
 
@@ -259,7 +259,7 @@ class Matrix: # pylint: disable = too-many-public-methods
             is_tuple = True
         result = []
         for r in range(self.height):
-            row = self.vals[r]
+            row = self.rows[r]
             result_row = []
             for c in range(other.width):
                 col = other.cols[c]
@@ -282,7 +282,7 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def dot(self, other):
         # type: (Matrix) -> float
-        return (self @ other.transpose()).vals[0][0]
+        return (self @ other.transpose()).rows[0][0]
 
     def cross(self, other):
         # type: (Matrix) -> Matrix
@@ -300,14 +300,14 @@ class Matrix: # pylint: disable = too-many-public-methods
     def determinant(self):
         # type: () -> float
         if self.height == 2 and self.width == 2:
-            return self.vals[0][0] * self.vals[1][1] - self.vals[0][1] * self.vals[1][0]
+            return self.rows[0][0] * self.rows[1][1] - self.rows[0][1] * self.rows[1][0]
         else:
-            return sum(self.vals[0][i] * self.cofactor(0, i) for i in range(self.width))
+            return sum(self.rows[0][i] * self.cofactor(0, i) for i in range(self.width))
 
     def submatrix(self, dr, dc): # pylint: disable = invalid-name
         # type: (int, int) -> Matrix
         result = []
-        for r, row in enumerate(self.vals):
+        for r, row in enumerate(self.rows):
             if r == dr:
                 continue
             result.append(row[:dc] + row[dc + 1:])
@@ -341,14 +341,14 @@ class Matrix: # pylint: disable = too-many-public-methods
     def translate(self, x, y, z):
         # type: (float, float, float) -> Matrix
         """
-        >>> identity().translate(5, -3, 2) @ Point(-3, 4, 5)
-        Point(2.0, 1.0, 7.0)
+        >>> identity().translate(5, -3, 2) @ Point(-3, 4, 5) == Point(2, 1, 7)
+        True
 
-        >>> identity().translate(5, -3, 2).inverse() @ Point(-3, 4, 5)
-        Point(-8.0, 7.0, 3.0)
+        >>> identity().translate(5, -3, 2).inverse() @ Point(-3, 4, 5) == Point(-8, 7, 3)
+        True
 
-        >>> identity().translate(5, -3, 2) @ Vector(-3, 4, 5)
-        Vector(-3.0, 4.0, 5.0)
+        >>> identity().translate(5, -3, 2) @ Vector(-3, 4, 5) == Vector(-3, 4, 5)
+        True
         """
         return (
             Matrix([[1, 0, 0, x], [0, 1, 0, y], [0, 0, 1, z], [0, 0, 0, 1]])
@@ -358,14 +358,14 @@ class Matrix: # pylint: disable = too-many-public-methods
     def scale(self, x, y, z):
         # type: (float, float, float) -> Matrix
         """
-        >>> identity().scale(2, 3, 4) @ Point(-4, 6, 8)
-        Point(-8.0, 18.0, 32.0)
+        >>> identity().scale(2, 3, 4) @ Point(-4, 6, 8) == Point(-8, 18, 32)
+        True
 
-        >>> identity().scale(2, 3, 4) @ Vector(-4, 6, 8)
-        Vector(-8.0, 18.0, 32.0)
+        >>> identity().scale(2, 3, 4) @ Vector(-4, 6, 8) == Vector(-8, 18, 32)
+        True
 
-        >>> identity().scale(2, 3, 4).inverse() @ Point(-4, 6, 8)
-        Point(-2.0, 2.0, 2.0)
+        >>> identity().scale(2, 3, 4).inverse() @ Point(-4, 6, 8) == Point(-2, 2, 2)
+        True
         """
         return (
             Matrix([[x, 0, 0, 0], [0, y, 0, 0], [0, 0, z, 0], [0, 0, 0, 1]])
@@ -396,18 +396,18 @@ class Matrix: # pylint: disable = too-many-public-methods
     def shear(self, x_y, x_z, y_x, y_z, z_x, z_y):
         # type: (float, float, float, float, float, float) -> Matrix
         """
-        >>> identity().shear(1, 0, 0, 0, 0, 0) @ Point(2, 3, 4)
-        Point(5.0, 3.0, 4.0)
-        >>> identity().shear(0, 1, 0, 0, 0, 0) @ Point(2, 3, 4)
-        Point(6.0, 3.0, 4.0)
-        >>> identity().shear(0, 0, 1, 0, 0, 0) @ Point(2, 3, 4)
-        Point(2.0, 5.0, 4.0)
-        >>> identity().shear(0, 0, 0, 1, 0, 0) @ Point(2, 3, 4)
-        Point(2.0, 7.0, 4.0)
-        >>> identity().shear(0, 0, 0, 0, 1, 0) @ Point(2, 3, 4)
-        Point(2.0, 3.0, 6.0)
-        >>> identity().shear(0, 0, 0, 0, 0, 1) @ Point(2, 3, 4)
-        Point(2.0, 3.0, 7.0)
+        >>> identity().shear(1, 0, 0, 0, 0, 0) @ Point(2, 3, 4) == Point(5, 3, 4)
+        True
+        >>> identity().shear(0, 1, 0, 0, 0, 0) @ Point(2, 3, 4) == Point(6, 3, 4)
+        True
+        >>> identity().shear(0, 0, 1, 0, 0, 0) @ Point(2, 3, 4) == Point(2, 5, 4)
+        True
+        >>> identity().shear(0, 0, 0, 1, 0, 0) @ Point(2, 3, 4) == Point(2, 7, 4)
+        True
+        >>> identity().shear(0, 0, 0, 0, 1, 0) @ Point(2, 3, 4) == Point(2, 3, 6)
+        True
+        >>> identity().shear(0, 0, 0, 0, 0, 1) @ Point(2, 3, 4) == Point(2, 3, 7)
+        True
         """
         return (
             Matrix([[1, x_y, x_z, 0], [y_x, 1, y_z, 0], [z_x, z_y, 1, 0], [0, 0, 0, 1]])
@@ -433,7 +433,7 @@ def Point(x, y, z): # pylint: disable = invalid-name
 def identity():
     # type: () -> Matrix
     """
-    >>> identity()
-    Matrix([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]])
+    >>> identity() == Matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+    True
     """
     return Matrix([(i * [0.0]) + [1.0] + (3 - i) * [0.0] for i in range(4)])
