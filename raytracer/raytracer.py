@@ -24,14 +24,14 @@ class Matrix: # pylint: disable = too-many-public-methods
     >>> Vector(3, 2, 1) - Vector(5, 6, 7)
     Vector(-2, -4, -6)
 
-    >>> Tuple3D(1, -2, 3, -4) * 3.5
-    Tuple3D(3.5, -7.0, 10.5, -14.0)
+    >>> Tuple4(1, -2, 3, -4) * 3.5
+    Tuple4(3.5, -7.0, 10.5, -14.0)
 
-    >>> 0.5 * Tuple3D(1, -2, 3, -4)
-    Tuple3D(0.5, -1.0, 1.5, -2.0)
+    >>> 0.5 * Tuple4(1, -2, 3, -4)
+    Tuple4(0.5, -1.0, 1.5, -2.0)
 
-    >>> Tuple3D(1, -2, 3, -4) / 2
-    Tuple3D(0.5, -1.0, 1.5, -2.0)
+    >>> Tuple4(1, -2, 3, -4) / 2
+    Tuple4(0.5, -1.0, 1.5, -2.0)
 
     >>> Vector(1, 0, 0).magnitude
     1.0
@@ -80,7 +80,7 @@ class Matrix: # pylint: disable = too-many-public-methods
     True
 
     >>> m1 = Matrix([[1, 2, 3, 4], [2, 4, 4, 2], [8, 6, 4, 1], [0, 0, 0, 1]])
-    >>> t = Tuple3D(1, 2, 3, 1)
+    >>> t = Tuple4(1, 2, 3, 1)
     >>> m1 @ t
     Point(18, 24, 33)
 
@@ -205,7 +205,7 @@ class Matrix: # pylint: disable = too-many-public-methods
             elif self.is_point:
                 return f'Point({", ".join(vals[:-1])})'
             else:
-                return f'Tuple3D({", ".join(vals)})'
+                return f'Tuple4({", ".join(vals)})'
         else:
             return f'Matrix({str(self.vals)})'
 
@@ -412,7 +412,7 @@ class Matrix: # pylint: disable = too-many-public-methods
         )
 
 
-def Tuple3D(x, y, z, w): # pylint: disable = invalid-name
+def Tuple4(x, y, z, w): # pylint: disable = invalid-name
     # type: (float, float, float, float) -> Matrix
     return Matrix([[x, y, z, w]])
 
