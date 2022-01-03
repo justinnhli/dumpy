@@ -205,12 +205,7 @@ class Matrix: # pylint: disable = too-many-public-methods
     def __repr__(self):
         # type: () -> str
         if self.is_tuple:
-            vals = (
-                str(abs(self.x) if self.x == 0 else self.x),
-                str(abs(self.y) if self.y == 0 else self.y),
-                str(abs(self.z) if self.z == 0 else self.z),
-                str(abs(self.w) if self.w == 0 else self.w),
-            )
+            vals = [str(abs(i) if i == 0 else i) for i in self.rows[0]]
             if self.is_vector:
                 return f'Vector({", ".join(vals[:-1])})'
             elif self.is_point:
