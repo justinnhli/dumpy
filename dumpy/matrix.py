@@ -135,7 +135,7 @@ class Matrix: # pylint: disable = too-many-public-methods
         self.height = len(values)
         self.width = len(values[0])
         # cache variables
-        self._cols = None # type: list[list[float]]
+        self._cols = None # type: Optional[list[list[float]]]
         self._magnitude = None # type: Optional[float]
         self._determinant = None # type: Optional[float]
         self._inverse = None # type: Optional[Matrix]
@@ -329,12 +329,11 @@ class Matrix: # pylint: disable = too-many-public-methods
     def submatrix(self, dr, dc): # pylint: disable = invalid-name
         # type: (int, int) -> Matrix
         """Slice out a submatrix."""
-        result = []
-        for r, row in enumerate(self.rows):
-            if r == dr:
-                continue
-            result.append(row[:dc] + row[dc + 1:])
-        return Matrix(result)
+        return Matrix([
+            row[:dc] + row[dc + 1:]
+            for r, row in enumerate(self.rows)
+            if r != dr
+        ])
 
     def minor(self, dr, dc): # pylint: disable = invalid-name
         # type: (int, int) -> float
@@ -347,7 +346,7 @@ class Matrix: # pylint: disable = too-many-public-methods
         if (dr + dc) % 2 == 0:
             return self.minor(dr, dc)
         else:
-            return -self.minor(dr, dc)
+            return -self.minor(dr, dc) # pylint: disable = invalid-unary-operand-type
 
     @property
     def invertible(self):
@@ -363,7 +362,7 @@ class Matrix: # pylint: disable = too-many-public-methods
             for r in range(self.height):
                 result.append([self.cofactor(r, c) for c in range(self.width)])
             self._inverse = Matrix(result).transpose() / self.determinant
-            self._inverse._inverse = self
+            self._inverse._inverse = self # pylint: disable = protected-access
         return self._inverse
 
     def translate(self, x, y, z):
@@ -380,7 +379,12 @@ class Matrix: # pylint: disable = too-many-public-methods
         True
         """
         return (
-            Matrix([[1, 0, 0, x], [0, 1, 0, y], [0, 0, 1, z], [0, 0, 0, 1]])
+            Matrix([
+                [1, 0, 0, x],
+                [0, 1, 0, y],
+                [0, 0, 1, z],
+                [0, 0, 0, 1],
+            ])
             @ self
         )
 
@@ -398,7 +402,12 @@ class Matrix: # pylint: disable = too-many-public-methods
         True
         """
         return (
-            Matrix([[x, 0, 0, 0], [0, y, 0, 0], [0, 0, z, 0], [0, 0, 0, 1]])
+            Matrix([
+                [x, 0, 0, 0],
+                [0, y, 0, 0],
+                [0, 0, z, 0],
+                [0, 0, 0, 1],
+            ])
             @ self
         )
 
@@ -406,7 +415,12 @@ class Matrix: # pylint: disable = too-many-public-methods
         # type: (float) -> Matrix
         """Rotate the matrix along the x-axis."""
         return (
-            Matrix([[1, 0, 0, 0], [0, cos(r), -sin(r), 0], [0, sin(r), cos(r), 0], [0, 0, 0, 1]])
+            Matrix([
+                [1, 0, 0, 0],
+                [0, cos(r), -sin(r), 0],
+                [0, sin(r), cos(r), 0],
+                [0, 0, 0, 1],
+            ])
             @ self
         )
 
@@ -414,7 +428,12 @@ class Matrix: # pylint: disable = too-many-public-methods
         # type: (float) -> Matrix
         """Rotate the matrix along the y-axis."""
         return (
-            Matrix([[cos(r), 0, sin(r), 0], [0, 1, 0, 0], [-sin(r), 0, cos(r), 0], [0, 0, 0, 1]])
+            Matrix([
+                [cos(r), 0, sin(r), 0],
+                [0, 1, 0, 0],
+                [-sin(r), 0, cos(r), 0],
+                [0, 0, 0, 1],
+            ])
             @ self
         )
 
@@ -422,7 +441,12 @@ class Matrix: # pylint: disable = too-many-public-methods
         # type: (float) -> Matrix
         """Rotate the matrix along the z-axis."""
         return (
-            Matrix([[cos(r), -sin(r), 0, 0], [sin(r), cos(r), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+            Matrix([
+                [cos(r), -sin(r), 0, 0],
+                [sin(r), cos(r), 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ])
             @ self
         )
 
@@ -444,7 +468,12 @@ class Matrix: # pylint: disable = too-many-public-methods
         True
         """
         return (
-            Matrix([[1, x_y, x_z, 0], [y_x, 1, y_z, 0], [z_x, z_y, 1, 0], [0, 0, 0, 1]])
+            Matrix([
+                [1, x_y, x_z, 0],
+                [y_x, 1, y_z, 0],
+                [z_x, z_y, 1, 0],
+                [0, 0, 0, 1],
+            ])
             @ self
         )
 
