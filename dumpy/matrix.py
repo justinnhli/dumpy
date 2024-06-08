@@ -134,7 +134,10 @@ class Matrix: # pylint: disable = too-many-public-methods
         self.rows = values
         self.height = len(values)
         self.width = len(values[0])
+        # cache variables
         self._cols = None # type: list[list[float]]
+        self._magnitude = None # type: Optional[float]
+        self._determinant = None # type: Optional[float]
         self._inverse = None # type: Optional[Matrix]
 
     @property
@@ -194,7 +197,9 @@ class Matrix: # pylint: disable = too-many-public-methods
     def magnitude(self):
         # type: () -> float
         """Return the magnitude of a 4-tuple."""
-        return sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+        if self._magnitude is None:
+            self._magnitude = sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+        return self._magnitude
 
     def __eq__(self, other):
         # type: (Any) -> bool
@@ -314,10 +319,12 @@ class Matrix: # pylint: disable = too-many-public-methods
     def determinant(self):
         # type: () -> float
         """Calculate the determinant."""
-        if self.height == 2 and self.width == 2:
-            return self.rows[0][0] * self.rows[1][1] - self.rows[0][1] * self.rows[1][0]
-        else:
-            return sum(self.rows[0][i] * self.cofactor(0, i) for i in range(self.width))
+        if self._determinant is None:
+            if self.height == 2 and self.width == 2:
+                self._determinant = self.rows[0][0] * self.rows[1][1] - self.rows[0][1] * self.rows[1][0]
+            else:
+                self._determinant = sum(self.rows[0][i] * self.cofactor(0, i) for i in range(self.width))
+        return self._determinant
 
     def submatrix(self, dr, dc): # pylint: disable = invalid-name
         # type: (int, int) -> Matrix
