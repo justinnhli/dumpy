@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+"""A Matrix class."""
 
 # pylint: disable = too-many-lines
 
@@ -130,6 +130,7 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def __init__(self, values):
         # type: (list[list[float]]) -> None
+        """Initialize a matrix."""
         self.rows = values
         self.height = len(values)
         self.width = len(values[0])
@@ -139,6 +140,7 @@ class Matrix: # pylint: disable = too-many-public-methods
     @property
     def cols(self):
         # type: () -> list[list[float]]
+        """Get the columns of the matrix."""
         if self._cols is None:
             self._cols = [
                 [self.rows[r][c] for r in range(self.height)]
@@ -149,41 +151,49 @@ class Matrix: # pylint: disable = too-many-public-methods
     @property
     def is_tuple(self):
         # type: () -> bool
+        """Return True if the matrix is a 4-tuple."""
         return self.height == 1 and self.width == 4
 
     @property
     def is_vector(self):
         # type: () -> bool
+        """Return True if the matrix is a graphics vector."""
         return self.is_tuple and self.rows[0][3] == 0
 
     @property
     def is_point(self):
         # type: () -> bool
+        """Return True if the matrix is a graphics point."""
         return self.is_tuple and self.rows[0][3] == 1
 
     @property
     def x(self):
         # type: () -> float
+        """Return the x value of a 4-tuple."""
         return self.rows[0][0]
 
     @property
     def y(self):
         # type: () -> float
+        """Return the y value of a 4-tuple."""
         return self.rows[0][1]
 
     @property
     def z(self):
         # type: () -> float
+        """Return the z value of a 4-tuple."""
         return self.rows[0][2]
 
     @property
     def w(self): # pylint: disable = invalid-name
         # type: () -> float
+        """Return the w value of a 4-tuple."""
         return self.rows[0][3]
 
     @property
     def magnitude(self):
         # type: () -> float
+        """Return the magnitude of a 4-tuple."""
         return sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
 
     def __eq__(self, other):
@@ -271,20 +281,24 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def normalize(self):
         # type: () -> Matrix
+        """Normalize a graphics point/vector."""
         magnitude = self.magnitude
         return Vector3D(self.x / magnitude, self.y / magnitude, self.z / magnitude)
 
     def reflect(self, other):
         # type: (Matrix) -> Matrix
+        """Reflect across another 4-tuple."""
         normal = other.normalize()
         return self - normal * 2 * self.dot(normal)
 
     def dot(self, other):
         # type: (Matrix) -> float
+        """Take the dot product with another 4-tuple."""
         return (self @ other.transpose()).rows[0][0]
 
     def cross(self, other):
         # type: (Matrix) -> Matrix
+        """Take the cross product with another matrix."""
         return Vector3D(
             self.y * other.z - self.z * other.y,
             self.z * other.x - self.x * other.z,
@@ -293,11 +307,13 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def transpose(self):
         # type: () -> Matrix
+        """Transpose the matrix."""
         return Matrix(self.cols)
 
     @property
     def determinant(self):
         # type: () -> float
+        """Calculate the determinant."""
         if self.height == 2 and self.width == 2:
             return self.rows[0][0] * self.rows[1][1] - self.rows[0][1] * self.rows[1][0]
         else:
@@ -305,6 +321,7 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def submatrix(self, dr, dc): # pylint: disable = invalid-name
         # type: (int, int) -> Matrix
+        """Slice out a submatrix."""
         result = []
         for r, row in enumerate(self.rows):
             if r == dr:
@@ -314,10 +331,12 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def minor(self, dr, dc): # pylint: disable = invalid-name
         # type: (int, int) -> float
+        """Calculate a minor."""
         return self.submatrix(dr, dc).determinant
 
     def cofactor(self, dr, dc): # pylint: disable = invalid-name
         # type: (int, int) -> float
+        """Calculate a cofactor."""
         if (dr + dc) % 2 == 0:
             return self.minor(dr, dc)
         else:
@@ -326,10 +345,12 @@ class Matrix: # pylint: disable = too-many-public-methods
     @property
     def invertible(self):
         # type: () -> bool
+        """Return True if the matrix is invertible."""
         return self.determinant != 0
 
     def inverse(self):
         # type: () -> Matrix
+        """Inverse the matrix."""
         if self._inverse is None:
             result = []
             for r in range(self.height):
@@ -339,7 +360,8 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def translate(self, x, y, z):
         # type: (float, float, float) -> Matrix
-        """
+        """Translate the matrix.
+
         >>> identity().translate(5, -3, 2) @ Point3D(-3, 4, 5) == Point3D(2, 1, 7)
         True
 
@@ -356,7 +378,8 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def scale(self, x, y, z):
         # type: (float, float, float) -> Matrix
-        """
+        """Scale the matrix.
+
         >>> identity().scale(2, 3, 4) @ Point3D(-4, 6, 8) == Point3D(-8, 18, 32)
         True
 
@@ -373,6 +396,7 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def rotate_x(self, r):
         # type: (float) -> Matrix
+        """Rotate the matrix along the x-axis."""
         return (
             Matrix([[1, 0, 0, 0], [0, cos(r), -sin(r), 0], [0, sin(r), cos(r), 0], [0, 0, 0, 1]])
             @ self
@@ -380,6 +404,7 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def rotate_y(self, r):
         # type: (float) -> Matrix
+        """Rotate the matrix along the y-axis."""
         return (
             Matrix([[cos(r), 0, sin(r), 0], [0, 1, 0, 0], [-sin(r), 0, cos(r), 0], [0, 0, 0, 1]])
             @ self
@@ -387,6 +412,7 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def rotate_z(self, r):
         # type: (float) -> Matrix
+        """Rotate the matrix along the z-axis."""
         return (
             Matrix([[cos(r), -sin(r), 0, 0], [sin(r), cos(r), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
             @ self
@@ -394,7 +420,8 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def shear(self, x_y, x_z, y_x, y_z, z_x, z_y):
         # type: (float, float, float, float, float, float) -> Matrix
-        """
+        """Shear the matrix.
+
         >>> identity().shear(1, 0, 0, 0, 0, 0) @ Point3D(2, 3, 4) == Point3D(5, 3, 4)
         True
         >>> identity().shear(0, 1, 0, 0, 0, 0) @ Point3D(2, 3, 4) == Point3D(6, 3, 4)
@@ -416,17 +443,20 @@ class Matrix: # pylint: disable = too-many-public-methods
 
 def Vector3D(x=0, y=0, z=0): # pylint: disable = invalid-name
     # type: (float, float, float) -> Matrix
+    """Create a 4-tuple that represents a 3D vector."""
     return Matrix([[x, y, z, 0]])
 
 
 def Point3D(x=0, y=0, z=0): # pylint: disable = invalid-name
     # type: (float, float, float) -> Matrix
+    """Create a 4-tuple that represents a 3D point."""
     return Matrix([[x, y, z, 1]])
 
 
 def identity():
     # type: () -> Matrix
-    """
+    """Create an identity matrix.
+
     >>> identity() == Matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
     True
     """
