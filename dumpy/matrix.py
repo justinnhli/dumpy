@@ -84,7 +84,7 @@ class Matrix: # pylint: disable = too-many-public-methods
     Point3D(18, 24, 33)
 
     >>> m1 = Matrix([[0, 1, 2, 4], [1, 2, 4, 8], [2, 4, 8, 16], [4, 8, 16, 32]])
-    >>> m2 = identity()
+    >>> m2 = identity(4)
     >>> m1 @ m2 == m1
     True
 
@@ -95,7 +95,7 @@ class Matrix: # pylint: disable = too-many-public-methods
     >>> m1.transpose().transpose() == m1
     True
 
-    >>> identity().transpose() == identity()
+    >>> identity(4).transpose() == identity(4)
     True
 
     >>> Matrix([[1, 5], [-3, 2]]).determinant
@@ -362,13 +362,13 @@ class Matrix: # pylint: disable = too-many-public-methods
         # type: (float, float, float) -> Matrix
         """Translate the matrix.
 
-        >>> identity().translate(5, -3, 2) @ Point3D(-3, 4, 5) == Point3D(2, 1, 7)
+        >>> identity(4).translate(5, -3, 2) @ Point3D(-3, 4, 5) == Point3D(2, 1, 7)
         True
 
-        >>> identity().translate(5, -3, 2).inverse() @ Point3D(-3, 4, 5) == Point3D(-8, 7, 3)
+        >>> identity(4).translate(5, -3, 2).inverse() @ Point3D(-3, 4, 5) == Point3D(-8, 7, 3)
         True
 
-        >>> identity().translate(5, -3, 2) @ Vector3D(-3, 4, 5) == Vector3D(-3, 4, 5)
+        >>> identity(4).translate(5, -3, 2) @ Vector3D(-3, 4, 5) == Vector3D(-3, 4, 5)
         True
         """
         return (
@@ -380,13 +380,13 @@ class Matrix: # pylint: disable = too-many-public-methods
         # type: (float, float, float) -> Matrix
         """Scale the matrix.
 
-        >>> identity().scale(2, 3, 4) @ Point3D(-4, 6, 8) == Point3D(-8, 18, 32)
+        >>> identity(4).scale(2, 3, 4) @ Point3D(-4, 6, 8) == Point3D(-8, 18, 32)
         True
 
-        >>> identity().scale(2, 3, 4) @ Vector3D(-4, 6, 8) == Vector3D(-8, 18, 32)
+        >>> identity(4).scale(2, 3, 4) @ Vector3D(-4, 6, 8) == Vector3D(-8, 18, 32)
         True
 
-        >>> identity().scale(2, 3, 4).inverse() @ Point3D(-4, 6, 8) == Point3D(-2, 2, 2)
+        >>> identity(4).scale(2, 3, 4).inverse() @ Point3D(-4, 6, 8) == Point3D(-2, 2, 2)
         True
         """
         return (
@@ -422,17 +422,17 @@ class Matrix: # pylint: disable = too-many-public-methods
         # type: (float, float, float, float, float, float) -> Matrix
         """Shear the matrix.
 
-        >>> identity().shear(1, 0, 0, 0, 0, 0) @ Point3D(2, 3, 4) == Point3D(5, 3, 4)
+        >>> identity(4).shear(1, 0, 0, 0, 0, 0) @ Point3D(2, 3, 4) == Point3D(5, 3, 4)
         True
-        >>> identity().shear(0, 1, 0, 0, 0, 0) @ Point3D(2, 3, 4) == Point3D(6, 3, 4)
+        >>> identity(4).shear(0, 1, 0, 0, 0, 0) @ Point3D(2, 3, 4) == Point3D(6, 3, 4)
         True
-        >>> identity().shear(0, 0, 1, 0, 0, 0) @ Point3D(2, 3, 4) == Point3D(2, 5, 4)
+        >>> identity(4).shear(0, 0, 1, 0, 0, 0) @ Point3D(2, 3, 4) == Point3D(2, 5, 4)
         True
-        >>> identity().shear(0, 0, 0, 1, 0, 0) @ Point3D(2, 3, 4) == Point3D(2, 7, 4)
+        >>> identity(4).shear(0, 0, 0, 1, 0, 0) @ Point3D(2, 3, 4) == Point3D(2, 7, 4)
         True
-        >>> identity().shear(0, 0, 0, 0, 1, 0) @ Point3D(2, 3, 4) == Point3D(2, 3, 6)
+        >>> identity(4).shear(0, 0, 0, 0, 1, 0) @ Point3D(2, 3, 4) == Point3D(2, 3, 6)
         True
-        >>> identity().shear(0, 0, 0, 0, 0, 1) @ Point3D(2, 3, 4) == Point3D(2, 3, 7)
+        >>> identity(4).shear(0, 0, 0, 0, 0, 1) @ Point3D(2, 3, 4) == Point3D(2, 3, 7)
         True
         """
         return (
@@ -453,11 +453,14 @@ def Point3D(x=0, y=0, z=0): # pylint: disable = invalid-name
     return Matrix([[x, y, z, 1]])
 
 
-def identity():
-    # type: () -> Matrix
+def identity(size):
+    # type: (int) -> Matrix
     """Create an identity matrix.
 
-    >>> identity() == Matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+    >>> identity(4) == Matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
     True
     """
-    return Matrix([(i * [0.0]) + [1.0] + (3 - i) * [0.0] for i in range(4)])
+    return Matrix([
+        (i * [0.0]) + [1.0] + (size - i - 1) * [0.0]
+        for i in range(size)
+    ])
