@@ -363,6 +363,7 @@ class Matrix: # pylint: disable = too-many-public-methods
             for r in range(self.height):
                 result.append([self.cofactor(r, c) for c in range(self.width)])
             self._inverse = Matrix(result).transpose() / self.determinant
+            self._inverse._inverse = self
         return self._inverse
 
     def translate(self, x, y, z):
