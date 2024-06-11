@@ -2,7 +2,7 @@
 
 from itertools import permutations
 
-from research import UnionFind, AVLTree
+from dumpy.data_structures import UnionFind, AVLTree
 
 
 def test_unionfind():
