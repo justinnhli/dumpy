@@ -153,7 +153,7 @@ class Matrix: # pylint: disable = too-many-public-methods
         # type: (Matrix) -> Matrix
         is_tuple = False
         if other.is_tuple:
-            other = other.transpose()
+            other = other.transpose
             is_tuple = True
         result = []
         for r in range(self.height):
@@ -164,11 +164,12 @@ class Matrix: # pylint: disable = too-many-public-methods
                 result_row.append(sum(a * b for a, b in zip(row, col)))
             result.append(result_row)
         if is_tuple:
-            return Matrix(result).transpose()
+            return Matrix(result).transpose
         else:
             return Matrix(result)
 
-    def normalize(self):
+    @property
+    def normalized(self):
         # type: () -> Matrix
         """Normalize a graphics point/vector."""
         magnitude = self.magnitude
@@ -177,13 +178,13 @@ class Matrix: # pylint: disable = too-many-public-methods
     def reflect(self, other):
         # type: (Matrix) -> Matrix
         """Reflect across another 4-tuple."""
-        normal = other.normalize()
+        normal = other.normalized
         return self - normal * 2 * self.dot(normal)
 
     def dot(self, other):
         # type: (Matrix) -> float
         """Take the dot product with another 4-tuple."""
-        return (self @ other.transpose()).rows[0][0]
+        return (self @ other.transpose).rows[0][0]
 
     def cross(self, other):
         # type: (Matrix) -> Matrix
@@ -194,6 +195,7 @@ class Matrix: # pylint: disable = too-many-public-methods
             self.x * other.y - self.y * other.x,
         )
 
+    @property
     def transpose(self):
         # type: () -> Matrix
         """Transpose the matrix."""
@@ -238,6 +240,7 @@ class Matrix: # pylint: disable = too-many-public-methods
         """Return True if the matrix is invertible."""
         return self.determinant != 0
 
+    @property
     def inverse(self):
         # type: () -> Matrix
         """Inverse the matrix."""
@@ -245,7 +248,7 @@ class Matrix: # pylint: disable = too-many-public-methods
             result = []
             for r in range(self.height):
                 result.append([self.cofactor(r, c) for c in range(self.width)])
-            self._inverse = Matrix(result).transpose() / self.determinant
+            self._inverse = Matrix(result).transpose / self.determinant
             self._inverse._inverse = self # pylint: disable = protected-access
         return self._inverse
 
@@ -338,6 +341,18 @@ def Point3D(x=0, y=0, z=0): # pylint: disable = invalid-name
     # type: (float, float, float) -> Matrix
     """Create a 4-tuple that represents a 3D point."""
     return Matrix([[x, y, z, 1]])
+
+
+def Vector2D(x=0, y=0): # pylint: disable = invalid-name
+    # type: (float, float) -> Matrix
+    """Create a 4-tuple that represents a 2D vector."""
+    return Matrix([[x, y, 0, 0]])
+
+
+def Point2D(x=0, y=0): # pylint: disable = invalid-name
+    # type: (float, float) -> Matrix
+    """Create a 4-tuple that represents a 2D point."""
+    return Matrix([[x, y, 0, 1]])
 
 
 def identity(size):

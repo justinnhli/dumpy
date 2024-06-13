@@ -25,8 +25,8 @@ def test_matrix():
     assert Vector3D(0, 0, 1).magnitude == 1
     assert Vector3D(2, 3, 6).magnitude == 7
     assert Vector3D(-2, -3, -6).magnitude == 7
-    assert Vector3D(4, 0, 0).normalize() == Vector3D(1, 0, 0)
-    assert Vector3D(1, 2, 3).normalize().magnitude == 1
+    assert Vector3D(4, 0, 0).normalized == Vector3D(1, 0, 0)
+    assert Vector3D(1, 2, 3).normalized.magnitude == 1
     # dot and cross product
     assert Vector3D(1, 2, 3).dot(Vector3D(2, 3, 4)) == 20
     assert Vector3D(1, 2, 3).cross(Vector3D(2, 3, 4)) == Vector3D(-1, 2, -1)
@@ -44,9 +44,9 @@ def test_matrix():
     # transposition
     m1 = Matrix([[0, 9, 3, 0], [9, 8, 0, 8], [1, 8, 5, 3], [0, 0, 5, 8]])
     m2 = Matrix([[0, 9, 1, 0], [9, 8, 8, 0], [3, 0, 5, 5], [0, 8, 3, 8]])
-    assert m1.transpose() == m2
-    assert m1.transpose().transpose() == m1
-    assert identity(4).transpose() == identity(4)
+    assert m1.transpose == m2
+    assert m1.transpose.transpose == m1
+    assert identity(4).transpose == identity(4)
     # determinant
     assert Matrix([[1, 5], [-3, 2]]).determinant == 17
     assert Matrix([[1, 5, 0], [-3, 2, 7], [0, 6, -3]]).submatrix(0, 2) == Matrix([[-3, 2], [0, 6]])
@@ -60,14 +60,14 @@ def test_matrix():
     # inverse
     m1 = Matrix([[3, -9, 7, 3], [3, -8, 2, -9], [-4, 4, 4, 1], [-6, 5, -1, 1]])
     m2 = Matrix([[8, 2, 2, 2], [3, -1, 7, 0], [7, 0, 5, 4], [6, -2, 0, 5]])
-    assert m1 @ m2 @ m2.inverse() == m1
+    assert m1 @ m2 @ m2.inverse == m1
     # translation and scaling
     assert identity(4).translate(5, -3, 2) @ Point3D(-3, 4, 5) == Point3D(2, 1, 7)
-    assert identity(4).translate(5, -3, 2).inverse() @ Point3D(-3, 4, 5) == Point3D(-8, 7, 3)
+    assert identity(4).translate(5, -3, 2).inverse @ Point3D(-3, 4, 5) == Point3D(-8, 7, 3)
     assert identity(4).translate(5, -3, 2) @ Vector3D(-3, 4, 5) == Vector3D(-3, 4, 5)
     assert identity(4).scale(2, 3, 4) @ Point3D(-4, 6, 8) == Point3D(-8, 18, 32)
     assert identity(4).scale(2, 3, 4) @ Vector3D(-4, 6, 8) == Vector3D(-8, 18, 32)
-    assert identity(4).scale(2, 3, 4).inverse() @ Point3D(-4, 6, 8) == Point3D(-2, 2, 2)
+    assert identity(4).scale(2, 3, 4).inverse @ Point3D(-4, 6, 8) == Point3D(-2, 2, 2)
     # shear
     assert identity(4).shear(1, 0, 0, 0, 0, 0) @ Point3D(2, 3, 4) == Point3D(5, 3, 4)
     assert identity(4).shear(0, 1, 0, 0, 0, 0) @ Point3D(2, 3, 4) == Point3D(6, 3, 4)
