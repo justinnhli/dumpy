@@ -342,11 +342,7 @@ def Point3D(x=0, y=0, z=0): # pylint: disable = invalid-name
 
 def identity(size):
     # type: (int) -> Matrix
-    """Create an identity matrix.
-
-    >>> identity(4) == Matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-    True
-    """
+    """Create an identity matrix."""
     return Matrix([
         (i * [0.0]) + [1.0] + (size - i - 1) * [0.0]
         for i in range(size)

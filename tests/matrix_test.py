@@ -9,6 +9,8 @@ def test_matrix():
     m1 = Matrix([[1, 2, 3, 4], [5, 6, 7, 8], [9, 8, 7, 6], [5, 4, 3, 2]])
     m2 = Matrix([[2, 3, 4, 5], [6, 7, 8, 9], [8, 7, 6, 5], [4, 3, 2, 1]])
     assert m1 != m2
+    # identity
+    assert identity(4) == Matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
     # element-wise arithmetic
     assert Point3D(3, -2, 5) + Vector3D(-2, 3, 1) == Point3D(1, 1, 6)
     assert Point3D(3, 2, 1) - Point3D(5, 6, 7) == Vector3D(-2, -4, -6)
