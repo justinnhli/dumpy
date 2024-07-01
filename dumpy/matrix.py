@@ -135,18 +135,18 @@ class Matrix: # pylint: disable = too-many-public-methods
         ])
 
     def __mul__(self, other):
-        # type: (Union[int,float]) -> Matrix
+        # type: (Union[int, float]) -> Matrix
         result = []
         for row in self.rows:
             result.append([val * other for val in row])
         return Matrix(result)
 
     def __rmul__(self, other):
-        # type: (Union[int,float]) -> Matrix
+        # type: (Union[int, float]) -> Matrix
         return self * other
 
     def __truediv__(self, other):
-        # type: (Union[int,float]) -> Matrix
+        # type: (Union[int, float]) -> Matrix
         return self * (1 / other)
 
     def __matmul__(self, other):
