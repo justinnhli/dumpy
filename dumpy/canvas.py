@@ -110,12 +110,11 @@ class Canvas:
         self.canvas.focus_set()
         if update_fn is None:
             self.display_page()
+        elif secs > 0:
+            msecs = int(1000 * secs)
+            self.tk.after(msecs, self._create_update_callback(update_fn, msecs))
         else:
-            if secs > 0:
-                msecs = int(1000 * secs)
-                self.tk.after(msecs, self._create_update_callback(update, msecs))
-            else:
-                self.tk.after(0, update)
+            self.tk.after(0, update_fn)
         self.canvas.mainloop()
 
     # interaction functions
