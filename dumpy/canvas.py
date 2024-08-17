@@ -82,7 +82,7 @@ class Canvas:
         """Draw text."""
         pass # FIXME
 
-    def update_page(self):
+    def display_page(self):
         # type: () -> None
         """Draw the page to the canvas."""
         self.image_tk = PhotoImage(self.image)
@@ -99,17 +99,17 @@ class Canvas:
         def callback():
             # type: () -> None
             update_fn()
-            self.update_page()
+            self.display_page()
             self.tk.after(msecs, callback)
 
         return callback
 
-    def display(self, update=None, secs=0):
+    def start(self, update_fn=None, secs=0):
         # type: (Callable[[], None], float) -> None
         """Display the canvas."""
         self.canvas.focus_set()
-        if update is None:
-            self.update_page()
+        if update_fn is None:
+            self.display_page()
         else:
             if secs > 0:
                 msecs = int(1000 * secs)

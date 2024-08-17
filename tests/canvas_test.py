@@ -51,7 +51,7 @@ def grab_screen(canvas):
 def assert_canvas(canvas, filename, write=False):
     # type: (Canvas, str, bool) -> None
     """Check that a canvas matches the file."""
-    canvas.update_page()
+    canvas.display_page()
     canvas.canvas.update()
     image = grab_screen(canvas)
     canvas.tk.destroy()
