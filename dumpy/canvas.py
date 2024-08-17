@@ -82,6 +82,10 @@ class Canvas:
         """Draw text."""
         pass # FIXME
 
+    def new_page(self):
+        self.image = Image.new('RGBA', size=(self.size.x, self.size.y))
+        self.draw = Draw(self.image, 'RGBA')
+
     def display_page(self):
         # type: () -> None
         """Draw the page to the canvas."""

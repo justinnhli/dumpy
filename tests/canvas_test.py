@@ -105,3 +105,12 @@ def test_canvas_rect_outline():
         line_color=Color.from_hex('#000000'),
     )
     assert_canvas(canvas, 'canvas_rect_outline_test.ppm')
+
+
+def test_new_page():
+    # type: () -> None
+    """Test new page clears the screen."""
+    canvas = Canvas(Point2D(3, 3), 'test')
+    canvas.draw_pixel(Point2D(1, 1))
+    canvas.new_page()
+    assert_canvas(canvas, 'canvas_new_page_test.ppm')
