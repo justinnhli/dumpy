@@ -90,8 +90,17 @@ class Color:
     def from_rgba(r, g, b, a=1):
         # type: (float, float, float, float) -> Color
         """Create a color from RGB[A] values."""
+        assert 0 <= r <= 1
+        assert 0 <= g <= 1
+        assert 0 <= b <= 1
+        assert 0 <= a <= 1
         h, s, v = _rgb_to_okhsv(_RGB(r, g, b))
-        return Color(h, s, v, a)
+        return Color(
+            min(h, 1),
+            min(s, 1),
+            min(v, 1),
+            min(a, 1),
+        )
 
     @staticmethod
     def from_hex(hexcode):
