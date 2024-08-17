@@ -11,6 +11,11 @@ class Color:
 
     # pylint: disable = invalid-name
 
+    MAX_H = 360
+    MAX_S = 100
+    MAX_V = 100
+    MAX_A = 256
+
     def __init__(self, h, s, v, a=1):
         # type: (float, float, float, float) -> None
         """Initialize a Color."""
@@ -48,10 +53,10 @@ class Color:
         """Convert the color to a HSVA tuple."""
         if integer:
             return (
-                round(360 * self.h),
-                round(100 * self.s),
-                round(100 * self.v),
-                round(256 * self.a),
+                round(Color.MAX_H * self.h),
+                round(Color.MAX_S * self.s),
+                round(Color.MAX_V * self.v),
+                round(Color.MAX_A * self.a),
             )
         else:
             return (self.h, self.s, self.v, self.a)
