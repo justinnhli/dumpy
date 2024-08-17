@@ -13,14 +13,12 @@ from .color import Color
 
 class Canvas:
 
-    def __init__(self, size, title='', background=None):
-        # type: (Point2D, str, Color) -> None
+    def __init__(self, size, title=''):
+        # type: (Point2D, str) -> None
         """Initialize a Canvas."""
         self.size = size
         self.title = title
-        if background is None:
-            background = Color(0, 0, 1)
-        self.image = Image.new('RGBA', size=(self.size.x, self.size.y), color=background.to_rgba_tuple())
+        self.image = Image.new('RGBA', size=(self.size.x, self.size.y))
         self.draw = Draw(self.image, 'RGBA')
         # gets around weird casing in title
         # see https://bugs.python.org/issue13553
