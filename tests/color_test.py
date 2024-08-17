@@ -16,3 +16,4 @@ def test_color():
     assert str(Color(0.25, 0.5, 0.75, 0)) == 'Color(0.25, 0.5, 0.75, 0)'
     assert tuple(color) == (135, 97, 84, 128)
     assert Color.from_hex('#000000').to_rgb_tuple() == (0, 0, 0)
+    assert Color(1, 0, 1).to_rgba_hex() == '#FFFFFFFF'

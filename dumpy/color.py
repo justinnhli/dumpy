@@ -11,13 +11,13 @@ class Color:
 
     # pylint: disable = invalid-name
 
-    def __init__(self, h, s, v, a=255/256):
+    def __init__(self, h, s, v, a=1):
         # type: (float, float, float, float) -> None
         """Initialize a Color."""
-        assert 0 <= h < 1
-        assert 0 <= s < 1
-        assert 0 <= v < 1
-        assert 0 <= a < 1
+        assert 0 <= h <= 1
+        assert 0 <= s <= 1
+        assert 0 <= v <= 1
+        assert 0 <= a <= 1
         self.h = h
         self.s = s
         self.v = v
@@ -82,7 +82,7 @@ class Color:
         )
 
     @staticmethod
-    def from_rgba(r, g, b, a=255/256):
+    def from_rgba(r, g, b, a=1):
         # type: (float, float, float, float) -> Color
         """Create a color from RGB[A] values."""
         h, s, v = _rgb_to_okhsv(_RGB(r, g, b))
