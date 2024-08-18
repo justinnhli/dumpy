@@ -79,13 +79,9 @@ def test_canvas_rect():
     # type: () -> None
     """Test drawing a filled rectangle."""
     canvas = Canvas(Point2D(5, 5), 'test')
-    canvas.draw_poly(
-        [
-            Point2D(1, 1),
-            Point2D(1, 3),
-            Point2D(3, 3),
-            Point2D(3, 1),
-        ],
+    canvas.draw_rect(
+        Point2D(1, 1),
+        Point2D(3, 3),
         fill_color=Color.from_hex('#000000'),
     )
     assert_canvas(canvas, 'canvas_rect_test.ppm')
@@ -95,13 +91,9 @@ def test_canvas_rect_outline():
     # type: () -> None
     """Test drawing a rectangle outline."""
     canvas = Canvas(Point2D(5, 5), 'test')
-    canvas.draw_poly(
-        [
-            Point2D(1, 1),
-            Point2D(1, 3),
-            Point2D(3, 3),
-            Point2D(3, 1),
-        ],
+    canvas.draw_rect(
+        Point2D(1, 1),
+        Point2D(3, 3),
         line_color=Color.from_hex('#000000'),
     )
     assert_canvas(canvas, 'canvas_rect_outline_test.ppm')

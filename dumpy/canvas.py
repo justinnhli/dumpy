@@ -55,6 +55,19 @@ class Canvas:
             color = Color(0, 0, 0)
         self.image.putpixel((point.x, point.y), color.to_rgba_tuple())
 
+    def draw_rect(self, point1, point2, fill_color=None, line_color=None):
+        # type: (Matrix, Matrix, Color, Color) -> None
+        self.draw_poly(
+            [
+                point1,
+                Point2D(point1.x, point2.y),
+                point2,
+                Point2D(point2.x, point1.y),
+            ],
+            fill_color,
+            line_color,
+        )
+
     def draw_poly(self, points, fill_color=None, line_color=None):
         # type: (Sequence[Matrix], Color, Color) -> None
         """Draw a polygon."""
