@@ -113,6 +113,13 @@ class Matrix: # pylint: disable = too-many-public-methods
         else:
             return f'Matrix({str(self.rows)})'
 
+    def __round__(self, ndigits=None):
+        # type: (int) -> Matrix
+        return Matrix(tuple(
+            tuple(round(val, ndigits) for val in row)
+            for row in self.rows
+        ))
+
     def __add__(self, other):
         # type: (Matrix) -> Matrix
         return Matrix([
