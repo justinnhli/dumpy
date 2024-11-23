@@ -1,9 +1,15 @@
 """Utility data structures."""
 
-from collections import abc
 from typing import Any, Optional, Union
-from typing import Callable, Generator, Collection, Iterable, Mapping, Iterator, AbstractSet, Hashable
-from typing import Tuple, Set, Dict, ValuesView
+from typing import Callable, Collection, Iterable, Mapping, Iterator
+from typing import TypeVar, Generic
+from collections.abc import MutableSet, Hashable
+
+from .utilitypes import ComparableT
+
+
+KT = TypeVar('KT', bound=ComparableT)
+VT = TypeVar('VT')
 
 
 class UnionFind:
@@ -94,58 +100,59 @@ class UnionFind:
         return True
 
 
-class AVLTree(Mapping[Any, Any]):
+class _AVLNode(Generic[KT, VT]):
+    """An AVL tree node."""
+
+    def __init__(self, key, value, prev_node=None, next_node=None):
+        # type: (KT, VT, _AVLNode[KT, VT], _AVLNode[KT, VT]) -> None
+        """Initialize the _AVLNode.
+
+        Arguments:
+            key (KT): The key.
+            value (VT): The value.
+            prev_node (_AVLNode[KT, VT]): The previous node in the tree.
+            next_node (_AVLNode[KT, VT]): The next node in the tree.
+        """
+        self.key = key # type: KT
+        self.value = value # type: VT
+        self.left = None # type: Optional[_AVLNode[KT, VT]]
+        self.right = None # type: Optional[_AVLNode[KT, VT]]
+        self.prev = prev_node # type: Optional[_AVLNode[KT, VT]]
+        if self.prev is not None:
+            self.prev.next = self
+        self.next = next_node # type: Optional[_AVLNode[KT, VT]]
+        if self.next is not None:
+            self.next.prev = self
+        self.height = 1
+        self.balance = 0
+
+    def update_metadata(self):
+        # type: () -> None
+        """Update the height and balance of the node."""
+        left_height = (self.left.height if self.left else 0)
+        right_height = (self.right.height if self.right else 0)
+        self.height = max(left_height, right_height) + 1
+        self.balance = right_height - left_height
+
+
+class SortedDict(Mapping[KT, VT]):
     # pylint: disable = too-many-public-methods
-    """AVLTree as a set and as a dict."""
-
-    class Node:
-        """An AVL tree node."""
-
-        def __init__(self, key, value, prev_node=None, next_node=None):
-            # type: (Any, Any, AVLTree.Node, AVLTree.Node) -> None
-            """Initialize the Node.
-
-            Arguments:
-                key (Any): The key.
-                value (Any): The value.
-                prev_node (AVLTree.Node): The previous node in the tree.
-                next_node (AVLTree.Node): The next node in the tree.
-            """
-            self.key = key
-            self.value = value
-            self.left = None # type: Optional[AVLTree.Node]
-            self.right = None # type: Optional[AVLTree.Node]
-            self.prev = prev_node # type: Optional[AVLTree.Node]
-            if self.prev is not None:
-                self.prev.next = self
-            self.next = next_node # type: Optional[AVLTree.Node]
-            if self.next is not None:
-                self.next.prev = self
-            self.height = 1
-            self.balance = 0
-
-        def update_metadata(self):
-            # type: () -> None
-            """Update the height and balance of the node."""
-            left_height = (self.left.height if self.left else 0)
-            right_height = (self.right.height if self.right else 0)
-            self.height = max(left_height, right_height) + 1
-            self.balance = right_height - left_height
+    """A sorted dictionary backed by an AVL tree."""
 
     def __init__(self, factory=None):
-        # type: (Callable[[], Any]) -> None
-        """Initialize the AVLTree.
+        # type: (Callable[[], VT]) -> None
+        """Initialize the SortedDict.
 
         Parameters:
-            factory (Callable[None, Any]): The factory function to create
+            factory (Callable[[], VT]): The factory function to create
                 default values. Only used for dicts.
         """
         self.factory = factory
         self.size = 0
-        self.root = None # type: Optional[AVLTree.Node]
-        self.head = None # type: Optional[AVLTree.Node]
-        self.tail = None # type: Optional[AVLTree.Node]
-        self._hash = None # type: Optional[int]
+        self.root = None # type: Optional[_AVLNode[KT, VT]]
+        self.head = None # type: Optional[_AVLNode[KT, VT]]
+        self.tail = None # type: Optional[_AVLNode[KT, VT]]
+        self._content_hash = None # type: Optional[int]
 
     def __bool__(self):
         # type: () -> bool
@@ -178,38 +185,37 @@ class AVLTree(Mapping[Any, Any]):
         return self.size
 
     def __contains__(self, key):
-        # type: (Any) -> bool
+        # type: (KT) -> bool
         return self._get_node(key) is not None
 
     def __iter__(self):
-        # type: () -> Generator[Any, None, None]
+        # type: () -> Iterator[KT]
         node = self.head
         while node is not None:
             yield node.key
             node = node.next
 
     def __setitem__(self, key, value):
-        # type: (Any, Any) -> None
+        # type: (KT, VT) -> None
         self._put(key, value)
 
     def __getitem__(self, key):
-        # type: (Any) -> Any
+        # type: (KT) -> VT
         node = self._get_node(key)
         if node is not None:
             return node.value
-        elif self.factory is None:
+        if self.factory is None:
             raise KeyError(key)
-        else:
-            result = self.factory()
-            self[key] = result
-            return result
+        result = self.factory()
+        self[key] = result
+        return result
 
     def __delitem__(self, key):
-        # type: (Any) -> None
+        # type: (KT) -> None
         self._del(key)
 
     def __reversed__(self):
-        # type: () -> Generator[Any, None, None]
+        # type: () -> Iterator[KT]
         node = self.tail
         while node is not None:
             yield node.key
@@ -217,108 +223,107 @@ class AVLTree(Mapping[Any, Any]):
 
     def __repr__(self):
         # type: () -> str
-        return 'AVLTree(' + ', '.join(f'{k}={v}' for k, v in self.items()) + ')'
+        return 'SortedDict(' + ', '.join(f'{k}={v}' for k, v in self.items()) + ')'
 
     def __str__(self):
         # type: () -> str
-        return 'AVLTree(' + ', '.join(f'{k}={v}' for k, v in self.items()) + ')'
+        return 'SortedDict(' + ', '.join(f'{k}={v}' for k, v in self.items()) + ')'
 
     @property
     def contents_hash(self):
         # type: () -> int
         """Get a hash of the contents.
 
-        Note: this hash will change if the contents of this AVLTree changes.
+        Note: this hash will change if the contents of this SortedDict changes.
 
         Returns:
             int: A hash of the contents.
         """
-        if self._hash is None:
-            self._hash = hash(tuple(self.items()))
-        return self._hash
+        if self._content_hash is None:
+            self._content_hash = hash(tuple(self.items()))
+        return self._content_hash
+
+    def _put_helper(self, key, value, node=None, prev_node=None, next_node=None):
+        # type: (KT, VT, _AVLNode[KT, VT], _AVLNode[KT, VT], _AVLNode[KT, VT]) -> _AVLNode[KT, VT]
+        if node is None:
+            self.size += 1
+            new_node = _AVLNode[KT, VT](key, value, prev_node, next_node)
+            if prev_node is None:
+                self.head = new_node
+            if next_node is None:
+                self.tail = new_node
+            return new_node
+        if key == node.key:
+            node.value = value
+            return node
+        if key < node.key:
+            node.left = self._put_helper(key, value, node.left, prev_node, node)
+        else:
+            node.right = self._put_helper(key, value, node.right, node, next_node)
+        return self._balance(node)
 
     def _put(self, key, value):
-        # type: (Any, Any) -> None
+        # type: (KT, VT) -> None
+        self.root = self._put_helper(key, value, self.root, None, None)
+        self._content_hash = None
 
-        def _put_helper(self, node, key, value, prev_node, next_node):
-            # type: (AVLTree.Node, Any, Any, AVLTree.Node, AVLTree.Node) -> AVLTree.Node
-            if node is None:
-                self.size += 1
-                new_node = self.Node(key, value, prev_node, next_node)
-                if self.head is None or key < self.head.key:
-                    self.head = new_node
-                if self.tail is None or key > self.tail.key:
-                    self.tail = new_node
-                return new_node
-            elif key == node.key:
-                node.value = value
-                return node
-            elif key < node.key:
-                node.left = _put_helper(self, node.left, key, value, prev_node, node)
-            else:
-                node.right = _put_helper(self, node.right, key, value, node, next_node)
-            return self._balance(node)
-
-        self.root = _put_helper(self, self.root, key, value, None, None)
-        self._hash = None
+    @staticmethod
+    def _get_node_helper(key, node=None):
+        # type: (KT, _AVLNode[KT, VT]) -> Optional[_AVLNode[KT, VT]]
+        if node is None:
+            return None
+        elif key < node.key:
+            return SortedDict._get_node_helper(key, node.left)
+        elif node.key < key:
+            return SortedDict._get_node_helper(key, node.right)
+        else:
+            return node
 
     def _get_node(self, key):
-        # type: (Any) -> AVLTree.Node
+        # type: (KT) -> Optional[_AVLNode[KT, VT]]
+        return SortedDict._get_node_helper(key, self.root)
 
-        def _get_node_helper(node, key):
-            # type: (AVLTree.Node, Any) -> AVLTree.Node
-            # FIXME should the first argument be Optional?
-            if node is None:
-                return None
-            elif key < node.key:
-                return _get_node_helper(node.left, key)
-            elif node.key < key:
-                return _get_node_helper(node.right, key)
+    def _del_helper(self, key, node=None):
+        # type: (KT, _AVLNode[KT, VT]) -> tuple[Optional[_AVLNode[KT, VT]], VT]
+        # pylint: disable = too-many-branches
+        value = None
+        if node is None:
+            raise KeyError(key)
+        if key < node.key:
+            node.left, value = self._del_helper(key, node.left)
+        elif node.key < key:
+            node.right, value = self._del_helper(key, node.right)
+        elif node.left is not None:
+            assert node.prev is not None
+            node.key = node.prev.key
+            node.value = node.prev.value
+            node.left, value = self._del_helper(node.prev.key, node.left)
+        elif node.right is not None:
+            assert node.next is not None
+            node.key = node.next.key
+            node.value = node.next.value
+            node.right, value = self._del_helper(node.next.key, node.right)
+        else:
+            self.size -= 1
+            if node.prev is not None:
+                node.prev.next = node.next
             else:
-                return node
-
-        return _get_node_helper(self.root, key)
+                self.head = node.next
+            if node.next is not None:
+                node.next.prev = node.prev
+            else:
+                self.tail = node.prev
+            return None, node.value
+        return self._balance(node), value
 
     def _del(self, key):
-        # type: (Any) -> Any
-
-        def _del_helper(self, node, key):
-            # type: (AVLTree.Node, Any) -> Tuple[AVLTree.Node, Any]
-            # pylint: disable = too-many-branches
-            value = None
-            if node is None:
-                raise KeyError(key)
-            if key < node.key:
-                node.left, value = _del_helper(self, node.left, key)
-            elif node.key < key:
-                node.right, value = _del_helper(self, node.right, key)
-            elif node.left is not None:
-                node.key = node.prev.key
-                node.value = node.prev.value
-                node.left, value = _del_helper(self, node.left, node.prev.key)
-            elif node.right is not None:
-                node.key = node.next.key
-                node.value = node.next.value
-                node.right, value = _del_helper(self, node.right, node.next.key)
-            else:
-                self.size -= 1
-                if node.prev is not None:
-                    node.prev.next = node.next
-                else:
-                    self.head = node.next
-                if node.next is not None:
-                    node.next.prev = node.prev
-                else:
-                    self.tail = node.prev
-                return None, node.value
-            return self._balance(node), value
-
-        self.root, value = _del_helper(self, self.root, key)
-        self._hash = None
+        # type: (KT) -> VT
+        self.root, value = self._del_helper(key, self.root)
+        self._content_hash = None
         return value
 
     def _nodes(self):
-        # type: () -> Generator[AVLTree.Node, None, None]
+        # type: () -> Iterator[_AVLNode[KT, VT]]
         node = self.head
         while node is not None:
             yield node
@@ -326,52 +331,240 @@ class AVLTree(Mapping[Any, Any]):
 
     def clear(self):
         # type: () -> None
-        """Remove all elements from the AVLTree."""
+        """Remove all elements from the SortedDict."""
         self.size = 0
         self.root = None
         self.head = None
         self.tail = None
-        self._hash = None
+        self._content_hash = None
 
-    def add(self, element):
-        # type: (Any) -> None
-        """Add an element to the AVLTree (set).
+    @staticmethod
+    def _balance(node):
+        # type: (_AVLNode[KT, VT]) -> _AVLNode[KT, VT]
+        node.update_metadata()
+        if node.balance < -1:
+            if node.left.balance == 1:
+                node.left = SortedDict._rotate_ccw(node.left)
+            return SortedDict._rotate_cw(node)
+        elif node.balance > 1:
+            if node.right.balance == -1:
+                node.right = SortedDict._rotate_cw(node.right)
+            return SortedDict._rotate_ccw(node)
+        else:
+            return node
+
+    def setdefault(self, key, default=None):
+        # type: (KT, Optional[VT]) -> Optional[VT]
+        """Get the value of a key, or set it to the default.
 
         Parameters:
-            element (Any): The element to add.
-        """
-        self._put(element, None)
+            key (KT): The key.
+            default (VT): The default value to set and return. Defaults to None.
 
-    def remove(self, element):
-        # type: (Any) -> None
+        Returns:
+            VT: The value or the default.
+        """
+        node = self._get_node(key)
+        if node is None:
+            self._put(key, default)
+        return node.value
+
+    def update(self, *mappings):
+        # type: (*Union[set[tuple[KT, VT]], Mapping[KT, VT]]) -> None
+        """Add the key and values to the map, overwriting existing values.
+
+        Parameters:
+            *mappings (Mapping[Any, Any]): The key-value pairs to be added or updated.
+        """
+        for mapping in mappings:
+            if isinstance(mapping, Mapping):
+                for key, value in mapping.items():
+                    self._put(key, value)
+            else:
+                for key, value in mapping:
+                    self._put(key, value)
+
+    def get(self, key, default=None):
+        # type: (KT, Optional[VT]) -> Optional[VT]
+        """Return the value for the key, or the default if it doesn't exist.
+
+        Parameters:
+            key (KT): The key.
+            default (VT): The default value to return. Defaults to None.
+
+        Returns:
+            VT: The value or the default.
+        """
+        node = self._get_node(key)
+        if node is None:
+            return default
+        else:
+            return node.value
+
+    def pop(self, key, default=None):
+        # type: (KT, Optional[VT]) -> Optional[VT]
+        """Remove the key and return the value, or the default if it doesn't exist.
+
+        Parameters:
+            key (KT): The key.
+            default (VT): The default value to return. Defaults to None.
+
+        Returns:
+            VT: The value or the default.
+        """
+        try:
+            value = self._del(key)
+            return value
+        except KeyError:
+            return default
+
+    def keys(self):
+        # type: () -> Iterator[KT]
+        """Create a generator of the keys.
+
+        Yields:
+            KT: The keys.
+        """
+        node = self.head
+        while node is not None:
+            yield node.key
+            node = node.next
+
+    def values(self):
+        # type: () -> Iterator[VT]
+        """Create a generator of the values.
+
+        Yields:
+            VT: The values.
+        """
+        node = self.head
+        while node is not None:
+            yield node.value
+            node = node.next
+
+    def items(self):
+        # type: () -> Iterator[tuple[KT, VT]]
+        """Create a generator of the key-value pairs.
+
+        Yields:
+            tuple[KT, VT]: The key-value pairs.
+        """
+        node = self.head
+        while node is not None:
+            yield node.key, node.value
+            node = node.next
+
+    def to_dict(self):
+        # type: () -> dict[KT, VT]
+        """Return the keys and values in a normal dict.
+
+        Returns:
+            dict[KT, VT]: The resulting dict.
+        """
+        return dict(self.items())
+
+    @staticmethod
+    def from_dict(src_dict):
+        # type: (Mapping[KT, VT]) -> SortedDict[KT, VT]
+        """Create an SortedDict (as a dict) from a dictionary.
+
+        Arguments:
+            src_dict (Mapping[KT, VT]): The dictionary.
+
+        Returns:
+            SortedDict: The SortedDict.
+        """
+        tree = SortedDict() # type: SortedDict[KT, VT]
+        tree.update(src_dict.items())
+        return tree
+
+    @staticmethod
+    def _rotate_cw(node):
+        # type: (_AVLNode[KT, VT]) -> _AVLNode[KT, VT]
+        left = node.left
+        node.left = left.right
+        left.right = node
+        node.update_metadata()
+        left.update_metadata()
+        return left
+
+    @staticmethod
+    def _rotate_ccw(node):
+        # type: (_AVLNode[KT, VT]) -> _AVLNode[KT, VT]
+        right = node.right
+        node.right = right.left
+        right.left = node
+        node.update_metadata()
+        right.update_metadata()
+        return right
+
+
+class SortedSet(MutableSet[KT]):
+    """A sorted set."""
+
+    def __init__(self):
+        # type: () -> None
+        self.tree = SortedDict() # type: SortedDict[KT, None]
+
+    def __len__(self):
+        # type: () -> int
+        return len(self.tree)
+
+    def __contains__(self, key):
+        # type: (KT) -> bool
+        return key in self.tree
+
+    def __bool__(self):
+        # type: () -> bool
+        return bool(self.tree)
+
+    def __iter__(self):
+        # type: () -> Iterator[KT]
+        return iter(self.tree)
+
+    def __reversed__(self):
+        # type: () -> Iterator[KT]
+        return reversed(self.tree)
+
+    def add(self, value):
+        # type: (KT) -> None
+        """Add an element to the SortedDict (set).
+
+        Parameters:
+            value (KT): The element to add.
+        """
+        self.tree[value] = None
+
+    def remove(self, value):
+        # type: (KT) -> None
         """Remove an element from the set.
 
         Parameters:
-            element (Any): The element to remove.
+            value (KT): The element to remove.
 
         Raises:
-            KeyError: If the element is not in the AVLTree.
+            KeyError: If the element is not in the SortedDict.
         """
-        self._del(element)
+        del self.tree[value]
 
-    def discard(self, element):
-        # type: (Any) -> None
+    def discard(self, value):
+        # type: (KT) -> None
         """Remove an element from the set if it is present.
 
         Parameters:
-            element (Any): The element to remove.
+            value (KT): The element to remove.
         """
         try:
-            self._del(element)
+            del self.tree[value]
         except KeyError:
             pass
 
     def is_disjoint(self, other):
-        # type: (Iterable[Any]) -> bool
+        # type: (Collection[KT]) -> bool
         """Check if the two sets are disjoint.
 
         Parameters:
-            other (Set[Any]): The other set.
+            other (Collection[KT]): The other set.
 
         Returns:
             bool: True if the sets are disjoint.
@@ -379,11 +572,11 @@ class AVLTree(Mapping[Any, Any]):
         return all((element not in other) for element in self)
 
     def is_subset(self, other):
-        # type: (Collection[Any]) -> bool
+        # type: (Collection[KT]) -> bool
         """Check if this is a subset of another set.
 
         Parameters:
-            other (Set[Any]): The other set.
+            other (Collection[KT]): The other set.
 
         Returns:
             bool: True if this is a subset of the other.
@@ -394,11 +587,11 @@ class AVLTree(Mapping[Any, Any]):
         )
 
     def is_superset(self, other):
-        # type: (Collection[Any]) -> bool
+        # type: (Collection[KT]) -> bool
         """Check if this is a superset of another set.
 
         Parameters:
-            other (Set[Any]): The other set.
+            other (Collection[KT]): The other set.
 
         Returns:
             bool: True if this is a superset of the other.
@@ -409,268 +602,110 @@ class AVLTree(Mapping[Any, Any]):
         )
 
     def union(self, *others):
-        # type: (*Iterable[Any]) -> AVLTree
+        # type: (*Collection[KT]) -> SortedSet[KT]
         """Create the union of this and other sets.
 
         Parameters:
-            *others (Set[Any]): The other sets.
+            *others (Collection[KT]): The other sets.
 
         Returns:
-            AVLTree: The union of all the sets.
+            SortedDict: The union of all the sets.
         """
-        tree = AVLTree()
-        tree.union_update(self, *others)
-        return tree
+        result = SortedSet() # type: SortedSet[KT]
+        result.union_update(self, *others)
+        return result
 
     def intersection(self, *others):
-        # type: (*Collection[Any]) -> AVLTree
+        # type: (*Collection[KT]) -> SortedSet[KT]
         """Create the intersection of this and other sets.
 
         Parameters:
-            *others (Set[Any]): The other sets.
+            *others (Collection[KT]): The other sets.
 
         Returns:
-            AVLTree: The intersection of all the sets.
+            SortedDict: The intersection of all the sets.
         """
-        tree = AVLTree()
-        tree.union_update(min(others, key=len)) # type: ignore
-        tree.intersection_update(self)
-        tree.intersection_update(*others)
-        return tree
+        new_set = SortedSet() # type: SortedSet[KT]
+        min_set = others[0]
+        for other in others:
+            if len(other) < len(min_set):
+                min_set = other
+        new_set.union_update(min_set)
+        new_set.intersection_update(self)
+        new_set.intersection_update(*others)
+        return new_set
 
     def difference(self, *others):
-        # type: (*Iterable[Any]) -> AVLTree
+        # type: (*Collection[KT]) -> SortedSet[KT]
         """Create the difference of this and other sets.
 
         Parameters:
-            *others (Set[Any]): The other sets.
+            *others (Collection[KT]): The other sets.
 
         Returns:
-            AVLTree: The difference of all the sets, in order.
+            SortedDict: The difference of all the sets, in order.
         """
-        tree = AVLTree()
-        tree.union_update(self)
-        tree.difference_update(*others)
-        return tree
+        new_set = SortedSet() # type: SortedSet[KT]
+        new_set.union_update(self)
+        new_set.difference_update(*others)
+        return new_set
 
     def union_update(self, *others):
-        # type: (*Iterable[Any]) -> None
+        # type: (*Collection[KT]) -> None
         """Update this set to be the union of this and other sets.
 
         Parameters:
-            *others (Set[Any]): The other sets.
+            *others (Collection[KT]): The other sets.
         """
         for other in others:
             for element in other:
                 self.add(element)
 
     def intersection_update(self, *others):
-        # type: (*Iterable[Any]) -> None
+        # type: (*Collection[KT]) -> None
         """Keep only the intersection of this and other sets.
 
         Parameters:
-            *others (Set[Any]): The other sets.
+            *others (Collection[KT]): The other sets.
         """
-        sorted_others = sorted(others, key=len) # type: ignore
+        sorted_others = sorted(others, key=len)
         for element in self:
             if any((element not in other) for other in sorted_others):
                 self.remove(element)
 
     def difference_update(self, *others):
-        # type: (*Iterable[Any]) -> None
+        # type: (*Collection[KT]) -> None
         """Keep only the difference of this and other sets.
 
         Parameters:
-            *others (Set[Any]): The other sets.
+            *others (Collection[KT]): The other sets.
         """
-        union = AVLTree()
+        union = SortedSet() # type: SortedSet[KT]
         union.union_update(*others)
         for element in self:
             if element in union:
                 self.remove(element)
 
-    def setdefault(self, key, default=None):
-        # type: (Any, Optional[Any]) -> Any
-        """Get the value of a key, or set it to the default.
-
-        Parameters:
-            key (Any): The key.
-            default (Any): The default value to set and return. Defaults to None.
-
-        Returns:
-            Any: The value or the default.
-        """
-        node = self._get_node(key)
-        if node is None:
-            self._put(key, default)
-            return default
-        else:
-            return node.value
-
-    def update(self, *mappings):
-        # type: (*Union[AbstractSet[Tuple[Any, Any]], Mapping[Any, Any]]) -> None
-        """Add the key and values to the map, overwriting existing values.
-
-        Parameters:
-            *mappings (Mapping[Any, Any]): The key-value pairs to be added or updated.
-        """
-        for mapping in mappings:
-            if isinstance(mapping, abc.Mapping):
-                for key, value in mapping.items():
-                    self._put(key, value)
-            else:
-                for key, value in mapping:
-                    self._put(key, value)
-
-    def get(self, key, default=None):
-        # type: (Any, Any) -> Any
-        """Return the value for the key, or the default if it doesn't exist.
-
-        Parameters:
-            key (Any): The key.
-            default (Any): The default value to return. Defaults to None.
-
-        Returns:
-            Any: The value or the default.
-        """
-        node = self._get_node(key)
-        if node is None:
-            return default
-        else:
-            return node.value
-
-    def pop(self, key, default=None):
-        # type: (Any, Any) -> Any
-        """Remove the key and return the value, or the default if it doesn't exist.
-
-        Parameters:
-            key (Any): The key.
-            default (Any): The default value to return. Defaults to None.
-
-        Returns:
-            Any: The value or the default.
-        """
-        try:
-            value = self._del(key)
-            return value
-        except KeyError:
-            return default
-
-    def keys(self):
-        # type: () -> AbstractSet[Any]
-        """Create a generator of the keys.
-
-        Yields:
-            Any: The keys.
-        """
-        node = self.head
-        while node is not None:
-            yield node.key
-            node = node.next
-
-    def values(self):
-        # type: () -> ValuesView[Any]
-        """Create a generator of the values.
-
-        Yields:
-            Any: The values.
-        """
-        node = self.head
-        while node is not None:
-            yield node.value
-            node = node.next
-
-    def items(self):
-        # type: () -> AbstractSet[Tuple[Any, Any]]
-        """Create a generator of the key-value pairs.
-
-        Yields:
-            Tuple[Any, Any]: The key-value pairs.
-        """
-        node = self.head
-        while node is not None:
-            yield node.key, node.value
-            node = node.next
-
     def to_set(self):
-        # type: () -> Set[Any]
+        # type: () -> set[KT]
         """Return the elements in a normal set.
 
         Returns:
-            Set[Any]: The resulting set.
+            set[KT]: The resulting set.
         """
         return set(self)
 
-    def to_dict(self):
-        # type: () -> Dict[Any, Any]
-        """Return the keys and values in a normal dict.
-
-        Returns:
-            Dict[Any, Any]: The resulting dict.
-        """
-        return dict(self.items())
-
-    @staticmethod
-    def _balance(node):
-        # type: (AVLTree.Node) -> Node
-        node.update_metadata()
-        if node.balance < -1:
-            if node.left.balance == 1:
-                node.left = AVLTree._rotate_ccw(node.left)
-            return AVLTree._rotate_cw(node)
-        elif node.balance > 1:
-            if node.right.balance == -1:
-                node.right = AVLTree._rotate_cw(node.right)
-            return AVLTree._rotate_ccw(node)
-        else:
-            return node
-
-    @staticmethod
-    def _rotate_cw(node):
-        # type: (AVLTree.Node) -> Node
-        left = node.left
-        node.left = left.right
-        left.right = node
-        node.update_metadata()
-        left.update_metadata()
-        return left
-
-    @staticmethod
-    def _rotate_ccw(node):
-        # type: (AVLTree.Node) -> Node
-        right = node.right
-        node.right = right.left
-        right.left = node
-        node.update_metadata()
-        right.update_metadata()
-        return right
-
     @staticmethod
     def from_set(src_set):
-        # type: (Set[Any]) -> AVLTree
-        """Create an AVLTree (as a set) from a set.
+        # type: (set[KT]) -> SortedSet[KT]
+        """Create an SortedDict (as a set) from a set.
 
         Arguments:
-            src_set (Set[Any]): The set.
+            src_set (set[KT]): The set.
 
         Returns:
-            AVLTree: The AVLTree.
+            SortedDict: The SortedDict.
         """
-        tree = AVLTree()
-        tree.union_update(src_set)
-        return tree
-
-    @staticmethod
-    def from_dict(src_dict):
-        # type: (Mapping[Any, Any]) -> AVLTree
-        """Create an AVLTree (as a dict) from a dictionary.
-
-        Arguments:
-            src_dict (Mapping[Any, Any]): The dictionary.
-
-        Returns:
-            AVLTree: The AVLTree.
-        """
-        tree = AVLTree()
-        tree.update(src_dict.items())
-        return tree
+        result = SortedSet() # type: SortedSet[KT]
+        result.union_update(src_set)
+        return result
