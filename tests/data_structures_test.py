@@ -2,7 +2,7 @@
 
 from itertools import permutations
 
-from dumpy.data_structures import UnionFind, AVLTree
+from dumpy.data_structures import UnionFind, SortedDict, SortedSet, PriorityQueue
 
 
 def test_unionfind():
@@ -20,58 +20,62 @@ def test_unionfind():
     assert set(union_find[i] for i in range(0, 8, 2)) == set(range(0, 8, 2))
 
 
-def test_avltree():
-    """Test AVLTree."""
+def test_sorteddict():
+    """Test SortedDict."""
     # pylint: disable = use-implicit-booleaness-not-comparison
-    tree = AVLTree()
-    assert 0 not in tree
-    assert list(tree) == list(tree.keys()) == list(tree.values()) == list(tree.items()) == []
+    sorted_dict = SortedDict()
+    assert 0 not in sorted_dict
+    assert list(sorted_dict) == list(sorted_dict.keys()) == list(sorted_dict.values()) == list(sorted_dict.items()) == []
+    size = 7
+    # map check
+    for permutation in permutations(range(size)):
+        sorted_dict = SortedDict()
+        for key in permutation:
+            sorted_dict[key] = key * key
+        assert len(sorted_dict) == size
+        assert list(e for e in sorted_dict) == list(range(size))
+        assert list(sorted_dict.items()) == list((num, num * num) for num in range(size))
+        for num in range(size):
+            assert num in sorted_dict
+            assert sorted_dict[num] == num * num
+        for num in range(size):
+            del sorted_dict[num]
+            assert len(sorted_dict) == size - num - 1
+    src_dict = {num: num * num for num in range(101)}
+    assert SortedDict.from_dict(src_dict).to_dict() == src_dict
+    # defaultdict check
+    sorted_dict = SortedDict(factory=set)
+    for i in range(10):
+        for j in range(i, i + 5):
+            sorted_dict[i].add(j)
+    for i in range(10):
+        assert sorted_dict[i] == set(range(i, i + 5))
+    sorted_dict.clear()
+    assert len(sorted_dict) == 0
+    assert list(sorted_dict) == []
+    # bug discovered 2020-06-05
+    sorted_dict = SortedDict()
+    for i in [5, 2, 9, 1, 4, 7, 11, 0, 3, 6, 8, 10, 12]:
+        sorted_dict[i] = str(i)
+    del sorted_dict[5]
+    assert list(sorted_dict.keys()) == [*range(5), *range(6, 13)]
+
+def test_sortedset():
+    """Test SortedSet."""
     size = 7
     # set check
     for permutation in permutations(range(size)):
-        tree = AVLTree()
+        sorted_set = SortedSet()
         for element in permutation:
-            tree.add(element)
-        assert len(tree) == size
-        assert list(e for e in tree) == list(range(size))
-        assert list(reversed(tree)) == list(reversed(range(size)))
+            sorted_set.add(element)
+        assert len(sorted_set) == size
+        assert list(e for e in sorted_set) == list(range(size))
+        assert list(reversed(sorted_set)) == list(reversed(range(size)))
         for num in range(size):
-            assert num in tree
+            assert num in sorted_set
         for num in range(size):
-            tree.discard(num)
-            assert len(tree) == size - num - 1
-            assert list(e for e in tree) == list(range(num + 1, size))
+            sorted_set.discard(num)
+            assert len(sorted_set) == size - num - 1
+            assert list(e for e in sorted_set) == list(range(num + 1, size))
     src_set = set(range(101))
-    assert AVLTree.from_set(src_set).to_set() == src_set
-    # map check
-    for permutation in permutations(range(size)):
-        tree = AVLTree()
-        for key in permutation:
-            tree[key] = key * key
-        assert len(tree) == size
-        assert list(e for e in tree) == list(range(size))
-        assert list(tree.items()) == list((num, num * num) for num in range(size))
-        for num in range(size):
-            assert num in tree
-            assert tree[num] == num * num
-        for num in range(size):
-            del tree[num]
-            assert len(tree) == size - num - 1
-    src_dict = {num: num * num for num in range(101)}
-    assert AVLTree.from_dict(src_dict).to_dict() == src_dict
-    # defaultdict check
-    tree = AVLTree(factory=AVLTree)
-    for i in range(10):
-        for j in range(i, i + 5):
-            tree[i].add(j)
-    for i in range(10):
-        assert tree[i].to_set() == set(range(i, i + 5))
-    tree.clear()
-    assert len(tree) == 0
-    assert list(tree) == []
-    # bug discovered 2020-06-05
-    tree = AVLTree()
-    for i in [5, 2, 9, 1, 4, 7, 11, 0, 3, 6, 8, 10, 12]:
-        tree[i] = str(i)
-    del tree[5]
-    assert list(tree.keys()) == [*range(5), *range(6, 13)]
+    assert SortedSet.from_set(src_set).to_set() == src_set
