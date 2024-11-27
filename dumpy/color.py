@@ -18,7 +18,7 @@ class Color:
 
     def __init__(self, h, s, v, a=1):
         # type: (float, float, float, float) -> None
-        """Initialize a Color."""
+        """Initialize the Color."""
         assert 0 <= h <= 1
         assert 0 <= s <= 1
         assert 0 <= v <= 1

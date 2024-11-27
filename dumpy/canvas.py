@@ -15,7 +15,7 @@ class Canvas:
 
     def __init__(self, size, title=''):
         # type: (Point2D, str) -> None
-        """Initialize a Canvas."""
+        """Initialize the Canvas."""
         self.size = size
         self.title = title
         self.image = Image.new('RGBA', size=(self.size.x, self.size.y))
