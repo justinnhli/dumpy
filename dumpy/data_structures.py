@@ -17,11 +17,7 @@ class UnionFind:
 
     def __init__(self, nodes=None):
         # type: (Optional[Iterable[Hashable]]) -> None
-        """Initialize the UnionFind.
-
-        Arguments:
-            nodes (Hashable): The object to be hashed.
-        """
+        """Initialize the UnionFind."""
         if nodes is None:
             nodes = []
         self.parents = {node: node for node in nodes}
@@ -56,12 +52,7 @@ class UnionFind:
 
     def union(self, node1, node2):
         # type: (Hashable, Hashable) -> None
-        """Join two discrete sets.
-
-        Arguments:
-            node1 (Hashable): A member of one set to be joined.
-            node2 (Hashable): A member of the other set to be joined.
-        """
+        """Join two discrete sets."""
         self.add(node1)
         rep1 = self[node1]
         self.add(node2)
@@ -70,28 +61,12 @@ class UnionFind:
 
     def same(self, node1, node2):
         # type: (Hashable, Hashable) -> bool
-        """Check if two members are in the same set.
-
-        Arguments:
-            node1 (Hashable): A member of one set.
-            node2 (Hashable): A member of the other set.
-
-        Returns:
-            bool: True if the members are in the same set.
-        """
+        """Check if two members are in the same set."""
         return self[node1] == self[node2]
 
     def add(self, node, parent=None):
         # type: (Hashable, Optional[Hashable]) -> bool
-        """Add a node.
-
-        Arguments:
-            node (Hashable): The member to add.
-            parent (Hashable): A node from the same set, if any.
-
-        Returns:
-            bool: True if a new member has been added.
-        """
+        """Add a node."""
         if node in self.parents:
             return False
         if parent is None:
@@ -105,14 +80,7 @@ class _AVLNode(Generic[KT, VT]):
 
     def __init__(self, key, value, prev_node=None, next_node=None):
         # type: (KT, VT, _AVLNode[KT, VT], _AVLNode[KT, VT]) -> None
-        """Initialize the _AVLNode.
-
-        Arguments:
-            key (KT): The key.
-            value (VT): The value.
-            prev_node (_AVLNode[KT, VT]): The previous node in the tree.
-            next_node (_AVLNode[KT, VT]): The next node in the tree.
-        """
+        """Initialize the _AVLNode."""
         self.key = key # type: KT
         self.value = value # type: VT
         self.left = None # type: Optional[_AVLNode[KT, VT]]
@@ -141,12 +109,7 @@ class SortedDict(Mapping[KT, VT]):
 
     def __init__(self, factory=None):
         # type: (Callable[[], VT]) -> None
-        """Initialize the SortedDict.
-
-        Parameters:
-            factory (Callable[[], VT]): The factory function to create
-                default values. Only used for dicts.
-        """
+        """Initialize the SortedDict."""
         self.factory = factory
         self.size = 0
         self.root = None # type: Optional[_AVLNode[KT, VT]]
@@ -235,9 +198,6 @@ class SortedDict(Mapping[KT, VT]):
         """Get a hash of the contents.
 
         Note: this hash will change if the contents of this SortedDict changes.
-
-        Returns:
-            int: A hash of the contents.
         """
         if self._content_hash is None:
             self._content_hash = hash(tuple(self.items()))
@@ -355,15 +315,7 @@ class SortedDict(Mapping[KT, VT]):
 
     def setdefault(self, key, default=None):
         # type: (KT, Optional[VT]) -> Optional[VT]
-        """Get the value of a key, or set it to the default.
-
-        Parameters:
-            key (KT): The key.
-            default (VT): The default value to set and return. Defaults to None.
-
-        Returns:
-            VT: The value or the default.
-        """
+        """Get the value of a key, or set it to the default."""
         node = self._get_node(key)
         if node is None:
             self._put(key, default)
@@ -371,11 +323,7 @@ class SortedDict(Mapping[KT, VT]):
 
     def update(self, *mappings):
         # type: (*Union[set[tuple[KT, VT]], Mapping[KT, VT]]) -> None
-        """Add the key and values to the map, overwriting existing values.
-
-        Parameters:
-            *mappings (Mapping[Any, Any]): The key-value pairs to be added or updated.
-        """
+        """Add the key and values to the map, overwriting existing values."""
         for mapping in mappings:
             if isinstance(mapping, Mapping):
                 for key, value in mapping.items():
@@ -386,15 +334,7 @@ class SortedDict(Mapping[KT, VT]):
 
     def get(self, key, default=None):
         # type: (KT, Optional[VT]) -> Optional[VT]
-        """Return the value for the key, or the default if it doesn't exist.
-
-        Parameters:
-            key (KT): The key.
-            default (VT): The default value to return. Defaults to None.
-
-        Returns:
-            VT: The value or the default.
-        """
+        """Return the value for the key, or the default if it doesn't exist."""
         node = self._get_node(key)
         if node is None:
             return default
@@ -403,15 +343,7 @@ class SortedDict(Mapping[KT, VT]):
 
     def pop(self, key, default=None):
         # type: (KT, Optional[VT]) -> Optional[VT]
-        """Remove the key and return the value, or the default if it doesn't exist.
-
-        Parameters:
-            key (KT): The key.
-            default (VT): The default value to return. Defaults to None.
-
-        Returns:
-            VT: The value or the default.
-        """
+        """Remove the key and return the value, or the default if it doesn't exist."""
         try:
             value = self._del(key)
             return value
@@ -420,11 +352,7 @@ class SortedDict(Mapping[KT, VT]):
 
     def keys(self):
         # type: () -> Iterator[KT]
-        """Create a generator of the keys.
-
-        Yields:
-            KT: The keys.
-        """
+        """Create a generator of the keys."""
         node = self.head
         while node is not None:
             yield node.key
@@ -432,11 +360,7 @@ class SortedDict(Mapping[KT, VT]):
 
     def values(self):
         # type: () -> Iterator[VT]
-        """Create a generator of the values.
-
-        Yields:
-            VT: The values.
-        """
+        """Create a generator of the values."""
         node = self.head
         while node is not None:
             yield node.value
@@ -444,11 +368,7 @@ class SortedDict(Mapping[KT, VT]):
 
     def items(self):
         # type: () -> Iterator[tuple[KT, VT]]
-        """Create a generator of the key-value pairs.
-
-        Yields:
-            tuple[KT, VT]: The key-value pairs.
-        """
+        """Create a generator of the key-value pairs."""
         node = self.head
         while node is not None:
             yield node.key, node.value
@@ -456,24 +376,13 @@ class SortedDict(Mapping[KT, VT]):
 
     def to_dict(self):
         # type: () -> dict[KT, VT]
-        """Return the keys and values in a normal dict.
-
-        Returns:
-            dict[KT, VT]: The resulting dict.
-        """
+        """Return the keys and values in a normal dict."""
         return dict(self.items())
 
     @staticmethod
     def from_dict(src_dict):
         # type: (Mapping[KT, VT]) -> SortedDict[KT, VT]
-        """Create an SortedDict (as a dict) from a dictionary.
-
-        Arguments:
-            src_dict (Mapping[KT, VT]): The dictionary.
-
-        Returns:
-            SortedDict: The SortedDict.
-        """
+        """Create an SortedDict (as a dict) from a dictionary."""
         tree = SortedDict() # type: SortedDict[KT, VT]
         tree.update(src_dict.items())
         return tree
@@ -504,6 +413,7 @@ class SortedSet(MutableSet[KT]):
 
     def __init__(self):
         # type: () -> None
+        """Initialize the SortedSet."""
         self.tree = SortedDict() # type: SortedDict[KT, None]
 
     def __len__(self):
@@ -528,32 +438,17 @@ class SortedSet(MutableSet[KT]):
 
     def add(self, value):
         # type: (KT) -> None
-        """Add an element to the SortedDict (set).
-
-        Parameters:
-            value (KT): The element to add.
-        """
+        """Add an element to the SortedDict (set)."""
         self.tree[value] = None
 
     def remove(self, value):
         # type: (KT) -> None
-        """Remove an element from the set.
-
-        Parameters:
-            value (KT): The element to remove.
-
-        Raises:
-            KeyError: If the element is not in the SortedDict.
-        """
+        """Remove an element from the set."""
         del self.tree[value]
 
     def discard(self, value):
         # type: (KT) -> None
-        """Remove an element from the set if it is present.
-
-        Parameters:
-            value (KT): The element to remove.
-        """
+        """Remove an element from the set if it is present."""
         try:
             del self.tree[value]
         except KeyError:
@@ -561,26 +456,12 @@ class SortedSet(MutableSet[KT]):
 
     def is_disjoint(self, other):
         # type: (Collection[KT]) -> bool
-        """Check if the two sets are disjoint.
-
-        Parameters:
-            other (Collection[KT]): The other set.
-
-        Returns:
-            bool: True if the sets are disjoint.
-        """
+        """Check if the two sets are disjoint."""
         return all((element not in other) for element in self)
 
     def is_subset(self, other):
         # type: (Collection[KT]) -> bool
-        """Check if this is a subset of another set.
-
-        Parameters:
-            other (Collection[KT]): The other set.
-
-        Returns:
-            bool: True if this is a subset of the other.
-        """
+        """Check if this is a subset of another set."""
         return (
             len(self) < len(other)
             and all((element in other) for element in self)
@@ -588,14 +469,7 @@ class SortedSet(MutableSet[KT]):
 
     def is_superset(self, other):
         # type: (Collection[KT]) -> bool
-        """Check if this is a superset of another set.
-
-        Parameters:
-            other (Collection[KT]): The other set.
-
-        Returns:
-            bool: True if this is a superset of the other.
-        """
+        """Check if this is a superset of another set."""
         return (
             len(self) > len(other)
             and all((element in self) for element in other)
@@ -603,28 +477,14 @@ class SortedSet(MutableSet[KT]):
 
     def union(self, *others):
         # type: (*Collection[KT]) -> SortedSet[KT]
-        """Create the union of this and other sets.
-
-        Parameters:
-            *others (Collection[KT]): The other sets.
-
-        Returns:
-            SortedDict: The union of all the sets.
-        """
+        """Create the union of this and other sets."""
         result = SortedSet() # type: SortedSet[KT]
         result.union_update(self, *others)
         return result
 
     def intersection(self, *others):
         # type: (*Collection[KT]) -> SortedSet[KT]
-        """Create the intersection of this and other sets.
-
-        Parameters:
-            *others (Collection[KT]): The other sets.
-
-        Returns:
-            SortedDict: The intersection of all the sets.
-        """
+        """Create the intersection of this and other sets."""
         new_set = SortedSet() # type: SortedSet[KT]
         min_set = others[0]
         for other in others:
@@ -637,14 +497,7 @@ class SortedSet(MutableSet[KT]):
 
     def difference(self, *others):
         # type: (*Collection[KT]) -> SortedSet[KT]
-        """Create the difference of this and other sets.
-
-        Parameters:
-            *others (Collection[KT]): The other sets.
-
-        Returns:
-            SortedDict: The difference of all the sets, in order.
-        """
+        """Create the difference of this and other sets."""
         new_set = SortedSet() # type: SortedSet[KT]
         new_set.union_update(self)
         new_set.difference_update(*others)
@@ -652,22 +505,14 @@ class SortedSet(MutableSet[KT]):
 
     def union_update(self, *others):
         # type: (*Collection[KT]) -> None
-        """Update this set to be the union of this and other sets.
-
-        Parameters:
-            *others (Collection[KT]): The other sets.
-        """
+        """Update this set to be the union of this and other sets."""
         for other in others:
             for element in other:
                 self.add(element)
 
     def intersection_update(self, *others):
         # type: (*Collection[KT]) -> None
-        """Keep only the intersection of this and other sets.
-
-        Parameters:
-            *others (Collection[KT]): The other sets.
-        """
+        """Keep only the intersection of this and other sets."""
         sorted_others = sorted(others, key=len)
         for element in self:
             if any((element not in other) for other in sorted_others):
@@ -675,11 +520,7 @@ class SortedSet(MutableSet[KT]):
 
     def difference_update(self, *others):
         # type: (*Collection[KT]) -> None
-        """Keep only the difference of this and other sets.
-
-        Parameters:
-            *others (Collection[KT]): The other sets.
-        """
+        """Keep only the difference of this and other sets."""
         union = SortedSet() # type: SortedSet[KT]
         union.union_update(*others)
         for element in self:
@@ -688,24 +529,13 @@ class SortedSet(MutableSet[KT]):
 
     def to_set(self):
         # type: () -> set[KT]
-        """Return the elements in a normal set.
-
-        Returns:
-            set[KT]: The resulting set.
-        """
+        """Return the elements in a normal set."""
         return set(self)
 
     @staticmethod
     def from_set(src_set):
         # type: (set[KT]) -> SortedSet[KT]
-        """Create an SortedDict (as a set) from a set.
-
-        Arguments:
-            src_set (set[KT]): The set.
-
-        Returns:
-            SortedDict: The SortedDict.
-        """
+        """Create an SortedDict (as a set) from a set."""
         result = SortedSet() # type: SortedSet[KT]
         result.union_update(src_set)
         return result
