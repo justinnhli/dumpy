@@ -79,3 +79,25 @@ def test_sortedset():
             assert list(e for e in sorted_set) == list(range(num + 1, size))
     src_set = set(range(101))
     assert SortedSet.from_set(src_set).to_set() == src_set
+
+
+def test_priorityqueue():
+    queue = PriorityQueue()
+    try:
+        queue.dequeue()
+        assert False
+    except KeyError:
+        pass
+    for i in reversed(range(100)):
+        size = 2 * (99 - i)
+        queue.enqueue(i, i)
+        assert len(queue) == size + 1
+        queue.enqueue(i, i)
+        assert len(queue) == size + 2
+    prev_item = -1
+    while queue:
+        curr_item = queue.dequeue()
+        assert curr_item == prev_item + 1
+        curr_item = queue.dequeue()
+        assert curr_item == prev_item + 1
+        prev_item = curr_item

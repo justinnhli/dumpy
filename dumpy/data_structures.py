@@ -539,3 +539,42 @@ class SortedSet(MutableSet[KT]):
         result = SortedSet() # type: SortedSet[KT]
         result.union_update(src_set)
         return result
+
+
+class PriorityQueue(Generic[VT]):
+    """A priory queue."""
+
+    def __init__(self):
+        # type: () -> None
+        """Initialize the PriorityQueue."""
+        self.tree = SortedDict(list) # type: SortedDict[float, list[VT]]
+        self.size = 0
+
+    def __len__(self):
+        # type: () -> int
+        return self.size
+
+    def __bool__(self):
+        # type: () -> bool
+        return self.size > 0
+
+    def enqueue(self, value, priority):
+        # type: (VT, ComparableT) -> None
+        """Put an item into the queue."""
+        self.tree[priority].append(value)
+        self.size += 1
+
+    def dequeue(self):
+        # type: () -> VT
+        """Remove the item with the highest priority."""
+        if self.size == 0:
+            raise KeyError('empty queue')
+        key = next(iter(self.tree))
+        values = self.tree[key]
+        result = values[0]
+        if len(values) == 1:
+            del self.tree[key]
+        else:
+            self.tree[key].pop(0)
+        self.size -= 1
+        return result
