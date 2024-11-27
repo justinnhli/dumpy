@@ -27,7 +27,6 @@ def test_sorteddict():
     assert 0 not in sorted_dict
     assert list(sorted_dict) == list(sorted_dict.keys()) == list(sorted_dict.values()) == list(sorted_dict.items()) == []
     size = 7
-    # map check
     for permutation in permutations(range(size)):
         sorted_dict = SortedDict()
         for key in permutation:
@@ -60,10 +59,10 @@ def test_sorteddict():
     del sorted_dict[5]
     assert list(sorted_dict.keys()) == [*range(5), *range(6, 13)]
 
+
 def test_sortedset():
     """Test SortedSet."""
     size = 7
-    # set check
     for permutation in permutations(range(size)):
         sorted_set = SortedSet()
         for element in permutation:
