@@ -83,9 +83,14 @@ def test_sortedset():
 def test_priorityqueue():
     queue = PriorityQueue()
     try:
+        queue.peek()
+        assert False
+    except (IndexError, KeyError, StopIteration):
+        pass
+    try:
         queue.pop()
         assert False
-    except KeyError:
+    except (IndexError, KeyError, StopIteration):
         pass
     for i in reversed(range(100)):
         size = 2 * (99 - i)
@@ -95,7 +100,11 @@ def test_priorityqueue():
         assert len(queue) == size + 2
     prev_item = -1
     while queue:
+        curr_item = queue.peek()
+        assert curr_item == prev_item + 1
         curr_item = queue.pop()
+        assert curr_item == prev_item + 1
+        curr_item = queue.peek()
         assert curr_item == prev_item + 1
         curr_item = queue.pop()
         assert curr_item == prev_item + 1

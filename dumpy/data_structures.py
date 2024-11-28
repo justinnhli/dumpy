@@ -558,6 +558,13 @@ class PriorityQueue(Generic[VT]):
         # type: () -> bool
         return self.size > 0
 
+    def peek(self):
+        # type: () -> VT
+        """Return the next item to pop."""
+        key = next(iter(self.tree))
+        values = self.tree[key]
+        return values[0]
+
     def push(self, value, priority):
         # type: (VT, ComparableT) -> None
         """Put an item into the queue."""
