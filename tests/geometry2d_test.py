@@ -26,9 +26,13 @@ def test_segment():
             answer12 = segment1.intersect(segment2, include_end=include_end)
             answer21 = segment2.intersect(segment1, include_end=include_end)
             if expected is None:
-                assert answer12 is None and answer21 is None
+                assert answer12 is None
+                assert answer21 is None
             else:
-                assert answer12 == answer21 == expected
+                assert answer12 is not None 
+                assert answer21 is not None
+                assert answer12 == expected
+                assert answer21 == expected
     # more than one point of intersection
     segment2 = Segment(Point2D(0, 1), Point2D(0, 3))
     for answer in [segment1.intersect(segment2), segment2.intersect(segment1)]:
