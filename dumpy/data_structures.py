@@ -299,7 +299,7 @@ class SortedDict(Mapping[KT, VT]):
 
     def __str__(self):
         # type: () -> str
-        return 'SortedDict(' + ', '.join(f'{k}={v}' for k, v in self.items()) + ')'
+        return self.__repr__()
 
     @property
     def contents_hash(self):
