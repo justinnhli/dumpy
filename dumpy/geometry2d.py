@@ -19,13 +19,13 @@ class Segment:
     def min_x(self):
         # type: () -> float
         """The smaller x-coordinate."""
-        return min(self.point1.x, self.point2.x)
+        return self.point1.x
 
     @property
     def max_x(self):
         # type: () -> float
         """The larger x-coordinate."""
-        return max(self.point1.x, self.point2.x)
+        return self.point2.x
 
     @property
     def min_y(self):
