@@ -78,10 +78,10 @@ class UnionFind:
 
 class _AVLView(Generic[KT, VT]):
 
-    def __init__(self, tree, node):
-        # type: (SortedDict[KT, VT], _AVLNode[KT, VT]) -> None
+    def __init__(self, tree):
+        # type: (SortedDict[KT, VT]) -> None
         self.tree = tree
-        self.node = node
+        self.node = None # type: Optional[_AVLNode[KT, VT]]
 
     def __len__(self):
         # type: () -> int
@@ -458,17 +458,17 @@ class SortedDict(Mapping[KT, VT]):
     def keys(self):
         # type: () -> _KeysView[KT, VT]
         """Create a generator of the keys."""
-        return _KeysView(self, self.head)
+        return _KeysView(self)
 
     def values(self):
         # type: () -> _ValuesView[KT, VT]
         """Create a generator of the values."""
-        return _ValuesView(self, self.head)
+        return _ValuesView(self)
 
     def items(self):
         # type: () -> _ItemsView[KT, VT]
         """Create a generator of the key-value pairs."""
-        return _ItemsView(self, self.head)
+        return _ItemsView(self)
 
     def to_dict(self):
         # type: () -> dict[KT, VT]
