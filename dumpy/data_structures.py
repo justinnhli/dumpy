@@ -393,13 +393,6 @@ class SortedDict(Mapping[KT, VT]):
         self._content_hash = None
         return value
 
-    def _nodes(self):
-        # type: () -> Iterator[_AVLNode[KT, VT]]
-        node = self.head
-        while node is not None:
-            yield node
-            node = node.next
-
     def clear(self):
         # type: () -> None
         """Remove all elements from the SortedDict."""
