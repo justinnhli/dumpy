@@ -364,14 +364,16 @@ class SortedDict(Mapping[KT, VT]):
             node.right, value = self._del_helper(key, node.right)
         elif node.left is not None:
             assert node.prev is not None
+            value = node.value
             node.key = node.prev.key
             node.value = node.prev.value
-            node.left, value = self._del_helper(node.prev.key, node.left)
+            node.left, _ = self._del_helper(node.prev.key, node.left)
         elif node.right is not None:
             assert node.next is not None
+            value = node.value
             node.key = node.next.key
             node.value = node.next.value
-            node.right, value = self._del_helper(node.next.key, node.right)
+            node.right, _ = self._del_helper(node.next.key, node.right)
         else:
             self.size -= 1
             if node.prev is not None:
@@ -428,6 +430,7 @@ class SortedDict(Mapping[KT, VT]):
         node = self._get_node(key)
         if node is None:
             self._put(key, default)
+            node = self._get_node(key)
         return node.value
 
     def update(self, *mappings):
