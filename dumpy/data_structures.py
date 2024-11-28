@@ -3,6 +3,7 @@
 from typing import Any, Optional, Union
 from typing import Callable, Collection, Iterable, Mapping, Iterator
 from typing import TypeVar, Generic
+from typing import cast
 from collections.abc import MutableSet, Hashable
 
 from .utilitypes import ComparableT
@@ -148,8 +149,8 @@ class SortedDict(Mapping[KT, VT]):
         return self.size
 
     def __contains__(self, key):
-        # type: (KT) -> bool
-        return self._get_node(key) is not None
+        # type: (Any) -> bool
+        return self._get_node(cast(KT, key)) is not None
 
     def __iter__(self):
         # type: () -> Iterator[KT]
@@ -333,7 +334,7 @@ class SortedDict(Mapping[KT, VT]):
                     self._put(key, value)
 
     def get(self, key, default=None):
-        # type: (KT, Optional[VT]) -> Optional[VT]
+        # type: (Any, Any) -> Optional[VT]
         """Return the value for the key, or the default if it doesn't exist."""
         node = self._get_node(key)
         if node is None:
@@ -384,7 +385,7 @@ class SortedDict(Mapping[KT, VT]):
         # type: (Mapping[KT, VT]) -> SortedDict[KT, VT]
         """Create an SortedDict (as a dict) from a dictionary."""
         tree = SortedDict() # type: SortedDict[KT, VT]
-        tree.update(src_dict.items())
+        tree.update(src_dict)
         return tree
 
     @staticmethod
@@ -421,7 +422,7 @@ class SortedSet(MutableSet[KT]):
         return len(self.tree)
 
     def __contains__(self, key):
-        # type: (KT) -> bool
+        # type: (Any) -> bool
         return key in self.tree
 
     def __bool__(self):
