@@ -10,7 +10,7 @@ class Segment:
 
     def __init__(self, point1, point2):
         # type: (Matrix, Matrix) -> None
-        if (point1.x, point1.y) < (point2.x, point2.y):
+        if (point1.x, point1.y) > (point2.x, point2.y):
             point1, point2 = point2, point1
         self.point1 = point1
         self.point2 = point2
