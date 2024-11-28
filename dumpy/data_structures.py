@@ -558,13 +558,13 @@ class PriorityQueue(Generic[VT]):
         # type: () -> bool
         return self.size > 0
 
-    def enqueue(self, value, priority):
+    def push(self, value, priority):
         # type: (VT, ComparableT) -> None
         """Put an item into the queue."""
         self.tree[priority].append(value)
         self.size += 1
 
-    def dequeue(self):
+    def pop(self):
         # type: () -> VT
         """Remove the item with the highest priority."""
         if self.size == 0:
