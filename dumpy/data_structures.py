@@ -4,7 +4,7 @@ from typing import Any, Optional, Union
 from typing import Callable, Collection, Iterable, Mapping, Iterator
 from typing import TypeVar, Generic
 from typing import cast
-from collections.abc import MutableSet, Hashable
+from collections.abc import MutableSet, Hashable, KeysView, ValuesView, ItemsView
 
 from .utilitypes import ComparableT
 
@@ -74,6 +74,114 @@ class UnionFind:
             parent = node
         self.parents[node] = parent
         return True
+
+
+class _AVLView(Generic[KT, VT]):
+
+    def __init__(self, tree, node):
+        # type: (SortedDict[KT, VT], _AVLNode[KT, VT]) -> None
+        self.tree = tree
+        self.node = node
+
+    def __len__(self):
+        # type: () -> int
+        return len(self.tree)
+
+    def __contains__(self, key):
+        # type: (Any) -> bool
+        return key in self.tree
+
+    def __iter__(self):
+        # type: () -> Iterator[KT]
+        self._set_forward()
+        yield from self._yield_next()
+
+    def __reversed__(self):
+        # type: () -> Iterator[KT]
+        self._set_reverse()
+        yield from self._yield_prev()
+
+    @property
+    def mapping(self):
+        # type: () -> Mapping[KT, VT]
+        """Return the original dictionary."""
+        # FIXME should in theory be read only
+        return self.tree
+
+    def _set_forward(self):
+        # type: () -> None
+        self.node = self.tree.head
+
+    def _set_reverse(self):
+        # type: () -> None
+        self.node = self.tree.tail
+
+    def _yield_prev_node(self):
+        # type: () -> Iterator[_AVLNode[KT, VT]]
+        if not self.node:
+            return
+        yield self.node
+        curr = self.node
+        while curr.prev is not None:
+            curr = curr.prev
+            yield curr
+
+    def _yield_next_node(self):
+        # type: () -> Iterator[_AVLNode[KT, VT]]
+        if not self.node:
+            return
+        yield self.node
+        curr = self.node
+        while curr.next is not None:
+            curr = curr.next
+            yield curr
+
+    def _yield_prev(self):
+        # type: () -> Iterator[Any]
+        raise NotImplementedError()
+
+    def _yield_next(self):
+        # type: () -> Iterator[Any]
+        raise NotImplementedError()
+
+
+class _KeysView(_AVLView[KT, VT], KeysView[KT]):
+
+    def _yield_prev(self):
+        # type: () -> Iterator[KT]
+        for node in self._yield_prev_node():
+            yield node.key
+
+    def _yield_next(self):
+        # type: () -> Iterator[KT]
+        for node in self._yield_next_node():
+            yield node.key
+
+
+class _ValuesView(_AVLView[KT, VT], ValuesView[VT]):
+
+    def _yield_prev(self):
+        # type: () -> Iterator[VT]
+        for node in self._yield_prev_node():
+            yield node.value
+
+    def _yield_next(self):
+        # type: () -> Iterator[VT]
+        for node in self._yield_next_node():
+            yield node.value
+
+
+class _ItemsView(_AVLView[KT, VT], ItemsView[KT, VT]):
+
+    def _yield_prev(self):
+        # type: () -> Iterator[tuple[KT, VT]]
+        for node in self._yield_prev_node():
+            yield (node.key, node.value)
+
+    def _yield_next(self):
+        # type: () -> Iterator[tuple[KT, VT]]
+        for node in self._yield_next_node():
+            yield (node.key, node.value)
 
 
 class _AVLNode(Generic[KT, VT]):
@@ -352,28 +460,19 @@ class SortedDict(Mapping[KT, VT]):
             return default
 
     def keys(self):
-        # type: () -> Iterator[KT]
+        # type: () -> _KeysView[KT, VT]
         """Create a generator of the keys."""
-        node = self.head
-        while node is not None:
-            yield node.key
-            node = node.next
+        return _KeysView(self, self.head)
 
     def values(self):
-        # type: () -> Iterator[VT]
+        # type: () -> _ValuesView[KT, VT]
         """Create a generator of the values."""
-        node = self.head
-        while node is not None:
-            yield node.value
-            node = node.next
+        return _ValuesView(self, self.head)
 
     def items(self):
-        # type: () -> Iterator[tuple[KT, VT]]
+        # type: () -> _ItemsView[KT, VT]
         """Create a generator of the key-value pairs."""
-        node = self.head
-        while node is not None:
-            yield node.key, node.value
-            node = node.next
+        return _ItemsView(self, self.head)
 
     def to_dict(self):
         # type: () -> dict[KT, VT]
