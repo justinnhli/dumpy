@@ -111,6 +111,8 @@ class Segment:
         o4 = Segment._orientation(other.point2, self.point1, self.point2)
         # general case: no co-linearity
         if 0 not in (o1, o2, o3, o4):
+            if self.is_parallel(other):
+                return None
             vector1 = self.point2 - self.point1
             vector2 = other.point2 - other.point1
             perpendicular1 = Point2D(-vector2.y, vector2.x)
