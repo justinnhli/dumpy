@@ -655,11 +655,11 @@ class PriorityQueue(Generic[VT]):
         return self.size > 0
 
     def peek(self):
-        # type: () -> VT
+        # type: () -> tuple[ComparableT, VT]
         """Return the next item to pop."""
         key = next(iter(self.tree))
         values = self.tree[key]
-        return values[0]
+        return key, values[0]
 
     def push(self, value, priority):
         # type: (VT, ComparableT) -> None
@@ -668,7 +668,7 @@ class PriorityQueue(Generic[VT]):
         self.size += 1
 
     def pop(self):
-        # type: () -> VT
+        # type: () -> tuple[ComparableT, VT]
         """Remove the item with the highest priority."""
         if self.size == 0:
             raise KeyError('empty queue')
@@ -680,4 +680,4 @@ class PriorityQueue(Generic[VT]):
         else:
             self.tree[key].pop(0)
         self.size -= 1
-        return result
+        return key, result

@@ -126,12 +126,16 @@ def test_priorityqueue():
         assert len(queue) == size + 2
     prev_item = -1
     while queue:
-        curr_item = queue.peek()
+        priority, curr_item = queue.peek()
+        assert priority == prev_item + 1
         assert curr_item == prev_item + 1
-        curr_item = queue.pop()
+        priority, curr_item = queue.pop()
+        assert priority == prev_item + 1
         assert curr_item == prev_item + 1
-        curr_item = queue.peek()
+        priority, curr_item = queue.peek()
+        assert priority == prev_item + 1
         assert curr_item == prev_item + 1
-        curr_item = queue.pop()
+        priority, curr_item = queue.pop()
+        assert priority == prev_item + 1
         assert curr_item == prev_item + 1
         prev_item = curr_item
