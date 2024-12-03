@@ -637,7 +637,7 @@ class SortedSet(MutableSet[KT]):
         return result
 
 
-class PriorityQueue(Generic[VT]):
+class PriorityQueue(Generic[ComparableT, VT]):
     """A priory queue."""
 
     def __init__(self):
