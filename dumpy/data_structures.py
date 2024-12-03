@@ -184,6 +184,66 @@ class _ItemsView(_AVLView[KT, VT], ItemsView[KT, VT]):
             yield (node.key, node.value)
 
 
+class _AVLCursor(Generic[KT, VT]):
+
+    def __init__(self, tree, node):
+        # type: (SortedDict[KT, VT], _AVLNode[KT, VT]) -> None
+        self.tree = tree
+        self.node = node
+
+    @property
+    def key(self):
+        # type: () -> KT
+        """Get the key at the current node."""
+        return self.node.key
+
+    @property
+    def value(self):
+        # type: () -> VT
+        """Get the value at the current node."""
+        return self.node.value
+
+    @property
+    def has_prev(self):
+        # type: () -> bool
+        """Return whether the cursor has a previous node."""
+        return self.node.prev is not None
+
+    def prev(self, relative_index=1):
+        # type: (int) -> _AVLCursor[KT, VT]
+        """Move the cursor to the previous node."""
+        if relative_index == 0:
+            return self
+        if relative_index < 0:
+            return self.next(-relative_index)
+        curr = self.node
+        for _ in range(relative_index):
+            curr = curr.prev
+            if curr is None:
+                raise IndexError()
+        return _AVLCursor(self.tree, curr)
+
+    @property
+    def has_next(self):
+        # type: () -> bool
+        """Return whether the cursor has a next node."""
+        return self.node.next is not None
+
+    def next(self, relative_index=1):
+        # type: (int) -> _AVLCursor[KT, VT]
+        """Move the cursor to the next node."""
+        if relative_index == 0:
+            return self
+        if relative_index < 0:
+            return self.prev(-relative_index)
+        curr = self.node
+        for _ in range(relative_index):
+            curr = curr.next
+            if curr is None:
+                raise IndexError()
+        return _AVLCursor(self.tree, curr)
+
+
 class _AVLNode(Generic[KT, VT]):
     """An AVL tree node."""
 
@@ -454,6 +514,14 @@ class SortedDict(Mapping[KT, VT]):
             return value
         except KeyError:
             return default
+
+    def cursor(self, key):
+        # type: (KT) -> _AVLCursor[KT, VT]
+        """Get a cursor at the key."""
+        node = self._get_node(key)
+        if node is None:
+            raise ValueError()
+        return _AVLCursor(self, node)
 
     def keys(self):
         # type: () -> _KeysView[KT, VT]
