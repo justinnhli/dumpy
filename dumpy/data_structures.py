@@ -681,3 +681,13 @@ class PriorityQueue(Generic[ComparableT, VT]):
             self.tree[key].pop(0)
         self.size -= 1
         return key, result
+
+    def remove(self, value, priority):
+        # type: () -> None
+        """Remove the specified item at the specified priority."""
+        cursor = self.tree.cursor(priority)
+        if len(cursor.value) == 1:
+            del self.tree[priority]
+        else:
+            cursor.value.remove(value)
+        self.size -= 1
