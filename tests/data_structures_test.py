@@ -86,6 +86,33 @@ def test_sorteddict():
     assert list(sorted_dict.keys()) == [*range(5), *range(6, 13)]
 
 
+def test_sorteddict_views():
+    # adapted from Python documentation on dictionary view objects
+    # https://docs.python.org/dev/library/stdtypes.html#dict-views
+    dishes = SortedDict()
+    dishes['bacon'] = 1
+    dishes['eggs'] = 2
+    dishes['sausage'] = 1
+    dishes['spam'] = 500
+    keys = dishes.keys()
+    values = dishes.values()
+    # iteration
+    assert sum(values) == 504
+    # keys and values are iterated over in the same (lexicographical) order
+    assert list(keys) == ['bacon', 'eggs', 'sausage', 'spam']
+    assert list(values) == [1, 2, 1, 500]
+    # view objects are dynamic and reflect dict changes
+    del dishes['eggs']
+    del dishes['sausage']
+    assert list(keys) == ['bacon', 'spam']
+    # set operations
+    assert keys & {'eggs', 'bacon', 'salad'} == {'bacon'}
+    assert keys ^ {'sausage', 'juice'} == {'juice', 'sausage', 'bacon', 'spam'}
+    assert keys | ['juice', 'juice', 'juice'] == {'bacon', 'spam', 'juice'}
+    # get back a read-only proxy for the original dictionary
+    assert values.mapping['spam'] == 500
+
+
 def test_sortedset():
     """Test SortedSet."""
     size = 7
