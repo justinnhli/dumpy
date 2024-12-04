@@ -85,6 +85,52 @@ class Matrix: # pylint: disable = too-many-public-methods
             self._magnitude = sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
         return self._magnitude
 
+    @property
+    def normalized(self):
+        # type: () -> Matrix
+        """Normalize a graphics point/vector."""
+        magnitude = self.magnitude
+        return Vector3D(self.x / magnitude, self.y / magnitude, self.z / magnitude)
+
+    @property
+    def transpose(self):
+        # type: () -> Matrix
+        """Transpose the matrix."""
+        return Matrix(self.cols)
+
+    @property
+    def determinant(self):
+        # type: () -> float
+        """Calculate the determinant."""
+        if self._determinant is None:
+            if self.height == 2 and self.width == 2:
+                self._determinant = self.rows[0][0] * self.rows[1][1] - self.rows[0][1] * self.rows[1][0]
+            else:
+                self._determinant = sum(self.rows[0][i] * self.cofactor(0, i) for i in range(self.width))
+        return self._determinant
+
+    @property
+    def invertible(self):
+        # type: () -> bool
+        """Return True if the matrix is invertible."""
+        return self.determinant != 0
+
+    @property
+    def inverse(self):
+        # type: () -> Matrix
+        """Inverse the matrix."""
+        if self._inverse is None:
+            result = []
+            for r in range(self.height):
+                result.append([self.cofactor(r, c) for c in range(self.width)])
+            self._inverse = Matrix(result).transpose / self.determinant
+            self._inverse._inverse = self # pylint: disable = protected-access
+        return self._inverse
+
+    def __hash__(self):
+        # type: () -> int
+        return hash(self.to_tuple())
+
     def __eq__(self, other):
         # type: (Any) -> bool
         if not isinstance(other, type(self)):
@@ -183,13 +229,6 @@ class Matrix: # pylint: disable = too-many-public-methods
         else:
             return Matrix(result)
 
-    @property
-    def normalized(self):
-        # type: () -> Matrix
-        """Normalize a graphics point/vector."""
-        magnitude = self.magnitude
-        return Vector3D(self.x / magnitude, self.y / magnitude, self.z / magnitude)
-
     def reflect(self, other):
         # type: (Matrix) -> Matrix
         """Reflect across another 4-tuple."""
@@ -209,23 +248,6 @@ class Matrix: # pylint: disable = too-many-public-methods
             self.z * other.x - self.x * other.z,
             self.x * other.y - self.y * other.x,
         )
-
-    @property
-    def transpose(self):
-        # type: () -> Matrix
-        """Transpose the matrix."""
-        return Matrix(self.cols)
-
-    @property
-    def determinant(self):
-        # type: () -> float
-        """Calculate the determinant."""
-        if self._determinant is None:
-            if self.height == 2 and self.width == 2:
-                self._determinant = self.rows[0][0] * self.rows[1][1] - self.rows[0][1] * self.rows[1][0]
-            else:
-                self._determinant = sum(self.rows[0][i] * self.cofactor(0, i) for i in range(self.width))
-        return self._determinant
 
     def submatrix(self, dr, dc): # pylint: disable = invalid-name
         # type: (int, int) -> Matrix
@@ -248,24 +270,6 @@ class Matrix: # pylint: disable = too-many-public-methods
             return self.minor(dr, dc)
         else:
             return -self.minor(dr, dc) # pylint: disable = invalid-unary-operand-type
-
-    @property
-    def invertible(self):
-        # type: () -> bool
-        """Return True if the matrix is invertible."""
-        return self.determinant != 0
-
-    @property
-    def inverse(self):
-        # type: () -> Matrix
-        """Inverse the matrix."""
-        if self._inverse is None:
-            result = []
-            for r in range(self.height):
-                result.append([self.cofactor(r, c) for c in range(self.width)])
-            self._inverse = Matrix(result).transpose / self.determinant
-            self._inverse._inverse = self # pylint: disable = protected-access
-        return self._inverse
 
     def translate(self, x, y, z):
         # type: (float, float, float) -> Matrix

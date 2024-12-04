@@ -83,6 +83,13 @@ class _AVLView(Generic[KT, VT]):
         self.tree = tree
         self.node = None # type: Optional[_AVLNode[KT, VT]]
 
+    @property
+    def mapping(self):
+        # type: () -> Mapping[KT, VT]
+        """Return the original dictionary."""
+        # FIXME should in theory be read only
+        return self.tree
+
     def __len__(self):
         # type: () -> int
         return len(self.tree)
@@ -100,13 +107,6 @@ class _AVLView(Generic[KT, VT]):
         # type: () -> Iterator[KT]
         self._set_reverse()
         yield from self._yield_prev()
-
-    @property
-    def mapping(self):
-        # type: () -> Mapping[KT, VT]
-        """Return the original dictionary."""
-        # FIXME should in theory be read only
-        return self.tree
 
     def _set_forward(self):
         # type: () -> None
@@ -209,6 +209,12 @@ class _AVLCursor(Generic[KT, VT]):
         """Return whether the cursor has a previous node."""
         return self.node.prev is not None
 
+    @property
+    def has_next(self):
+        # type: () -> bool
+        """Return whether the cursor has a next node."""
+        return self.node.next is not None
+
     def prev(self, relative_index=1):
         # type: (int) -> _AVLCursor[KT, VT]
         """Move the cursor to the previous node."""
@@ -222,12 +228,6 @@ class _AVLCursor(Generic[KT, VT]):
             if curr is None:
                 raise IndexError()
         return _AVLCursor(self.tree, curr)
-
-    @property
-    def has_next(self):
-        # type: () -> bool
-        """Return whether the cursor has a next node."""
-        return self.node.next is not None
 
     def next(self, relative_index=1):
         # type: (int) -> _AVLCursor[KT, VT]
