@@ -284,7 +284,6 @@ class SortedDict(Mapping[KT, VT]):
         self.root = None # type: Optional[_AVLNode[KT, VT]]
         self.head = None # type: Optional[_AVLNode[KT, VT]]
         self.tail = None # type: Optional[_AVLNode[KT, VT]]
-        self._content_hash = None # type: Optional[int]
 
     def __bool__(self):
         # type: () -> bool
@@ -361,17 +360,6 @@ class SortedDict(Mapping[KT, VT]):
         # type: () -> str
         return self.__repr__()
 
-    @property
-    def contents_hash(self):
-        # type: () -> int
-        """Get a hash of the contents.
-
-        Note: this hash will change if the contents of this SortedDict changes.
-        """
-        if self._content_hash is None:
-            self._content_hash = hash(tuple(self.items()))
-        return self._content_hash
-
     def _put_helper(self, key, value, node=None, prev_node=None, next_node=None):
         # type: (KT, VT, _AVLNode[KT, VT], _AVLNode[KT, VT], _AVLNode[KT, VT]) -> _AVLNode[KT, VT]
         if node is None:
@@ -394,7 +382,6 @@ class SortedDict(Mapping[KT, VT]):
     def _put(self, key, value):
         # type: (KT, VT) -> None
         self.root = self._put_helper(key, value, self.root, None, None)
-        self._content_hash = None
 
     @staticmethod
     def _get_node_helper(key, node=None):
@@ -450,7 +437,6 @@ class SortedDict(Mapping[KT, VT]):
     def _del(self, key):
         # type: (KT) -> VT
         self.root, value = self._del_helper(key, self.root)
-        self._content_hash = None
         return value
 
     def clear(self):
@@ -460,7 +446,6 @@ class SortedDict(Mapping[KT, VT]):
         self.root = None
         self.head = None
         self.tail = None
-        self._content_hash = None
 
     @staticmethod
     def _balance(node):

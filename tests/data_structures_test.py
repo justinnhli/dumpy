@@ -32,7 +32,6 @@ def test_sorteddict():
     size = 7
     for permutation in permutations(range(size)):
         sorted_dict = SortedDict()
-        old_hash = sorted_dict.contents_hash
         for key in permutation:
             try:
                 sorted_dict[key] += 1
@@ -45,7 +44,6 @@ def test_sorteddict():
                 assert sorted_dict.setdefault(key, key) == key
             sorted_dict[key] = key * key
         assert str(sorted_dict) == 'SortedDict(0=0, 1=1, 2=4, 3=9, 4=16, 5=25, 6=36)'
-        assert old_hash != sorted_dict.contents_hash
         assert len(sorted_dict) == size
         assert list(sorted_dict) == list(range(size))
         assert sorted_dict.keys().mapping is sorted_dict
