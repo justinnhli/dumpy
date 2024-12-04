@@ -34,6 +34,8 @@ class Color:
 
     def __eq__(self, other):
         # type: (Any) -> bool
+        if not isinstance(other, type(self)):
+            return False
         return self.to_hsva_tuple() == other.to_hsva_tuple()
 
     def __lt__(self, other):
@@ -45,6 +47,10 @@ class Color:
         yield from self.to_hsva_tuple()
 
     def __str__(self):
+        # type: () -> str
+        return repr(self)
+
+    def __repr__(self):
         # type: () -> str
         return f'Color({self.h}, {self.s}, {self.v}, {self.a})'
 

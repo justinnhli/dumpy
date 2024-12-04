@@ -87,6 +87,8 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def __eq__(self, other):
         # type: (Any) -> bool
+        if not isinstance(other, type(self)):
+            return False
         return (
             self.height == other.height and self.width == other.width
             and all(
@@ -95,6 +97,12 @@ class Matrix: # pylint: disable = too-many-public-methods
                 for self_val, other_val in zip(self_row, other_row)
             )
         )
+
+    def __lt__(self, other):
+        # type: (Any) -> bool
+        if not isinstance(other, type(self)):
+            return False
+        return self.rows < other.rows
 
     def __str__(self):
         # type: () -> str
@@ -111,7 +119,7 @@ class Matrix: # pylint: disable = too-many-public-methods
             else:
                 return f'Tuple({", ".join(vals)})'
         else:
-            return f'Matrix({str(self.rows)})'
+            return f'Matrix({self.rows})'
 
     def __round__(self, ndigits=None):
         # type: (int) -> Matrix
@@ -336,6 +344,13 @@ class Matrix: # pylint: disable = too-many-public-methods
             ])
             @ self
         )
+
+    def to_tuple(self):
+        return tuple(tuple(row) for row in self.rows)
+
+    @staticmethod
+    def from_tuple(values):
+        return Matrix(values)
 
 
 def Vector3D(x=0, y=0, z=0): # pylint: disable = invalid-name

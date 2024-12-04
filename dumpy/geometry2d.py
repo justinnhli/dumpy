@@ -49,9 +49,23 @@ class Segment:
         else:
             return (self.point2.y - self.point1.y) / denominator
 
+    def __hash__(self):
+        # type: () -> int
+        return hash(self.to_tuple())
+
+    def __eq__(self, other):
+        # type: (Any) -> bool
+        if not isinstance(other, type(self)):
+            return False
+        return self.points == other.points
+
     def __str__(self):
         # type: () -> str
-        return f'Segment({self.point1}, {self.point2})'
+        return repr(self)
+
+    def __repr__(self):
+        # type: () -> str
+        return f'{type(self).__name__}{self.to_tuple()}'
 
     def is_parallel(self, other):
         # type: (Segment) -> bool
@@ -139,3 +153,15 @@ class Segment:
             return other.point2
         else:
             return None
+
+    def to_tuple(self):
+        # type: () -> tuple[...]
+        return (self.point1.to_tuple(), self.point2.to_tuple())
+
+    @staticmethod
+    def from_tuple(value):
+        # type: () -> Segment
+        return Segment(
+            Matrix.from_tuple(value[0]),
+            Matrix.from_tuple(value[1]),
+        )
