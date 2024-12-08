@@ -1,6 +1,6 @@
 """2D geometry objects."""
 
-from typing import Optional
+from typing import Any, Optional
 
 from .matrix import Matrix, Point2D
 
@@ -57,7 +57,11 @@ class Segment:
         # type: (Any) -> bool
         if not isinstance(other, type(self)):
             return False
-        return self.points == other.points
+        return self.to_tuple() == other.to_tuple()
+
+    def __lt__(self, other):
+        assert isinstance(other, type(self))
+        return self.to_tuple() < other.to_tuple()
 
     def __str__(self):
         # type: () -> str
