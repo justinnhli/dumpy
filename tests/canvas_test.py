@@ -41,20 +41,20 @@ def read_ppm(path):
 def grab_screen(canvas):
     # type: (Canvas) -> Image
     """Take a screenshot of a canvas."""
+    canvas.display_page()
+    canvas.canvas.update()
     x0 = canvas.tk.winfo_rootx() + canvas.canvas.winfo_x() + 1
     y0 = canvas.tk.winfo_rooty() + canvas.canvas.winfo_y() + 1
     x1 = x0 + canvas.canvas.winfo_width() - 2
     y1 = y0 + canvas.canvas.winfo_height() - 2
+    canvas.tk.destroy()
     return ImageGrab.grab().crop((x0, y0, x1, y1))
 
 
 def assert_canvas(canvas, filename, write=False):
     # type: (Canvas, str, bool) -> None
     """Check that a canvas matches the file."""
-    canvas.display_page()
-    canvas.canvas.update()
     image = grab_screen(canvas)
-    canvas.tk.destroy()
     pixels = image.getdata()
     ppm_path = Path(__file__).parent / 'canvas_test_images' / filename
     width, height, ppm_pixels = read_ppm(ppm_path)
