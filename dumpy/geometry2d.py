@@ -76,6 +76,30 @@ class Segment:
         """Return whether the other segment is parallel."""
         return self.slope == other.slope
 
+    def is_colinear(self, other):
+        # type: (Segment) -> bool
+        """Return whether the other segment is colinear."""
+        return Segment(self.point1, other.point1).slope == self.slope
+
+    def is_kissing(self, other):
+        # type: (Segment) -> bool
+        """Return whether the other segment intersects at an endpoint."""
+        return (
+            self.point1 in (other.point1, other.point2)
+            or self.point2 in (other.point2, other.point2)
+        )
+
+    def is_overlapping(self, other):
+        # type: (Segment) -> bool
+        """Return whether the other segment overlaps at more than one point."""
+        return (
+            self.is_colinear(other)
+            and (
+                self.contains(other.point1, include_end=False)
+                or self.contains(other.point2, include_end=False)
+            )
+        )
+
     @staticmethod
     def _orientation(p1, p2, p3):
         # type: (Point2D, Point2D, Point2D) -> int
