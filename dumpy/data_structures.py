@@ -505,7 +505,7 @@ class SortedDict(Mapping[KT, VT]):
         """Get a cursor at the key."""
         node = self._get_node(key)
         if node is None:
-            raise ValueError()
+            raise KeyError()
         return _AVLCursor(self, node)
 
     def keys(self):
