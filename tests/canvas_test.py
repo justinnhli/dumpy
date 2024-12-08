@@ -51,8 +51,8 @@ def grab_screen(canvas):
     return ImageGrab.grab().crop((x0, y0, x1, y1))
 
 
-def assert_canvas(canvas, filename, write=False):
-    # type: (Canvas, str, bool) -> None
+def assert_canvas(canvas, filename):
+    # type: (Canvas, str) -> None
     """Check that a canvas matches the file."""
     image = grab_screen(canvas)
     pixels = image.getdata()
