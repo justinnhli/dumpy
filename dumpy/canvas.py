@@ -18,8 +18,9 @@ class Canvas:
         """Initialize the Canvas."""
         self.size = size
         self.title = title
-        self.image = Image.new('RGBA', size=(self.size.x, self.size.y))
-        self.draw = Draw(self.image, 'RGBA')
+        self.image = None # type: Image
+        self.draw = None # type: Draw
+        self.new_page()
         # gets around weird casing in title
         # see https://bugs.python.org/issue13553
         self.tk = Tk(className=('\u200B' + self.title)) # pylint: disable = superfluous-parens
@@ -96,7 +97,18 @@ class Canvas:
         pass # FIXME
 
     def new_page(self):
-        self.image = Image.new('RGBA', size=(self.size.x, self.size.y))
+        # type: () -> None
+        """Clear the image buffer.
+
+        Note that the Image is created RGB but the Draw is created RGBA. This is
+        necessary for transparency to work when drawing. See:
+        https://github.com/python-pillow/Pillow/issues/2496#issuecomment-1814380516
+        """
+        self.image = Image.new(
+            mode='RGB',
+            size=(self.size.x, self.size.y),
+            color='#FFFFFFFF',
+        )
         self.draw = Draw(self.image, 'RGBA')
 
     def display_page(self):
