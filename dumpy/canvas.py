@@ -56,6 +56,24 @@ class Canvas:
             color = Color(0, 0, 0)
         self.image.putpixel((point.x, point.y), color.to_rgba_tuple())
 
+    def draw_line(self, point1, point2, line_color=None):
+        """Draw a line.
+
+        This function draws the line twice, in opposite directions, to ensure
+        symmetry.
+        """
+        _, line_color = Canvas._set_default_colors(None, line_color)
+        self.draw.line(
+            [(point1.x, point1.y), (point2.x, point2.y)],
+            fill=line_color.to_rgba_tuple(),
+            width=1,
+        )
+        self.draw.line(
+            [(point2.x, point2.y), (point1.x, point1.y)],
+            fill=line_color.to_rgba_tuple(),
+            width=1,
+        )
+
     def draw_rect(self, point1, point2, fill_color=None, line_color=None):
         # type: (Matrix, Matrix, Color, Color) -> None
         self.draw_poly(

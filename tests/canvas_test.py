@@ -1,6 +1,6 @@
 """Tests for canvas.py."""
 
-from itertools import batched
+from itertools import batched, product
 from pathlib import Path
 from typing import Iterator
 
@@ -72,6 +72,43 @@ def test_canvas_pixel():
     canvas = Canvas(Point2D(3, 3), 'test')
     canvas.draw_pixel(Point2D(1, 1))
     check_image(canvas.image, 'canvas_pixel_test.ppm')
+
+
+def test_canvas_line():
+    # type: () -> None
+    """Test drawing a line."""
+    # test all combinations of primes
+    sizes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]
+    for width, height in product(sizes, repeat=2):
+        canvas = Canvas(Point2D(width, height), 'test')
+        # draw NW to SE diagonal
+        canvas.draw_line(
+            Point2D(0, 0),
+            Point2D(width - 1, height - 1),
+        )
+        # draw SW to NE diagonal
+        canvas.draw_line(
+            Point2D(0, height - 1),
+            Point2D(width - 1, 0),
+        )
+        # get the resulting image
+        image = canvas.image.convert('RGB')
+        # identify the drawn pixels
+        top_left_quadrant = set()
+        all_quadrants = set()
+        for row in range(height):
+            for col in range(width):
+                pixel = image.getpixel((col, row))
+                if sum(pixel) / 3 >= 128:
+                    continue
+                all_quadrants.add((col, row))
+                if col <= width / 2 and row <= height / 2:
+                    top_left_quadrant.add((col, row))
+        # test horizontal and vertical symmetry
+        for col, row in sorted(top_left_quadrant):
+            assert (width - col - 1, row) in all_quadrants
+            assert (col, height - row - 1) in all_quadrants
+            assert (width - col - 1, height - row - 1) in all_quadrants
 
 
 def test_canvas_rect():
