@@ -51,10 +51,9 @@ def grab_screen(canvas):
     return ImageGrab.grab().crop((x0, y0, x1, y1))
 
 
-def assert_canvas(canvas, filename):
-    # type: (Canvas, str) -> None
+def check_image(image, filename):
+    # type: (Image, str) -> None
     """Check that a canvas matches the file."""
-    image = grab_screen(canvas)
     pixels = image.getdata()
     ppm_path = Path(__file__).parent / 'canvas_test_images' / filename
     width, height, ppm_pixels = read_ppm(ppm_path)
@@ -72,7 +71,7 @@ def test_canvas_pixel():
     """Test drawing a pixel."""
     canvas = Canvas(Point2D(3, 3), 'test')
     canvas.draw_pixel(Point2D(1, 1))
-    assert_canvas(canvas, 'canvas_pixel_test.ppm')
+    check_image(canvas.image, 'canvas_pixel_test.ppm')
 
 
 def test_canvas_rect():
@@ -84,7 +83,7 @@ def test_canvas_rect():
         Point2D(3, 3),
         fill_color=Color.from_hex('#000000'),
     )
-    assert_canvas(canvas, 'canvas_rect_test.ppm')
+    check_image(canvas.image, 'canvas_rect_test.ppm')
 
 
 def test_canvas_rect_outline():
@@ -96,7 +95,7 @@ def test_canvas_rect_outline():
         Point2D(3, 3),
         line_color=Color.from_hex('#000000'),
     )
-    assert_canvas(canvas, 'canvas_rect_outline_test.ppm')
+    check_image(canvas.image, 'canvas_rect_outline_test.ppm')
 
 
 def test_new_page():
@@ -105,4 +104,4 @@ def test_new_page():
     canvas = Canvas(Point2D(3, 3), 'test')
     canvas.draw_pixel(Point2D(1, 1))
     canvas.new_page()
-    assert_canvas(canvas, 'canvas_new_page_test.ppm')
+    check_image(canvas.image, 'canvas_new_page_test.ppm')
