@@ -12,6 +12,7 @@ from .color import Color
 
 
 class Canvas:
+    """A TkCanvas backed by Pillow Image."""
 
     def __init__(self, size, title=''):
         # type: (Point2D, str) -> None
@@ -57,6 +58,7 @@ class Canvas:
         self.image.putpixel((point.x, point.y), color.to_rgba_tuple())
 
     def draw_line(self, point1, point2, line_color=None):
+        # type: (Matrix, Matrix, Color) -> None
         """Draw a line.
 
         This function draws the line twice, in opposite directions, to ensure
@@ -76,6 +78,7 @@ class Canvas:
 
     def draw_rect(self, point1, point2, fill_color=None, line_color=None):
         # type: (Matrix, Matrix, Color, Color) -> None
+        """Draw a rectangle."""
         self.draw_poly(
             [
                 point1,
@@ -140,7 +143,7 @@ class Canvas:
         )
 
     def _create_update_callback(self, update_fn, msecs):
-        # type: (Callable[[], None], float) -> Callable[[], None]
+        # type: (Callable[[], None], int) -> Callable[[], None]
         """Create the wrapped update callback function."""
 
         def callback():
