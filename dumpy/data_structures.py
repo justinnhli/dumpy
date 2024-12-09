@@ -99,12 +99,12 @@ class _AVLView(Generic[KT, VT]):
         return key in self.tree
 
     def __iter__(self):
-        # type: () -> Iterator[KT]
+        # type: () -> Iterator[Any]
         self._set_forward()
         yield from self._yield_next()
 
     def __reversed__(self):
-        # type: () -> Iterator[KT]
+        # type: () -> Iterator[Any]
         self._set_reverse()
         yield from self._yield_prev()
 
