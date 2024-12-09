@@ -9,7 +9,7 @@ from collections.abc import MutableSet, Hashable, KeysView, ValuesView, ItemsVie
 from .utilitypes import ComparableT
 
 
-KT = TypeVar('KT', bound=ComparableT)
+KT = TypeVar('KT', bound=ComparableT[Any])
 VT = TypeVar('VT')
 
 
