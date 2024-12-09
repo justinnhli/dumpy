@@ -3,7 +3,7 @@
 # pylint: disable = too-many-lines
 
 from math import sqrt, isclose, sin, cos
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, Sequence
 
 
 EPSILON = 0.00001
@@ -13,9 +13,9 @@ class Matrix: # pylint: disable = too-many-public-methods
     """A matrix."""
 
     def __init__(self, values):
-        # type: (list[list[float]]) -> None
+        # type: (Sequence[Sequence[float]]) -> None
         """Initialize a matrix."""
-        self.rows = values
+        self.rows = tuple(tuple(row) for row in values)
         self.height = len(values)
         self.width = len(values[0])
         # cache variables
@@ -350,10 +350,14 @@ class Matrix: # pylint: disable = too-many-public-methods
         )
 
     def to_tuple(self):
+        # type: () -> tuple[tuple[float, ...], ...]
+        """Convert to a tuple."""
         return tuple(tuple(row) for row in self.rows)
 
     @staticmethod
     def from_tuple(values):
+        # type: (tuple[...]) -> Matrix
+        """Create from a tuple."""
         return Matrix(values)
 
 

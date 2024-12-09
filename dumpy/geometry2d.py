@@ -65,6 +65,7 @@ class Segment:
         return self.to_tuple() == other.to_tuple()
 
     def __lt__(self, other):
+        # type: (Any) -> bool
         assert isinstance(other, type(self))
         return self.to_tuple() < other.to_tuple()
 
@@ -107,7 +108,7 @@ class Segment:
 
     @staticmethod
     def _orientation(p1, p2, p3):
-        # type: (Point2D, Point2D, Point2D) -> int
+        # type: (Matrix, Matrix, Matrix) -> int
         """Determine the orientation going from p1 to p2 to p3."""
         val = (
             ((p2.y - p1.y) * (p3.x - p2.x))
@@ -121,7 +122,7 @@ class Segment:
             return 0
 
     def contains(self, point, include_end=True):
-        # type: (Point2D, bool) -> bool
+        # type: (Matrix, bool) -> bool
         """Return True if the point is on the segment."""
         if include_end:
             return (
@@ -139,7 +140,7 @@ class Segment:
             )
 
     def intersect(self, other, include_end=True):
-        # type: (Segment, bool) -> Optional[Point2D]
+        # type: (Segment, bool) -> Optional[Matrix]
         """Find the intersection with another segment, if any."""
         bounding_box_overlaps = (
             (
@@ -188,12 +189,14 @@ class Segment:
             return None
 
     def to_tuple(self):
-        # type: () -> tuple[...]
+        # type: () -> tuple[Any, ...]
+        """Convert to a tuple."""
         return (self.point1.to_tuple(), self.point2.to_tuple())
 
     @staticmethod
     def from_tuple(value):
         # type: () -> Segment
+        """Create from a tuple."""
         return Segment(
             Matrix.from_tuple(value[0]),
             Matrix.from_tuple(value[1]),

@@ -15,7 +15,7 @@ class Canvas:
     """A TkCanvas backed by Pillow Image."""
 
     def __init__(self, size, title=''):
-        # type: (Point2D, str) -> None
+        # type: (Matrix, str) -> None
         """Initialize the Canvas."""
         self.size = size
         self.title = title

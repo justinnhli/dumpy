@@ -690,13 +690,13 @@ class SortedSet(MutableSet[KT]):
         return result
 
 
-class PriorityQueue(Generic[ComparableT, VT]):
+class PriorityQueue(Generic[KT, VT]):
     """A priory queue."""
 
     def __init__(self):
         # type: () -> None
         """Initialize the PriorityQueue."""
-        self.tree = SortedDict(list) # type: SortedDict[float, list[VT]]
+        self.tree = SortedDict(list) # type: SortedDict[KT, list[VT]]
         self.size = 0
 
     def __len__(self):
@@ -708,20 +708,20 @@ class PriorityQueue(Generic[ComparableT, VT]):
         return self.size > 0
 
     def peek(self):
-        # type: () -> tuple[ComparableT, VT]
+        # type: () -> tuple[KT, VT]
         """Return the next item to pop."""
         key = next(iter(self.tree))
         values = self.tree[key]
         return key, values[0]
 
     def push(self, value, priority):
-        # type: (VT, ComparableT) -> None
+        # type: (VT, KT) -> None
         """Put an item into the queue."""
         self.tree[priority].append(value)
         self.size += 1
 
     def pop(self):
-        # type: () -> tuple[ComparableT, VT]
+        # type: () -> tuple[KT, VT]
         """Remove the item with the highest priority."""
         if self.size == 0:
             raise KeyError('empty queue')
@@ -736,7 +736,7 @@ class PriorityQueue(Generic[ComparableT, VT]):
         return key, result
 
     def remove(self, value, priority):
-        # type: () -> None
+        # type: (VT, KT) -> None
         """Remove the specified item at the specified priority."""
         cursor = self.tree.cursor(priority)
         if len(cursor.value) == 1:
