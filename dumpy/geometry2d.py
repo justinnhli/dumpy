@@ -69,6 +69,11 @@ class Segment:
         assert isinstance(other, type(self))
         return self.to_tuple() < other.to_tuple()
 
+    def __iter__(self):
+        # type: () -> Iterator[Matrix]
+        yield self.point1
+        yield self.point2
+
     def __str__(self):
         # type: () -> str
         return repr(self)

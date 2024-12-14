@@ -47,10 +47,6 @@ class UnionFind:
         # type: () -> Iterator[Hashable]
         return iter(self.parents)
 
-    def __bool__(self):
-        # type: () -> bool
-        return bool(self.parents)
-
     def union(self, node1, node2):
         # type: (Hashable, Hashable) -> None
         """Join two discrete sets."""
@@ -285,10 +281,6 @@ class SortedDict(Mapping[KT, VT]):
         self.head = None # type: Optional[_AVLNode[KT, VT]]
         self.tail = None # type: Optional[_AVLNode[KT, VT]]
 
-    def __bool__(self):
-        # type: () -> bool
-        return self.size != 0
-
     def __eq__(self, other):
         # type: (Any) -> bool
         if self is other:
@@ -319,13 +311,6 @@ class SortedDict(Mapping[KT, VT]):
         # type: (Any) -> bool
         return self._get_node(cast(KT, key)) is not None
 
-    def __iter__(self):
-        # type: () -> Iterator[KT]
-        node = self.head
-        while node is not None:
-            yield node.key
-            node = node.next
-
     def __setitem__(self, key, value):
         # type: (KT, VT) -> None
         self._put(key, value)
@@ -345,6 +330,13 @@ class SortedDict(Mapping[KT, VT]):
         # type: (KT) -> None
         self._del(key)
 
+    def __iter__(self):
+        # type: () -> Iterator[KT]
+        node = self.head
+        while node is not None:
+            yield node.key
+            node = node.next
+
     def __reversed__(self):
         # type: () -> Iterator[KT]
         node = self.tail
@@ -352,13 +344,13 @@ class SortedDict(Mapping[KT, VT]):
             yield node.key
             node = node.prev
 
-    def __repr__(self):
-        # type: () -> str
-        return 'SortedDict(' + ', '.join(f'{k}={v}' for k, v in self.items()) + ')'
-
     def __str__(self):
         # type: () -> str
         return self.__repr__()
+
+    def __repr__(self):
+        # type: () -> str
+        return 'SortedDict(' + ', '.join(f'{k}={v}' for k, v in self.items()) + ')'
 
     def _put_helper(self, key, value, node=None, prev_node=None, next_node=None):
         # type: (KT, VT, _AVLNode[KT, VT], _AVLNode[KT, VT], _AVLNode[KT, VT]) -> _AVLNode[KT, VT]
@@ -573,10 +565,6 @@ class SortedSet(MutableSet[KT]):
         # type: (Any) -> bool
         return key in self.tree
 
-    def __bool__(self):
-        # type: () -> bool
-        return bool(self.tree)
-
     def __iter__(self):
         # type: () -> Iterator[KT]
         return iter(self.tree)
@@ -702,10 +690,6 @@ class PriorityQueue(Generic[KT, VT]):
     def __len__(self):
         # type: () -> int
         return self.size
-
-    def __bool__(self):
-        # type: () -> bool
-        return self.size > 0
 
     def peek(self):
         # type: () -> tuple[KT, VT]
