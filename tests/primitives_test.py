@@ -1,9 +1,9 @@
-"""Tests for geometry2d.py."""
+"""Tests for primitives.py."""
 
 from itertools import product, combinations
 from typing import Iterator
 
-from dumpy.geometry2d import Segment, bentley_ottmann
+from dumpy.primitives import Segment, bentley_ottmann
 from dumpy.matrix import Matrix, Point2D
 
 
