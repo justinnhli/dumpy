@@ -1,4 +1,4 @@
-"""2D geometry objects."""
+"""2D geometry primitives."""
 
 from typing import Any, Optional
 
