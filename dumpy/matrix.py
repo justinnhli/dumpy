@@ -2,6 +2,7 @@
 
 # pylint: disable = too-many-lines
 
+from functools import cache
 from math import sqrt, isclose, sin, cos
 from typing import Any, Optional, Union, Sequence
 
@@ -18,74 +19,75 @@ class Matrix: # pylint: disable = too-many-public-methods
         self.rows = tuple(tuple(row) for row in values)
         self.height = len(values)
         self.width = len(values[0])
-        # cache variables
-        self._cols = None # type: Optional[list[list[float]]]
-        self._magnitude = None # type: Optional[float]
-        self._determinant = None # type: Optional[float]
-        self._inverse = None # type: Optional[Matrix]
 
     @property
+    @cache
     def cols(self):
         # type: () -> list[list[float]]
         """Get the columns of the matrix."""
-        if self._cols is None:
-            self._cols = [
-                [self.rows[r][c] for r in range(self.height)]
-                for c in range(self.width)
-            ]
-        return self._cols
+        return [
+            [self.rows[r][c] for r in range(self.height)]
+            for c in range(self.width)
+        ]
 
     @property
+    @cache
     def is_tuple(self):
         # type: () -> bool
         """Return True if the matrix is a 4-tuple."""
         return self.height == 1 and self.width == 4
 
     @property
+    @cache
     def is_vector(self):
         # type: () -> bool
         """Return True if the matrix is a graphics vector."""
         return self.is_tuple and self.rows[0][3] == 0
 
     @property
+    @cache
     def is_point(self):
         # type: () -> bool
         """Return True if the matrix is a graphics point."""
         return self.is_tuple and self.rows[0][3] == 1
 
     @property
+    @cache
     def x(self):
         # type: () -> float
         """Return the x value of a 4-tuple."""
         return self.rows[0][0]
 
     @property
+    @cache
     def y(self):
         # type: () -> float
         """Return the y value of a 4-tuple."""
         return self.rows[0][1]
 
     @property
+    @cache
     def z(self):
         # type: () -> float
         """Return the z value of a 4-tuple."""
         return self.rows[0][2]
 
     @property
+    @cache
     def w(self): # pylint: disable = invalid-name
         # type: () -> float
         """Return the w value of a 4-tuple."""
         return self.rows[0][3]
 
     @property
+    @cache
     def magnitude(self):
         # type: () -> float
         """Return the magnitude of a 4-tuple."""
-        if self._magnitude is None:
-            self._magnitude = sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
-        return self._magnitude
+        return sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
 
     @property
+    @cache
     def normalized(self):
         # type: () -> Matrix
         """Normalize a graphics point/vector."""
@@ -93,39 +95,38 @@ class Matrix: # pylint: disable = too-many-public-methods
         return Vector3D(self.x / magnitude, self.y / magnitude, self.z / magnitude)
 
     @property
+    @cache
     def transpose(self):
         # type: () -> Matrix
         """Transpose the matrix."""
         return Matrix(self.cols)
 
     @property
+    @cache
     def determinant(self):
         # type: () -> float
         """Calculate the determinant."""
-        if self._determinant is None:
-            if self.height == 2 and self.width == 2:
-                self._determinant = self.rows[0][0] * self.rows[1][1] - self.rows[0][1] * self.rows[1][0]
-            else:
-                self._determinant = sum(self.rows[0][i] * self.cofactor(0, i) for i in range(self.width))
-        return self._determinant
+        if self.height == 2 and self.width == 2:
+            return self.rows[0][0] * self.rows[1][1] - self.rows[0][1] * self.rows[1][0]
+        else:
+            return sum(self.rows[0][i] * self.cofactor(0, i) for i in range(self.width))
 
     @property
+    @cache
     def invertible(self):
         # type: () -> bool
         """Return True if the matrix is invertible."""
         return self.determinant != 0
 
     @property
+    @cache
     def inverse(self):
         # type: () -> Matrix
         """Inverse the matrix."""
-        if self._inverse is None:
-            result = []
-            for r in range(self.height):
-                result.append([self.cofactor(r, c) for c in range(self.width)])
-            self._inverse = Matrix(result).transpose / self.determinant
-            self._inverse._inverse = self # pylint: disable = protected-access
-        return self._inverse
+        result = []
+        for r in range(self.height):
+            result.append([self.cofactor(r, c) for c in range(self.width)])
+        return Matrix(result).transpose / self.determinant
 
     def __hash__(self):
         # type: () -> int
@@ -349,6 +350,7 @@ class Matrix: # pylint: disable = too-many-public-methods
             @ self
         )
 
+    @cache
     def to_tuple(self):
         # type: () -> tuple[tuple[float, ...], ...]
         """Convert to a tuple."""
