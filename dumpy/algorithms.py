@@ -1,3 +1,5 @@
+"""Utility algorithms."""
+
 from collections import defaultdict, Counter
 from collections.abc import Sequence
 from enum import IntEnum
@@ -5,6 +7,8 @@ from math import inf as INF, copysign, nextafter
 from typing import Any, Optional, Union
 
 from .data_structures import SortedDict, PriorityQueue
+from .matrix import Matrix
+from .primitives import Segment
 
 
 def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable = too-many-statements
@@ -68,15 +72,15 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
 
     class BOEvent(IntEnum):
         """Enum for different Bentley-Ottmann events."""
+
         START = 1
         MEET = 2
         END = 3
 
-
     class BOSegmentWrapper:
         """A wrapper class for ordering Segments."""
 
-        sweep_x = None
+        sweep_x = None # type: float
 
         def __init__(self, segment):
             # type: (Segment) -> None
@@ -123,8 +127,10 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
                 dx = self._x - self.segment.point1.x
                 self._y = self.segment.point1.y + dx * self.segment.slope
 
+    Priority = tuple[float, int, float]
+
     # initialize the two main data structures
-    priority_queue = PriorityQueue() # type: PriorityQueue[tuple[float, int, float], tuple[str, Union[Segment, Matrix]]]
+    priority_queue = PriorityQueue() # type: PriorityQueue[Priority, tuple[BOEvent, Union[Segment, Matrix]]]
     tree = SortedDict() # type: SortedDict[BOSegmentWrapper, Segment]
     for segment in segments:
         priority_queue.push(
@@ -137,7 +143,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
         )
     # initialize additional FIXME keeping structures
     segment_wrappers = {} # type: dict[Segment, BOSegmentWrapper]
-    intersect_cache = {} # type: dict[tuple[Segment, Segment], tuple[float, bool]]
+    intersect_cache = {} # type: dict[tuple[Segment, Segment], Matrix]
     intersect_segment_counts = defaultdict(Counter) # type: dict[Matrix, Counter[Segment]]
     segment_intersect_map = defaultdict(dict) # type: dict[Segment, dict[Matrix, bool]]
 
@@ -154,11 +160,10 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
             if intersect:
                 intersect = round(intersect, ndigits=ndigits)
                 intersect_cache[intersect_key] = intersect
-                intersect_tuple = intersect.to_tuple()
-                segment_intersect_map[segment1][intersect_tuple] = (
+                segment_intersect_map[segment1][intersect] = (
                     intersect not in (segment1.point1, segment1.point2)
                 )
-                segment_intersect_map[segment2][intersect_tuple] = (
+                segment_intersect_map[segment2][intersect] = (
                     intersect not in (segment2.point1, segment2.point2)
                 )
         return intersect_cache[intersect_key]
@@ -181,14 +186,13 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
         # check that intersection is after sweep line
         if intersect.x < BOSegmentWrapper.sweep_x:
             return
-        intersect_tuple = intersect.to_tuple()
-        if intersect_segment_counts[intersect_tuple].total() == 0:
+        if intersect_segment_counts[intersect].total() == 0:
             priority_queue.push(
                 (BOEvent.MEET, intersect),
                 (intersect.x, BOEvent.MEET, intersect.y),
             )
-        intersect_segment_counts[intersect_tuple][segment1] += 1
-        intersect_segment_counts[intersect_tuple][segment2] += 1
+        intersect_segment_counts[intersect][segment1] += 1
+        intersect_segment_counts[intersect][segment2] += 1
 
     def unschedule_intersect(segment1, segment2):
         # type: (Segment, Segment) -> None
@@ -197,10 +201,9 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
             return
         if intersect.x <= BOSegmentWrapper.sweep_x:
             return
-        intersect_tuple = intersect.to_tuple()
-        intersect_segment_counts[intersect_tuple][segment1] -= 1
-        intersect_segment_counts[intersect_tuple][segment2] -= 1
-        if intersect_segment_counts[intersect_tuple].total() == 0:
+        intersect_segment_counts[intersect][segment1] -= 1
+        intersect_segment_counts[intersect][segment2] -= 1
+        if intersect_segment_counts[intersect].total() == 0:
             priority_queue.remove(
                 (BOEvent.MEET, intersect),
                 (intersect.x, BOEvent.MEET, intersect.y),
@@ -277,10 +280,9 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
 
     def non_endpoint_intersect(intersect):
         # type: (Matrix) -> bool
-        intersect_tuple = intersect.to_tuple()
         count = 0
-        for segment in intersect_segment_counts[intersect.to_tuple()]:
-            if segment_intersect_map[segment][intersect_tuple]:
+        for segment in intersect_segment_counts[intersect]:
+            if segment_intersect_map[segment][intersect]:
                 count += 1
                 if count == 2:
                     return True
@@ -291,14 +293,15 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
         (sweep_x, *_), (event_type, data) = priority_queue.pop()
         BOSegmentWrapper.sweep_x = sweep_x
         if event_type == BOEvent.START:
-            segment = data
-            insert_into_tree(segment)
+            assert isinstance(data, Segment)
+            insert_into_tree(data)
         elif event_type == BOEvent.END:
-            segment = data
-            remove_from_tree(segment)
+            assert isinstance(data, Segment)
+            remove_from_tree(data)
         elif event_type == BOEvent.MEET:
+            assert isinstance(data, Matrix)
             intersect = data
             if include_end or non_endpoint_intersect(intersect):
                 results.append(intersect)
-            swap(*intersect_segment_counts[intersect.to_tuple()])
+            swap(*intersect_segment_counts[intersect])
     return results
