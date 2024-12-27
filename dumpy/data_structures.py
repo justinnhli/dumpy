@@ -376,20 +376,21 @@ class SortedDict(Mapping[KT, VT]):
         self.root = self._put_helper(key, value, self.root, None, None)
 
     @staticmethod
-    def _get_node_helper(key, node=None):
-        # type: (KT, _AVLNode[KT, VT]) -> Optional[_AVLNode[KT, VT]]
+    def _get_node_helper(key, node=None, prev_node=None, next_node=None):
+        # pylint: disable = line-too-long
+        # type: (KT, _AVLNode[KT, VT], _AVLNode[KT, VT], _AVLNode[KT, VT]) -> tuple[_AVLNode[KT, VT], _AVLNode[KT, VT], _AVLNode[KT, VT]]
         if node is None:
-            return None
+            return prev_node, None, next_node
         elif key < node.key:
-            return SortedDict._get_node_helper(key, node.left)
+            return SortedDict._get_node_helper(key, node.left, prev_node, node)
         elif node.key < key:
-            return SortedDict._get_node_helper(key, node.right)
+            return SortedDict._get_node_helper(key, node.right, node, next_node)
         else:
-            return node
+            return prev_node, node, next_node
 
     def _get_node(self, key):
         # type: (KT) -> Optional[_AVLNode[KT, VT]]
-        return SortedDict._get_node_helper(key, self.root)
+        return SortedDict._get_node_helper(key, self.root)[1]
 
     def _del_helper(self, key, node=None):
         # type: (KT, _AVLNode[KT, VT]) -> tuple[Optional[_AVLNode[KT, VT]], VT]
@@ -499,6 +500,15 @@ class SortedDict(Mapping[KT, VT]):
         if node is None:
             raise KeyError()
         return _AVLCursor(self, node)
+
+    def bracket(self, key):
+        # type: (KT) -> tuple[_AVLCursor[KT, VT], _AVLCursor[KT, VT]]
+        """Get two cursors that bracket the key."""
+        prev_node, curr_node, next_node = SortedDict._get_node_helper(key, self.root)
+        if curr_node is None:
+            return _AVLCursor(self, prev_node), _AVLCursor(self, next_node)
+        else:
+            return _AVLCursor(self, curr_node), _AVLCursor(self, curr_node)
 
     def keys(self):
         # type: () -> _KeysView[KT, VT]
