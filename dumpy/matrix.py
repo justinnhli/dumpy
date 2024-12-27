@@ -4,7 +4,7 @@
 
 from functools import cached_property
 from math import sqrt, isclose, sin, cos
-from typing import Any, Optional, Union, Sequence
+from typing import Any, Union, Sequence
 
 
 EPSILON = 0.00001

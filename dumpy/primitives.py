@@ -3,7 +3,6 @@
 from functools import cached_property
 from typing import Any, Optional
 
-from .data_structures import SortedDict, PriorityQueue
 from .matrix import Matrix, Point2D
 
 
