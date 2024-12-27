@@ -195,7 +195,6 @@ class Segment:
         else:
             return None
 
-    @cache
     def to_tuple(self):
         # type: () -> tuple[Any, ...]
         """Convert to a tuple."""
