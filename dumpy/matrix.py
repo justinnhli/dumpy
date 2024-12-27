@@ -350,7 +350,6 @@ class Matrix: # pylint: disable = too-many-public-methods
             @ self
         )
 
-    @cache
     def to_tuple(self):
         # type: () -> tuple[tuple[float, ...], ...]
         """Convert to a tuple."""
