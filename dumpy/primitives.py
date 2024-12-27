@@ -17,6 +17,26 @@ class Segment:
 
     @property
     @cache
+    def min(self):
+        # type: () -> float
+        """The "smaller" point."""
+        if self.point1 <= self.point2:
+            return self.point1
+        else:
+            return self.point2
+
+    @property
+    @cache
+    def max(self):
+        # type: () -> float
+        """The "larger" point."""
+        if self.point1 <= self.point2:
+            return self.point2
+        else:
+            return self.point1
+
+    @property
+    @cache
     def min_x(self):
         # type: () -> float
         """The smaller x-coordinate."""
