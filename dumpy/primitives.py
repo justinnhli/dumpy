@@ -1,6 +1,6 @@
 """2D geometry primitives."""
 
-from functools import cache
+from functools import cached_property
 from typing import Any, Optional
 
 from .data_structures import SortedDict, PriorityQueue
@@ -15,8 +15,7 @@ class Segment:
         self.point1 = point1
         self.point2 = point2
 
-    @property
-    @cache
+    @cached_property
     def min(self):
         # type: () -> float
         """The "smaller" point."""
@@ -25,8 +24,7 @@ class Segment:
         else:
             return self.point2
 
-    @property
-    @cache
+    @cached_property
     def max(self):
         # type: () -> float
         """The "larger" point."""
@@ -35,36 +33,31 @@ class Segment:
         else:
             return self.point1
 
-    @property
-    @cache
+    @cached_property
     def min_x(self):
         # type: () -> float
         """The smaller x-coordinate."""
         return self.point1.x
 
-    @property
-    @cache
+    @cached_property
     def max_x(self):
         # type: () -> float
         """The larger x-coordinate."""
         return self.point2.x
 
-    @property
-    @cache
+    @cached_property
     def min_y(self):
         # type: () -> float
         """The smaller y-coordinate."""
         return min(self.point1.y, self.point2.y)
 
-    @property
-    @cache
+    @cached_property
     def max_y(self):
         # type: () -> float
         """The larger y-coordinate."""
         return max(self.point1.y, self.point2.y)
 
-    @property
-    @cache
+    @cached_property
     def slope(self):
         # type: () -> float
         """The slope of the segment."""
