@@ -2,7 +2,7 @@
 
 # pylint: disable = too-many-lines
 
-from functools import cache
+from functools import cached_property
 from math import sqrt, isclose, sin, cos
 from typing import Any, Optional, Union, Sequence
 
@@ -20,8 +20,7 @@ class Matrix: # pylint: disable = too-many-public-methods
         self.height = len(values)
         self.width = len(values[0])
 
-    @property
-    @cache
+    @cached_property
     def cols(self):
         # type: () -> list[list[float]]
         """Get the columns of the matrix."""
@@ -30,79 +29,68 @@ class Matrix: # pylint: disable = too-many-public-methods
             for c in range(self.width)
         ]
 
-    @property
-    @cache
+    @cached_property
     def is_tuple(self):
         # type: () -> bool
         """Return True if the matrix is a 4-tuple."""
         return self.height == 1 and self.width == 4
 
-    @property
-    @cache
+    @cached_property
     def is_vector(self):
         # type: () -> bool
         """Return True if the matrix is a graphics vector."""
         return self.is_tuple and self.rows[0][3] == 0
 
-    @property
-    @cache
+    @cached_property
     def is_point(self):
         # type: () -> bool
         """Return True if the matrix is a graphics point."""
         return self.is_tuple and self.rows[0][3] == 1
 
-    @property
-    @cache
+    @cached_property
     def x(self):
         # type: () -> float
         """Return the x value of a 4-tuple."""
         return self.rows[0][0]
 
-    @property
-    @cache
+    @cached_property
     def y(self):
         # type: () -> float
         """Return the y value of a 4-tuple."""
         return self.rows[0][1]
 
-    @property
-    @cache
+    @cached_property
     def z(self):
         # type: () -> float
         """Return the z value of a 4-tuple."""
         return self.rows[0][2]
 
-    @property
-    @cache
+    @cached_property
     def w(self): # pylint: disable = invalid-name
         # type: () -> float
         """Return the w value of a 4-tuple."""
         return self.rows[0][3]
 
-    @property
-    @cache
+    @cached_property
     def magnitude(self):
         # type: () -> float
         """Return the magnitude of a 4-tuple."""
         return sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
 
-    @property
-    @cache
+    @cached_property
     def normalized(self):
         # type: () -> Matrix
         """Normalize a graphics point/vector."""
         magnitude = self.magnitude
         return Vector3D(self.x / magnitude, self.y / magnitude, self.z / magnitude)
 
-    @property
-    @cache
+    @cached_property
     def transpose(self):
         # type: () -> Matrix
         """Transpose the matrix."""
         return Matrix(self.cols)
 
-    @property
-    @cache
+    @cached_property
     def determinant(self):
         # type: () -> float
         """Calculate the determinant."""
@@ -111,15 +99,13 @@ class Matrix: # pylint: disable = too-many-public-methods
         else:
             return sum(self.rows[0][i] * self.cofactor(0, i) for i in range(self.width))
 
-    @property
-    @cache
+    @cached_property
     def invertible(self):
         # type: () -> bool
         """Return True if the matrix is invertible."""
         return self.determinant != 0
 
-    @property
-    @cache
+    @cached_property
     def inverse(self):
         # type: () -> Matrix
         """Inverse the matrix."""
