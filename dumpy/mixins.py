@@ -40,7 +40,7 @@ class Transform:
         # type: () -> Matrix
         """Create the transformation matrix."""
         return (
-            identity(3)
+            identity()
             .rotate_z(self.rotation)
             .translate(self.translation.x, self.translation.y, 0)
         )
