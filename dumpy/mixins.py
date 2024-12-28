@@ -65,3 +65,13 @@ class TransformMixIn:
         """Initialize the Transform."""
         # pylint: disable = unused-argument
         self.transform = Transform(translation, rotation)
+
+    def move(self, transform):
+        # type: (Transform) -> None
+        """Compose the transforms."""
+        self.transform += transform
+
+    def move_to(self, transform):
+        # type: (Transform) -> None
+        """Replace the transform."""
+        self.transform = transform
