@@ -45,3 +45,12 @@ def test_segment():
     segment2 = Segment(Point2D(0, 0), Point2D(1, 1))
     assert segment1.intersect(segment2) is None
     assert segment2.intersect(segment1) is None
+    # bug 2024-12-28
+    segment1 = Segment(Point2D(3, 3), Point2D(4, 4))
+    segment2 = Segment(Point2D(2, 2), Point2D(5, 5))
+    assert segment1.is_overlapping(segment2) == segment2.is_overlapping(segment1) == True
+    # bug 2024-12-28
+    segment1 = Segment(Point2D(3, 4), Point2D(5, 2))
+    segment2 = Segment(Point2D(2, 3), Point2D(4, 5))
+    assert segment1.is_colinear(segment2) == segment2.is_colinear(segment1) == False
+    assert segment1.is_overlapping(segment2) == segment2.is_overlapping(segment1) == False

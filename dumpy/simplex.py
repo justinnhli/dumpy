@@ -102,7 +102,7 @@ class Segment:
     def is_colinear(self, other):
         # type: (Segment) -> bool
         """Return whether the other segment is colinear."""
-        return Segment(self.point1, other.point1).slope == self.slope
+        return Segment(self.point1, other.point1).slope == self.slope == other.slope
 
     def is_kissing(self, other):
         # type: (Segment) -> bool
@@ -120,6 +120,8 @@ class Segment:
             and (
                 self.contains(other.point1, include_end=False)
                 or self.contains(other.point2, include_end=False)
+                or other.contains(self.point1, include_end=False)
+                or other.contains(self.point2, include_end=False)
             )
         )
 
