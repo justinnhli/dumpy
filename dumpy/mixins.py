@@ -64,6 +64,10 @@ class Transform:
         # type: () -> Transform
         return Transform(-self.translation, -self.rotation)
 
+    def __matmul__(self, other):
+        # type: (Matrix) -> Matrix
+        return self.matrix @ other
+
     def to_tuple(self):
         # type: () -> tuple[Any, ...]
         """Convert to a tuple."""
