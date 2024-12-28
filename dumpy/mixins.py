@@ -3,7 +3,7 @@
 from functools import cached_property
 from typing import Any
 
-from .matrix import Matrix, Point2D, identity
+from .matrix import Matrix, Vector2D, identity
 
 
 class Transform:
@@ -13,7 +13,7 @@ class Transform:
         # type: (Matrix, float) -> None
         """Initialize the Transform."""
         if translation is None:
-            translation = Point2D()
+            translation = Vector2D()
         self.translation = translation
         self.rotation = rotation
 
@@ -48,7 +48,7 @@ class Transform:
     def __add__(self, other):
         # type: (Transform) -> Transform
         return Transform(
-            Point2D(self.x + other.x, self.y + other.y),
+            Vector2D(self.x + other.x, self.y + other.y),
             self.rotation + other.rotation,
         )
 
