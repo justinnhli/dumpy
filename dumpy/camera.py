@@ -35,7 +35,7 @@ class Camera(TransformMixIn):
             .scale(self.zoom, self.zoom, self.zoom)
             .y_reflection
         )
-        return self.origin_transform.matrix @ transform_matrix @ point
+        return self.origin_transform @ transform_matrix @ point
 
     def draw_pixel(self, point, color=None):
         # type: (Matrix, Color) -> None
