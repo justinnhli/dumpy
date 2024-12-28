@@ -4,7 +4,7 @@ from typing import Any, Sequence
 
 from .color import Color
 from .canvas import Canvas
-from .mixins import TransformMixIn
+from .mixins import Transform, TransformMixIn
 from .matrix import Point2D, Matrix
 
 
@@ -17,6 +17,10 @@ class Camera(TransformMixIn):
         super().__init__(*args, **kwargs)
         self.canvas = canvas
         self.zoom_level = zoom_level
+        self.origin_transform = Transform(Point2D(
+            self.canvas.size.x // 2,
+            self.canvas.size.y // 2,
+        ))
 
     @property
     def zoom(self):
@@ -26,10 +30,12 @@ class Camera(TransformMixIn):
 
     def _translate(self, point):
         # type: (Matrix) -> Matrix
-        return Point2D(
-            self.zoom * (point.x - self.position.x) + (self.canvas.size.x // 2),
-            self.zoom * (-point.y + self.position.y) + (self.canvas.size.y // 2),
+        transform_matrix = (
+            self.transform.matrix
+            .scale(self.zoom, self.zoom, self.zoom)
+            .y_reflection
         )
+        return self.origin_transform.matrix @ transform_matrix @ point
 
     def draw_pixel(self, point, color=None):
         # type: (Matrix, Color) -> None
