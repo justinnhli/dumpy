@@ -45,6 +45,14 @@ class Transform:
             .translate(self.translation.x, self.translation.y, 0)
         )
 
+    def __str__(self):
+        # type: () -> str
+        return repr(self)
+
+    def __repr__(self):
+        # type: () -> str
+        return f'{type(self).__name__}{self.to_tuple()}'
+
     def __add__(self, other):
         # type: (Transform) -> Transform
         return Transform(
@@ -55,6 +63,20 @@ class Transform:
     def __neg__(self):
         # type: () -> Transform
         return Transform(-self.translation, -self.rotation)
+
+    def to_tuple(self):
+        # type: () -> tuple[Any, ...]
+        """Convert to a tuple."""
+        return (self.translation.to_tuple(), self.rotation)
+
+    @staticmethod
+    def from_tuple(value):
+        # type: () -> Transform
+        """Create from a tuple."""
+        return Transform(
+            Matrix.from_tuple(value[0]),
+            value[1],
+        )
 
 
 class TransformMixIn:
