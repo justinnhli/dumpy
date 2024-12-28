@@ -261,80 +261,63 @@ class Matrix: # pylint: disable = too-many-public-methods
     def translate(self, x, y, z):
         # type: (float, float, float) -> Matrix
         """Translate the matrix."""
-        return (
-            Matrix([
-                [1, 0, 0, x],
-                [0, 1, 0, y],
-                [0, 0, 1, z],
-                [0, 0, 0, 1],
-            ])
-            @ self
-        )
+        return Matrix((
+            [1, 0, 0, x],
+            [0, 1, 0, y],
+            [0, 0, 1, z],
+            [0, 0, 0, 1],
+        )) @ self
 
     def scale(self, x, y, z):
         # type: (float, float, float) -> Matrix
         """Scale the matrix."""
-        return (
-            Matrix([
-                [x, 0, 0, 0],
-                [0, y, 0, 0],
-                [0, 0, z, 0],
-                [0, 0, 0, 1],
-            ])
-            @ self
-        )
+        return Matrix([
+            [x, 0, 0, 0],
+            [0, y, 0, 0],
+            [0, 0, z, 0],
+            [0, 0, 0, 1],
+        ]) @ self
 
     def rotate_x(self, r):
         # type: (float) -> Matrix
         """Rotate the matrix along the x-axis."""
-        return (
-            Matrix([
-                [1, 0, 0, 0],
-                [0, cos(r), -sin(r), 0],
-                [0, sin(r), cos(r), 0],
-                [0, 0, 0, 1],
-            ])
-            @ self
-        )
+        return Matrix([
+            [1, 0, 0, 0],
+            [0, cos(r), -sin(r), 0],
+            [0, sin(r), cos(r), 0],
+            [0, 0, 0, 1],
+        ]) @ self
 
     def rotate_y(self, r):
         # type: (float) -> Matrix
         """Rotate the matrix along the y-axis."""
-        return (
-            Matrix([
-                [cos(r), 0, sin(r), 0],
-                [0, 1, 0, 0],
-                [-sin(r), 0, cos(r), 0],
-                [0, 0, 0, 1],
-            ])
-            @ self
-        )
+        return Matrix([
+            [cos(r), 0, sin(r), 0],
+            [0, 1, 0, 0],
+            [-sin(r), 0, cos(r), 0],
+            [0, 0, 0, 1],
+        ]) @ self
 
     def rotate_z(self, r):
         # type: (float) -> Matrix
         """Rotate the matrix along the z-axis."""
-        return (
-            Matrix([
-                [cos(r), -sin(r), 0, 0],
-                [sin(r), cos(r), 0, 0],
-                [0, 0, 1, 0],
-                [0, 0, 0, 1],
-            ])
-            @ self
-        )
+        return Matrix([
+            [cos(r), -sin(r), 0, 0],
+            [sin(r), cos(r), 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1],
+        ]) @ self
 
     def shear(self, x_y, x_z, y_x, y_z, z_x, z_y):
+        # pylint: disable = too-many-positional-arguments
         # type: (float, float, float, float, float, float) -> Matrix
         """Shear the matrix."""
-        return (
-            Matrix([
-                [1, x_y, x_z, 0],
-                [y_x, 1, y_z, 0],
-                [z_x, z_y, 1, 0],
-                [0, 0, 0, 1],
-            ])
-            @ self
-        )
+        return Matrix([
+            [1, x_y, x_z, 0],
+            [y_x, 1, y_z, 0],
+            [z_x, z_y, 1, 0],
+            [0, 0, 0, 1],
+        ]) @ self
 
     def to_tuple(self):
         # type: () -> tuple[tuple[float, ...], ...]
