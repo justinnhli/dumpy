@@ -96,6 +96,39 @@ class Matrix: # pylint: disable = too-many-public-methods
         return Matrix(self.cols)
 
     @cached_property
+    def x_reflection(self):
+        # type: () -> Matrix
+        """Reflect across the x-axis."""
+        return Matrix((
+            (-1, 0, 0, 0),
+            (0, 1, 0, 0),
+            (0, 0, 1, 0),
+            (0, 0, 0, 1),
+        )) @ self
+
+    @cached_property
+    def y_reflection(self):
+        # type: () -> Matrix
+        """Reflect across the y-axis."""
+        return Matrix((
+            (1, 0, 0, 0),
+            (0, -1, 0, 0),
+            (0, 0, 1, 0),
+            (0, 0, 0, 1),
+        )) @ self
+
+    @cached_property
+    def z_reflection(self):
+        # type: () -> Matrix
+        """Reflect across the z-axis."""
+        return Matrix((
+            (1, 0, 0, 0),
+            (0, 1, 0, 0),
+            (0, 0, -1, 0),
+            (0, 0, 0, 1),
+        )) @ self
+
+    @cached_property
     def determinant(self):
         # type: () -> float
         """Calculate the determinant."""
