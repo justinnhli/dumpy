@@ -2,7 +2,7 @@
 
 # pylint: disable = too-many-lines
 
-from functools import cached_property
+from functools import lru_cache as cache, cached_property
 from math import sqrt, isclose, sin, cos
 from typing import Any, Union, Sequence
 
@@ -355,7 +355,8 @@ def Point2D(x=0, y=0): # pylint: disable = invalid-name
     return Matrix([[x, y, 0, 1]])
 
 
-def identity(size):
+@cache
+def identity(size=4):
     # type: (int) -> Matrix
     """Create an identity matrix."""
     return Matrix([
