@@ -82,7 +82,12 @@ class Matrix: # pylint: disable = too-many-public-methods
         # type: () -> Matrix
         """Normalize a graphics point/vector."""
         magnitude = self.magnitude
-        return Vector3D(self.x / magnitude, self.y / magnitude, self.z / magnitude)
+        return Matrix(((
+            self.x / magnitude,
+            self.y / magnitude,
+            self.z / magnitude,
+            self.w,
+        ),))
 
     @cached_property
     def transpose(self):
