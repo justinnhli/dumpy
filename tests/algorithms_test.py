@@ -1,6 +1,6 @@
 """Tests for algorithms.py."""
 
-from itertools import product, combinations
+from itertools import product
 from typing import Iterator
 
 from dumpy.algorithms import bentley_ottmann
@@ -12,8 +12,8 @@ def _no_duplicates_coord_segments(num_segments):
     # type: (int) -> Iterator[tuple[Segment, ...]]
     """Generate segments with no duplicate x or y coordinates."""
 
-    def _generate_segments(xs, ys):
-        # type: (list[int], list[int]) -> Iterator[tuple[Segment, ...]]
+    def _generate_segments(xs, ys, segments):
+        # type: (list[int], list[int], list[Segment]) -> Iterator[tuple[Segment, ...]]
         if not xs:
             yield ()
             return
@@ -23,17 +23,21 @@ def _no_duplicates_coord_segments(num_segments):
             xs_ = xs[1:]
             ys_ = [y for y in ys if y != y1]
             for x2, y2 in product(xs_, ys_):
+                segment = Segment(point1, Point2D(x2, y2))
+                if any(segment.is_overlapping(existing) for existing in segments):
+                    continue
                 recursed = _generate_segments(
                     [x for x in xs_ if x != x2],
                     [y for y in ys_ if y != y2],
+                    segments + [segment],
                 )
-                segment = Segment(point1, Point2D(x2, y2))
-                for segments in recursed:
-                    yield (segment, *segments)
+                for results in recursed:
+                    yield (segment, *results)
 
     yield from _generate_segments(
         list(range(2 * num_segments)),
         list(range(2 * num_segments)),
+        [],
     )
 
 
@@ -55,10 +59,6 @@ def test_bentley_ottmann():
 
     def test_segments(segments, include_end):
         # type: (Sequence[Segment], bool) -> None
-        for segment1, segment2 in combinations(segments, 2):
-            if segment1.is_overlapping(segment2):
-                return
-        # do the test
         expected = sorted(set(
             round(intersect, 3).to_tuple()[0][:2] for intersect
             in _naive_all_intersects(segments, include_end=include_end)
