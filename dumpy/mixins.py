@@ -1,11 +1,11 @@
-"""Mix-in classes for 2D."""
+"""Mix-in classes."""
 
 from typing import Any
 
 from .matrix import Matrix, Point2D
 
 
-class Transform2DMixIn:
+class TransformMixIn:
     """MixIn for transform information."""
 
     def __init__(self, *args, position=None, rotation=0, **kwargs):

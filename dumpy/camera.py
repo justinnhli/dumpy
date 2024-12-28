@@ -4,16 +4,16 @@ from typing import Any, Sequence
 
 from .color import Color
 from .canvas import Canvas
-from .mixin2d import Transform2DMixIn
+from .mixins import TransformMixIn
 from .matrix import Point2D, Matrix
 
 
-class Camera2D(Transform2DMixIn):
+class Camera(TransformMixIn):
     """A 2D camera."""
 
     def __init__(self, canvas, *args, zoom_level=0, **kwargs):
         # type: (Canvas, Any, int, Any) -> None
-        """Initialize the Camera2D."""
+        """Initialize the Camera."""
         super().__init__(*args, **kwargs)
         self.canvas = canvas
         self.zoom_level = zoom_level
