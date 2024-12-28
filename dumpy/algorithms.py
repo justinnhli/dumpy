@@ -8,7 +8,7 @@ from typing import Any, Optional, Union
 
 from .data_structures import SortedDict, PriorityQueue
 from .matrix import Matrix
-from .primitives import Segment
+from .simplex import Segment
 
 
 def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable = too-many-statements

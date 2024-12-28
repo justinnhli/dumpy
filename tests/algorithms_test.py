@@ -5,7 +5,7 @@ from typing import Iterator
 
 from dumpy.algorithms import bentley_ottmann
 from dumpy.matrix import Matrix, Point2D
-from dumpy.primitives import Segment
+from dumpy.simplex import Segment
 
 
 def _no_duplicates_coord_segments(num_segments):

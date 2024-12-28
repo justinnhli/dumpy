@@ -1,7 +1,7 @@
-"""Tests for primitives.py."""
+"""Tests for simplex.py."""
 
 from dumpy.matrix import Point2D
-from dumpy.primitives import Segment
+from dumpy.simplex import Segment
 
 
 def test_segment():
