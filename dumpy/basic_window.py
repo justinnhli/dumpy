@@ -40,18 +40,19 @@ class BasicWindow:
     def key_callback(self, event):
         # type: (Event) -> None
         """Deal with key presses."""
+        translation = 25 / self.camera.zoom
         if event.keysym == 'w':
-            self.camera.move(Transform(Vector2D(0, 25)))
+            self.camera.move(Transform(Vector2D(0, translation)))
         elif event.keysym == 's':
-            self.camera.move(Transform(Vector2D(0, -25)))
+            self.camera.move(Transform(Vector2D(0, -translation)))
         elif event.keysym == 'a':
-            self.camera.move(Transform(Vector2D(-25, 0)))
+            self.camera.move(Transform(Vector2D(-translation, 0)))
         elif event.keysym == 'd':
-            self.camera.move(Transform(Vector2D(25, 0)))
+            self.camera.move(Transform(Vector2D(translation, 0)))
         elif event.keysym == 'q':
-            self.camera.move(Transform(rotation=PI / 8))
+            self.camera.move(Transform(rotation=0.125))
         elif event.keysym == 'e':
-            self.camera.move(Transform(rotation=-PI / 8))
+            self.camera.move(Transform(rotation=-0.125))
         elif event.keysym == 'space':
             self.camera.move_to(Transform())
         elif event.keysym == 'r':
