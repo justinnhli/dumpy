@@ -211,6 +211,10 @@ class _AVLCursor(Generic[KT, VT]):
         """Return whether the cursor has a next node."""
         return self.node.next is not None
 
+    def __bool__(self):
+        # type: () -> bool
+        return self.node is not None
+
     def prev(self, relative_index=1):
         # type: (int) -> _AVLCursor[KT, VT]
         """Move the cursor to the previous node."""
@@ -306,6 +310,10 @@ class SortedDict(Mapping[KT, VT]):
     def __len__(self):
         # type: () -> int
         return self.size
+
+    def __bool__(self):
+        # type: () -> bool
+        return self.size > 0
 
     def __contains__(self, key):
         # type: (Any) -> bool
@@ -571,6 +579,10 @@ class SortedSet(MutableSet[KT]):
         # type: () -> int
         return len(self.tree)
 
+    def __bool__(self):
+        # type: () -> bool
+        return self.size > 0
+
     def __contains__(self, key):
         # type: (Any) -> bool
         return key in self.tree
@@ -700,6 +712,10 @@ class PriorityQueue(Generic[KT, VT]):
     def __len__(self):
         # type: () -> int
         return self.size
+
+    def __bool__(self):
+        # type: () -> bool
+        return self.size > 0
 
     def peek(self):
         # type: () -> tuple[KT, VT]
