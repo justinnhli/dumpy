@@ -1,6 +1,7 @@
 """Mix-in classes."""
 
 from functools import cached_property
+from math import pi as PI
 from typing import Any
 
 from .matrix import Matrix, Vector2D, identity
@@ -36,12 +37,18 @@ class Transform:
         return self.rotation
 
     @cached_property
+    def radians(self):
+        # type: () -> float
+        """Return the rotation."""
+        return self.rotation * PI
+
+    @cached_property
     def matrix(self):
         # type: () -> Matrix
         """Create the transformation matrix."""
         return (
             identity()
-            .rotate_z(self.rotation)
+            .rotate_z(self.radians)
             .translate(self.translation.x, self.translation.y, 0)
         )
 
