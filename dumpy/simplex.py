@@ -57,6 +57,12 @@ class Segment:
         return max(self.point1.y, self.point2.y)
 
     @cached_property
+    def twin(self):
+        # type: () -> Segment
+        """The twin segment."""
+        return Segment(self.point2, self.point1)
+
+    @cached_property
     def slope(self):
         # type: () -> float
         """The slope of the segment."""
