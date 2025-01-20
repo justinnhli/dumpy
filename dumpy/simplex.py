@@ -225,3 +225,81 @@ class Segment:
             Matrix.from_tuple(value[0]),
             Matrix.from_tuple(value[1]),
         )
+
+
+class Triangle:
+    """A triangle."""
+
+    def __init__(self, segment1, segment2, segment3):
+        # type: (Segment, Segment, Segment) -> None
+        segments = sorted([segment1, segment2, segment3])
+        if segments[0].point2 != segments[1].point1:
+            segments[1], segments[2] = segments[2], segments[1]
+        if Segment._orientation(segments[0].point1, segments[0].point2, segments[1].point2) == 1:
+            segments = list(segment.twin for segment in reversed(segments))
+        self.segment1, self.segment2, self.segment3 = segments
+
+    @cached_property
+    def points(self):
+        # type: () -> tuple[Matrix, Matrix, Matrix]
+        """The points that make up the Triangle."""
+        return tuple(segment.point1 for segment in self.to_components())
+
+    def __hash__(self):
+        # type: () -> int
+        return hash(self.to_tuple())
+
+    def __eq__(self, other):
+        # type: (Any) -> bool
+        assert isinstance(other, type(self))
+        return self.to_components() == other.to_components()
+
+    def __lt__(self, other):
+        # type: (Any) -> bool
+        assert isinstance(other, type(self))
+        return self.to_components() < other.to_components()
+
+    def __iter__(self):
+        # type: () -> Iterator[Segment]
+        yield self.segment1
+        yield self.segment2
+        yield self.segment3
+
+    def __str__(self):
+        # type: () -> str
+        return repr(self)
+
+    def __repr__(self):
+        # type: () -> str
+        points = ', '.join(repr(point) for point in self.points)
+        return f'{type(self).__name__}({points})'
+
+    def to_components(self):
+        # type: () -> tuple[Any, ...]
+        """Return the components of this object."""
+        return self.segment1, self.segment2, self.segment3
+
+    def to_tuple(self):
+        # type: () -> tuple[Any, ...]
+        """Convert to a tuple."""
+        return tuple(component.to_tuple() for component in self.to_components())
+
+    @staticmethod
+    def from_tuple(value):
+        # type: () -> Triangle
+        """Create from a tuple."""
+        return Triangle(
+            Segment.from_tuple(value[0]),
+            Segment.from_tuple(value[1]),
+            Segment.from_tuple(value[2]),
+        )
+
+    @staticmethod
+    def from_points(point1, point2, point3):
+        # type: (Matrix, Matrix, Matrix) -> Triangle
+        """Create from three points."""
+        return Triangle(
+            Segment(point1, point2),
+            Segment(point2, point3),
+            Segment(point3, point1),
+        )
