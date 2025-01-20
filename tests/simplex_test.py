@@ -1,7 +1,7 @@
 """Tests for simplex.py."""
 
 from dumpy.matrix import Point2D
-from dumpy.simplex import Segment
+from dumpy.simplex import Segment, Triangle
 
 
 def test_segment():
@@ -54,3 +54,23 @@ def test_segment():
     segment2 = Segment(Point2D(2, 3), Point2D(4, 5))
     assert segment1.is_colinear(segment2) == segment2.is_colinear(segment1) == False
     assert segment1.is_overlapping(segment2) == segment2.is_overlapping(segment1) == False
+
+
+def test_triangle():
+    triangle = Triangle.from_points(
+        Point2D(1, 2),
+        Point2D(3, 4),
+        Point2D(5, 6),
+    )
+    assert triangle == Triangle(
+        Segment(Point2D(1, 2), Point2D(3, 4)),
+        Segment(Point2D(3, 4), Point2D(5, 6)),
+        Segment(Point2D(5, 6), Point2D(1, 2)),
+    )
+    assert tuple(triangle.points) == (Point2D(1, 2), Point2D(3, 4), Point2D(5, 6))
+    assert triangle.segment1 == Segment(Point2D(1, 2), Point2D(3, 4))
+    assert triangle.segment2 == Segment(Point2D(3, 4), Point2D(5, 6))
+    assert triangle.segment3 == Segment(Point2D(5, 6), Point2D(1, 2))
+    assert str(triangle) == 'Triangle(Point3D(1, 2, 0), Point3D(3, 4, 0), Point3D(5, 6, 0))'
+    assert Triangle.from_tuple(triangle.to_tuple()) == triangle 
+
