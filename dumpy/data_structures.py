@@ -215,6 +215,17 @@ class _AVLCursor(Generic[KT, VT]):
         # type: () -> bool
         return self.node is not None
 
+    def __str__(self):
+        # type: () -> str
+        return self.__repr__()
+
+    def __repr__(self):
+        # type: () -> str
+        if self.node:
+            return f'_AVLCursor({self.key}, {self.value})'
+        else:
+            return '_AVLCursor(None)'
+
     def prev(self, relative_index=1):
         # type: (int) -> _AVLCursor[KT, VT]
         """Move the cursor to the previous node."""
