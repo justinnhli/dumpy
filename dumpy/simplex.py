@@ -1,7 +1,7 @@
 """2D geometry primitives."""
 
 from functools import cached_property
-from typing import Any, Optional
+from typing import Any, Optional, Iterator
 
 from .matrix import Matrix, Point2D
 
@@ -16,7 +16,7 @@ class Segment:
 
     @cached_property
     def min(self):
-        # type: () -> float
+        # type: () -> Matrix
         """The "smaller" point."""
         if self.point1 <= self.point2:
             return self.point1
@@ -25,7 +25,7 @@ class Segment:
 
     @cached_property
     def max(self):
-        # type: () -> float
+        # type: () -> Matrix
         """The "larger" point."""
         if self.point1 <= self.point2:
             return self.point2

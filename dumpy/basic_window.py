@@ -5,7 +5,7 @@ from tkinter import Event
 
 from .camera import Camera
 from .canvas import Canvas
-from .matrix import Vector2D, Point2D
+from .matrix import Point2D, Vector2D
 from .mixins import Transform, TransformMixIn
 
 

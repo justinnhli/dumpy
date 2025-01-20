@@ -7,8 +7,8 @@ from PIL import Image
 from PIL.ImageDraw import Draw
 from PIL.ImageTk import PhotoImage
 
-from .matrix import Point2D, Matrix
 from .color import Color
+from .matrix import Matrix, Point2D
 
 
 class Canvas:

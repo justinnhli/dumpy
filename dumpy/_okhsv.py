@@ -7,7 +7,7 @@ Adapted from https://bottosson.github.io/posts/colorpicker/#source-code
 
 # pylint: disable = invalid-name
 
-from math import pi as PI, sqrt, cbrt, sin, cos, atan2
+from math import sqrt, cbrt, sin, cos, atan2, pi as PI
 from collections import namedtuple
 
 RGB = namedtuple('RGB', 'r, g, b')

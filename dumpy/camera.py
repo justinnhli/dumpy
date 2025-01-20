@@ -2,10 +2,10 @@
 
 from typing import Any, Sequence
 
-from .color import Color
 from .canvas import Canvas
+from .color import Color
+from .matrix import Matrix, Point2D
 from .mixins import Transform, TransformMixIn
-from .matrix import Point2D, Matrix
 
 
 class Camera(TransformMixIn):
