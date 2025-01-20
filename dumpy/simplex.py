@@ -97,7 +97,8 @@ class Segment:
 
     def __repr__(self):
         # type: () -> str
-        return f'{type(self).__name__}{self.to_tuple()}'
+        components = ', '.join(repr(component) for component in self.to_components())
+        return f'{type(self).__name__}({components})'
 
     def is_parallel(self, other):
         # type: (Segment) -> bool
@@ -212,10 +213,15 @@ class Segment:
         else:
             return None
 
+    def to_components(self):
+        # type: () -> tuple[Any, ...]
+        """Return the components of this object."""
+        return self.point1, self.point2
+
     def to_tuple(self):
         # type: () -> tuple[Any, ...]
         """Convert to a tuple."""
-        return (self.point1.to_tuple(), self.point2.to_tuple())
+        return tuple(component.to_tuple() for component in self.to_components())
 
     @staticmethod
     def from_tuple(value):
