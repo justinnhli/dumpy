@@ -34,12 +34,12 @@ class Color:
 
     def __eq__(self, other):
         # type: (Any) -> bool
-        if not isinstance(other, type(self)):
-            return False
+        assert isinstance(other, type(self))
         return self.to_hsva_tuple() == other.to_hsva_tuple()
 
     def __lt__(self, other):
         # type: (Color) -> bool
+        assert isinstance(other, type(self))
         return self.to_hsva_tuple() < other.to_hsva_tuple()
 
     def __iter__(self):

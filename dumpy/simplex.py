@@ -72,8 +72,7 @@ class Segment:
 
     def __eq__(self, other):
         # type: (Any) -> bool
-        if not isinstance(other, type(self)):
-            return False
+        assert isinstance(other, type(self))
         return self.to_tuple() == other.to_tuple()
 
     def __lt__(self, other):

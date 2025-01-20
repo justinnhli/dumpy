@@ -158,8 +158,7 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def __eq__(self, other):
         # type: (Any) -> bool
-        if not isinstance(other, type(self)):
-            return False
+        assert isinstance(other, type(self))
         return (
             self.height == other.height and self.width == other.width
             and all(
@@ -171,8 +170,7 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def __lt__(self, other):
         # type: (Any) -> bool
-        if not isinstance(other, type(self)):
-            return False
+        assert isinstance(other, type(self))
         return self.rows < other.rows
 
     def __str__(self):
