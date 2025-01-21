@@ -53,6 +53,7 @@ class Canvas:
     def draw_pixel(self, point, color=None):
         # type: (Matrix, Color) -> None
         """Draw a pixel."""
+        point = round(point)
         if color is None:
             color = Color(0, 0, 0)
         self.image.putpixel((point.x, point.y), color.to_rgba_tuple())
@@ -64,6 +65,8 @@ class Canvas:
         This function draws the line twice, in opposite directions, to ensure
         symmetry.
         """
+        point1 = round(point1)
+        point2 = round(point2)
         _, line_color = Canvas._set_default_colors(None, line_color)
         self.draw.line(
             [(point1.x, point1.y), (point2.x, point2.y)],
@@ -79,6 +82,8 @@ class Canvas:
     def draw_rect(self, point1, point2, fill_color=None, line_color=None):
         # type: (Matrix, Matrix, Color, Color) -> None
         """Draw a rectangle."""
+        point1 = round(point1)
+        point2 = round(point2)
         self.draw_poly(
             [
                 point1,
@@ -93,6 +98,7 @@ class Canvas:
     def draw_poly(self, points, fill_color=None, line_color=None):
         # type: (Sequence[Matrix], Color, Color) -> None
         """Draw a polygon."""
+        points = [round(point) for point in points]
         fill_color, line_color = Canvas._set_default_colors(fill_color, line_color)
         self.draw.polygon(
             [(point.x, point.y) for point in points],
@@ -104,6 +110,8 @@ class Canvas:
     def draw_oval(self, point1, point2, fill_color=None, line_color=None):
         # type: (Matrix, Matrix, Color, Color) -> None
         """Draw an oval."""
+        point1 = round(point1)
+        point2 = round(point2)
         fill_color, line_color = Canvas._set_default_colors(fill_color, line_color)
         self.draw.ellipse(
             [(point1.x, point1.y), (point2.x, point2.y)],
