@@ -3,9 +3,10 @@
 from functools import cached_property
 from typing import Any, Optional, Iterator
 
+from .metaprogramming import cached_class
 from .matrix import Matrix, Point2D
 
-
+@cached_class
 class Segment:
     """A line segment."""
 
@@ -233,6 +234,7 @@ class Segment:
         )
 
 
+@cached_class
 class Triangle:
     """A triangle."""
 
