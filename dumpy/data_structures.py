@@ -735,9 +735,11 @@ class PriorityQueue(Generic[KT, VT]):
         values = self.tree[key]
         return key, values[0]
 
-    def push(self, value, priority):
+    def push(self, value, priority=None):
         # type: (VT, KT) -> None
         """Put an item into the queue."""
+        if priority is None:
+            priority = value
         self.tree[priority].append(value)
         self.size += 1
 
