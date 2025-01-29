@@ -1,6 +1,7 @@
 """2D geometry primitives."""
 
 from functools import cached_property
+from math import atan2
 from typing import Any, Optional, Iterator
 
 from .metaprogramming import cached_class
@@ -131,6 +132,10 @@ class Segment:
                 or other.contains(self.point2, include_end=False)
             )
         )
+
+    @staticmethod
+    def _angle(p1, p2, p3):
+        return atan2(p3.y - p2.y, p3.x - p2.x) - atan2(p1.y - p2.y, p1.x - p2.x)
 
     @staticmethod
     def _orientation(p1, p2, p3):
