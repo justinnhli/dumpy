@@ -253,6 +253,17 @@ class Triangle:
         """The points that make up the Triangle."""
         return tuple(segment.point1 for segment in self.to_components())
 
+    @cached_property
+    def area(self):
+        # type: () -> float
+        """The area of the Triangle."""
+        point1, point2, point3 = self.points
+        return abs(
+            point1.x * (point2.y - point3.y)
+            + point2.x * (point3.y - point1.y)
+            + point3.x * (point1.y - point2.y)
+        ) / 2
+
     def __hash__(self):
         # type: () -> int
         return hash(self.to_tuple())
