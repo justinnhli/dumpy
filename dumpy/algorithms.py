@@ -4,11 +4,11 @@ from collections import defaultdict, Counter
 from collections.abc import Sequence
 from enum import IntEnum
 from math import inf as INF, copysign, nextafter
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, Sequence
 
 from .data_structures import SortedDict, PriorityQueue
 from .matrix import Matrix
-from .simplex import Segment
+from .simplex import Segment, Triangle
 
 
 def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable = too-many-statements
@@ -304,4 +304,431 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
             if include_end or non_endpoint_intersect(intersect):
                 results.append(intersect)
             swap(*intersect_segment_counts[intersect])
+    return results
+
+
+class Dir(IntEnum):
+    """Enum for different Bentley-Ottmann events."""
+    PREV = -1
+    NEXT = 1
+
+    @property
+    def opposite(self):
+        return Dir(-1 * self)
+
+
+class Chain:
+    """A chain of untriangulated points."""
+
+    def __init__(self, point):
+        # type: (Matrix) -> None
+        self.points = []
+        self.points = [point]
+
+    def prev(self, index=1):
+        return self.points[index - 1]
+
+    def next(self, index=1):
+        return self.points[-index]
+
+    def prev_pair(self):
+        return (self.points[0], self.points[1])
+
+    def next_pair(self):
+        return (self.points[-2], self.points[-1])
+
+    def __eq__(self, other):
+        # type: (Any) -> bool
+        return self.points == other.points
+
+    def __len__(self):
+        # type: () -> int
+        return len(self.points)
+
+    def __getitem__(self, index):
+        return self.points[index]
+
+    def __repr__(self):
+        # type: () -> str
+        return f'Chain({self.points})'
+
+    def add_prev(self, point):
+        self.points.insert(0, point)
+
+    def add_next(self, point):
+        self.points.append(point)
+
+    def trim_prev(self):
+        result = self.points[0]
+        self.points = self.points[1:]
+        return result
+
+    def trim_next(self):
+        result = self.points[-1]
+        self.points = self.points[:-1]
+        return result
+
+
+class SegmentWrapper:
+    """A wrapper class for ordering Segments."""
+
+    sweep_x = None # type: float
+
+    def __init__(self, segment):
+        # type: (Segment) -> None
+        self.segment = segment
+        self._x = None # type: Optional[float]
+        self._y = None # type: Optional[float]
+
+    @property
+    def y(self):
+        # type: () -> float
+        """Return the correct y value at SegmentWrapper.sweep_x."""
+        if self._x != SegmentWrapper.sweep_x:
+            self._update_y()
+        return self._y
+
+    @property
+    def key(self):
+        # type: () -> tuple[float, float, Segment]
+        """Return the comparison key."""
+        #return (self.y, self.segment.slope)
+        return (self.y, self.segment.point1.y, self.segment.slope)
+
+    def __eq__(self, other):
+        if isinstance(other, SegmentWrapper):
+            return self.segment == other.segment
+        else:
+            raise TypeError(f"'==' not supported between instances of 'Segment' and '{type(other)}'")
+
+    def __lt__(self, other):
+        # type: (Any) -> bool
+        if isinstance(other, SegmentWrapper):
+            return self.key < other.key
+        elif isinstance(other, (int, float)):
+            return self.y < other
+        else:
+            raise TypeError(f"'<' not supported between instances of 'Segment' and '{type(other)}'")
+
+    def __gt__(self, other):
+        # type: (Any) -> bool
+        if isinstance(other, SegmentWrapper):
+            return self.key > other.key
+        elif isinstance(other, (int, float)):
+            return self.y > other
+        else:
+            raise TypeError(f"'>' not supported between instances of 'Segment' and '{type(other)}'")
+
+    def __repr__(self):
+        return f'SegmentWrapper@{self.sweep_x}({self.segment})'
+
+    def _update_y(self):
+        # type: () -> None
+        self._x = SegmentWrapper.sweep_x
+        if self.segment.point1.x == self.segment.point2.x:
+            if self._y is None:
+                self._y = self.segment.min_y
+        else:
+            dx = self._x - self.segment.point1.x
+            self._y = self.segment.point1.y + dx * self.segment.slope
+
+
+def print_chains(chains, indent):
+    # type: (dict[float, list[Chain]], str) -> None
+    key = (lambda pair: (pair[1].prev().y, pair[0][1]))
+    for key, value in sorted(chains.items(), reverse=True, key=key):
+        print(f'{indent}{key}: {value}')
+
+
+def monotone_triangulation(points):
+    # type: (Sequence[Matrix]) -> Sequence[Triangle]
+    # initialize the three main data structures
+    priority_queue = PriorityQueue() # type: PriorityQueue[tuple[float, float], Matrix]
+    open_chains = {} # type: SortedDict[tuple[Matrix, Dir], Chain]
+    partitions = SortedDict() # type: SortedDict[SegmentWrapper, Point]
+    # cache information about the points, and enqueue points whose neighbors are to the right
+    # we do this to deal with vertical segments, by tracking which point is further "left"
+    point_info = {}
+    for i in range(-1, len(points) - 1):
+        point = points[i]
+        prev_point = points[i - 1]
+        next_point = points[i + 1]
+        orientation = Segment._orientation(prev_point, point, next_point)
+        point_type = None
+        if prev_point > point and next_point > point:
+            if orientation == -1:
+                point_type = 'start'
+            elif orientation == 1:
+                point_type = 'split'
+            else:
+                assert False, point
+        elif prev_point < point and next_point < point:
+            if orientation == -1:
+                point_type = 'end'
+            elif orientation == 1:
+                point_type = 'merge'
+            else:
+                assert False, point
+        else:
+            point_type = 'add'
+        assert point_type
+        point_info[point] = (
+            (prev_point, next_point),
+            (
+                SegmentWrapper(Segment(prev_point, point) if prev_point < point else Segment(point, prev_point)),
+                SegmentWrapper(Segment(next_point, point) if next_point < point else Segment(point, next_point)),
+            ),
+            orientation,
+            point_type,
+        )
+        if point_type in ('start', 'split'):
+            priority_queue.push(point)
+    # initialize results
+    processed = set()
+    results = [] # type: list[Triangle]
+
+    def add_to_chain(chain, point, direction):
+        # type: (Chain, Matrix, Matrix, Matrix) -> None
+        # direction is the FROM THE POINT TO THE CHAIN
+        # that is, if direction = NEXT, the point will be added 
+        # define everything in terms of head (towards the point) and tail (away from the point)
+        if direction == Dir.PREV:
+            head_fn = (lambda chain, index=1: chain.next(index))
+            tail_fn = (lambda chain, index=1: chain.prev(index))
+            pair_fn = (lambda chain: chain.next_pair())
+            trim_head_fn = (lambda chain: chain.trim_next())
+            add_head_fn = chain.add_next
+            add_tail_fn = chain.add_prev
+        elif direction == Dir.NEXT:
+            head_fn = (lambda chain, index=1: chain.prev(index))
+            tail_fn = (lambda chain, index=1: chain.next(index))
+            pair_fn = (lambda chain: chain.prev_pair())
+            trim_head_fn = (lambda chain: chain.trim_prev())
+            add_head_fn = chain.add_prev
+            add_tail_fn = chain.add_next
+        else:
+            assert False
+        # delete the head before it changes
+        del open_chains[(head_fn(chain), direction)]
+        # extend the chain if necessary
+        if len(chain) > 1 and (tail_fn(chain), direction) in open_chains:
+            other_chain = open_chains[(tail_fn(chain), direction)]
+            should_extend = (
+                len(other_chain) > 1
+                and point_info[head_fn(other_chain)][3] != 'split'
+            )
+            if should_extend:
+                del open_chains[(tail_fn(chain), direction.opposite)]
+                del open_chains[(head_fn(other_chain), direction)]
+                open_chains[(tail_fn(other_chain), direction.opposite)] = chain
+                trim_head_fn(other_chain)
+                while other_chain:
+                    add_tail_fn(trim_head_fn(other_chain))
+        # form all triangles possible
+        while len(chain) > 1:
+            if Segment._orientation(*pair_fn(chain), point) != -1:
+                break
+            results.append(Triangle.from_points(*pair_fn(chain), point))
+            print('   ', results[-1], results[-1].area) # FIXME
+            trim_head_fn(chain)
+        # update the chain
+        add_head_fn(point)
+        open_chains[(head_fn(chain), direction)] = chain
+
+    def end_chain(chain, point):
+        # type: (Chain, Matrix) -> None
+        for point1, point2 in zip(chain[:-1], chain[1:]):
+            results.append(Triangle.from_points(
+                point,
+                point1,
+                point2,
+            ))
+            print('   ', results[-1], results[-1].area) # FIXME
+
+    # start the sweep
+    while priority_queue:
+        _, point = priority_queue.pop()
+        processed.add(point)
+        SegmentWrapper.sweep_x = point.x
+        (
+            (prev_point, next_point),
+            (prev_segment, next_segment),
+            _,
+            point_type,
+        ) = point_info[point]
+        if point_type == 'start':
+            # start a new chain
+            print('start', point)
+            chain = Chain(point)
+            open_chains[(point, Dir.PREV)] = chain
+            open_chains[(point, Dir.NEXT)] = chain
+            partitions[prev_segment] = point
+            partitions[next_segment] = point
+        elif point_type == 'add':
+            # add a point to an existing chain
+            print('add', point)
+            # find the chain that is connected to this point and add to it
+            if (prev_point, Dir.PREV) in open_chains:
+                chain = open_chains[(prev_point, Dir.PREV)]
+                direction = Dir.PREV
+                del partitions[prev_segment]
+                cursor_top = partitions.bracket(point.y)[1]
+                partitions[next_segment] = point
+                cursor_top.value = point
+            elif (next_point, Dir.NEXT) in open_chains:
+                chain = open_chains[(next_point, Dir.NEXT)]
+                direction = Dir.NEXT
+                del partitions[next_segment]
+                cursor_bot = partitions.bracket(point.y)[0]
+                partitions[prev_segment] = point
+                cursor_bot.value = point
+            else:
+                assert False
+            add_to_chain(chain, point, direction)
+        elif point_type == 'end':
+            # end a chain
+            print('end', point)
+            # form all triangles
+            link_point = next_point
+            while link_point != prev_point:
+                chain = open_chains[(link_point, Dir.NEXT)]
+                end_chain(chain, point)
+                del open_chains[(chain.prev(), Dir.NEXT)]
+                del open_chains[(chain.next(), Dir.PREV)]
+                link_point = chain.next()
+            del partitions[prev_segment]
+            del partitions[next_segment]
+        elif point_type == 'merge':
+            # merge two chains
+            print('merge', point)
+            add_to_chain(open_chains[(prev_point, Dir.PREV)], point, Dir.PREV)
+            add_to_chain(open_chains[(next_point, Dir.NEXT)], point, Dir.NEXT)
+            # update partitions
+            del partitions[prev_segment]
+            del partitions[next_segment]
+            cursor_prev, cursor_next = partitions.bracket(point.y)
+            cursor_prev.value = point
+            cursor_next.value = point
+        elif point_type == 'split':
+            # split a chain
+            print('split', point)
+            # retrieve the stored point for this position
+            cursor_bot, cursor_top = partitions.bracket(point.y)
+            assert cursor_bot and cursor_top
+            print(cursor_bot)
+            print(cursor_top)
+            print(open_chains)
+            prev_chain = open_chains.get((cursor_bot.value, Dir.PREV))
+            next_chain = open_chains.get((cursor_top.value, Dir.NEXT))
+            assert prev_chain or next_chain
+            # determine if only one or both chains should be closed
+            # * if there is only one chain, deal with that
+            # * if one of the chains is colinear, ignore it
+            if prev_chain and next_chain and prev_chain == next_chain:
+                # the diagonal points are the ends of a chain
+                print('    split single')
+                # form all triangles
+                end_chain(prev_chain, point)
+                # store chain information
+                chain_prev = prev_chain.prev()
+                chain_next = prev_chain.next()
+                # clean up old chains
+                del open_chains[(prev_chain.prev(), Dir.NEXT)]
+                del open_chains[(prev_chain.next(), Dir.PREV)]
+                prev_chain = None
+                next_chain = None
+            else:
+                # the diagonal point is a merge point
+                print('    split double')
+                # cache the end of a chain
+                middle = None # FIXME bad variable name
+                if prev_chain:
+                    middle = prev_chain.next()
+                elif next_chain:
+                    middle = next_chain.prev()
+                else:
+                    assert False
+                # form all triangles
+                if not prev_chain:
+                    print(1)
+                    chain_prev = middle
+                    prev_chain = None
+                else:
+                    prev_info = point_info[prev_chain.next()]
+                    if prev_info[3] == 'split' and Segment._orientation(prev_chain.next(), prev_info[0][1], point) != -1:
+                        # create a new chain if the previous chain ends in a split
+                        print(2)
+                        chain_prev = prev_chain.next()
+                        prev_chain = None
+                    else:
+                        # otherwise, add the point to the chain
+                        print(3)
+                        add_to_chain(prev_chain, point, Dir.PREV)
+                        # store chain information
+                        chain_prev = prev_chain.prev()
+                        # clean up old chains
+                        del open_chains[(prev_chain.prev(), Dir.NEXT)]
+                        del open_chains[(prev_chain.next(), Dir.PREV)]
+                        if len(prev_chain) == 1:
+                            prev_chain = None
+                if not next_chain:
+                    print(4)
+                    chain_next = middle
+                    next_chain = None
+                else:
+                    next_info = point_info[next_chain.prev()]
+                    #if point_info[next_chain.prev()][3] == 'split':
+                    if next_info[3] == 'split' and Segment._orientation(next_info[0][0], next_chain.prev(), point) != -1:
+                        # create a new chain if the previous chain ends in a split
+                        print(5)
+                        chain_next = next_chain.prev()
+                        next_chain = None
+                    else:
+                        # otherwise, add the point to the chain
+                        print(6)
+                        add_to_chain(next_chain, point, Dir.NEXT)
+                        # store chain information
+                        chain_next = next_chain.next()
+                        # clean up old chains
+                        del open_chains[(next_chain.prev(), Dir.NEXT)]
+                        del open_chains[(next_chain.next(), Dir.PREV)]
+                        if len(next_chain) == 1:
+                            next_chain = None
+            # add diagonal for top polygon
+            if not prev_chain:
+                prev_chain = Chain(chain_prev)
+                prev_chain.add_next(point)
+            open_chains[(prev_chain.prev(), Dir.NEXT)] = prev_chain
+            open_chains[(prev_chain.next(), Dir.PREV)] = prev_chain
+            partitions[SegmentWrapper(Segment(point, next_point))] = point
+            # add diagonal for bottom polygon
+            if not next_chain:
+                next_chain = Chain(chain_next)
+                next_chain.add_prev(point)
+            open_chains[(next_chain.prev(), Dir.NEXT)] = next_chain
+            open_chains[(next_chain.next(), Dir.PREV)] = next_chain
+            partitions[SegmentWrapper(Segment(point, prev_point))] = point
+        else:
+            assert False
+        # add the eligible neighbors to the priority queue, which are points:
+        # 1. that have not already been processed
+        # 2. all of whose "smaller" neighbors have been processed
+        for neighbor in (prev_point, next_point):
+            should_enqueue = (
+                neighbor not in processed
+                and all(
+                    other > neighbor or other in processed
+                    for other in point_info[neighbor][0]
+                )
+            )
+            if should_enqueue:
+                priority_queue.push(neighbor)
+        print(f'    {len(open_chains)}')
+        print_chains(open_chains, '        ') # FIXME
+        print(f'    {len(partitions)}')
+        for segment, point in reversed(partitions.items()):
+            print('       ', segment, point, segment.key)
+        counter = Counter((chain.prev(), chain.next()) for chain in open_chains.values())
+        assert all(count == 2 for _, count in counter.most_common()), counter.most_common()
+    assert len(open_chains) == len(partitions) == 0
     return results
