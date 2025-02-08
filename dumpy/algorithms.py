@@ -478,7 +478,6 @@ def monotone_triangulation(points):
                 SegmentWrapper(Segment(prev_point, point) if prev_point < point else Segment(point, prev_point)),
                 SegmentWrapper(Segment(next_point, point) if next_point < point else Segment(point, next_point)),
             ),
-            orientation,
             point_type,
         )
         if point_type in ('start', 'split'):
@@ -515,7 +514,7 @@ def monotone_triangulation(points):
             other_chain = open_chains[(tail_fn(chain), direction)]
             should_extend = (
                 len(other_chain) > 1
-                and point_info[head_fn(other_chain)][3] != 'split'
+                and point_info[head_fn(other_chain)][2] != 'split'
             )
             if should_extend:
                 del open_chains[(tail_fn(chain), direction.opposite)]
@@ -553,7 +552,6 @@ def monotone_triangulation(points):
         (
             (prev_point, next_point),
             (prev_segment, next_segment),
-            _,
             point_type,
         ) = point_info[point]
         if point_type == 'start':
@@ -654,46 +652,27 @@ def monotone_triangulation(points):
                     chain_prev = middle
                     prev_chain = None
                 else:
-                    prev_info = point_info[prev_chain.next()]
-                    if prev_info[3] == 'split' and Segment._orientation(prev_chain.next(), prev_info[0][1], point) != -1:
-                        # create a new chain if the previous chain ends in a split
-                        print(2)
-                        chain_prev = prev_chain.next()
-                        prev_chain = None
-                    else:
-                        # otherwise, add the point to the chain
-                        print(3)
-                        add_to_chain(prev_chain, point, Dir.PREV)
-                        # store chain information
-                        chain_prev = prev_chain.prev()
-                        # clean up old chains
-                        del open_chains[(prev_chain.prev(), Dir.NEXT)]
-                        del open_chains[(prev_chain.next(), Dir.PREV)]
-                        if len(prev_chain) == 1:
-                            prev_chain = None
+                    # otherwise, add the point to the chain
+                    print(3)
+                    add_to_chain(prev_chain, point, Dir.PREV)
+                    # store chain information
+                    chain_prev = prev_chain.prev()
+                    # clean up old chains
+                    del open_chains[(prev_chain.prev(), Dir.NEXT)]
+                    del open_chains[(prev_chain.next(), Dir.PREV)]
                 if not next_chain:
                     print(4)
                     chain_next = middle
                     next_chain = None
                 else:
-                    next_info = point_info[next_chain.prev()]
-                    #if point_info[next_chain.prev()][3] == 'split':
-                    if next_info[3] == 'split' and Segment._orientation(next_info[0][0], next_chain.prev(), point) != -1:
-                        # create a new chain if the previous chain ends in a split
-                        print(5)
-                        chain_next = next_chain.prev()
-                        next_chain = None
-                    else:
-                        # otherwise, add the point to the chain
-                        print(6)
-                        add_to_chain(next_chain, point, Dir.NEXT)
-                        # store chain information
-                        chain_next = next_chain.next()
-                        # clean up old chains
-                        del open_chains[(next_chain.prev(), Dir.NEXT)]
-                        del open_chains[(next_chain.next(), Dir.PREV)]
-                        if len(next_chain) == 1:
-                            next_chain = None
+                    # otherwise, add the point to the chain
+                    print(6)
+                    add_to_chain(next_chain, point, Dir.NEXT)
+                    # store chain information
+                    chain_next = next_chain.next()
+                    # clean up old chains
+                    del open_chains[(next_chain.prev(), Dir.NEXT)]
+                    del open_chains[(next_chain.next(), Dir.PREV)]
             # add diagonal for top polygon
             if not prev_chain:
                 prev_chain = Chain(chain_prev)
