@@ -642,16 +642,16 @@ def monotone_triangulation(points):
             else:
                 # the diagonal point is a merge point
                 # cache the end of a chain
-                middle = None # FIXME bad variable name
+                other_end = None
                 if prev_chain:
-                    middle = prev_chain.next()
+                    other_end = prev_chain.next()
                 elif next_chain:
-                    middle = next_chain.prev()
+                    other_end = next_chain.prev()
                 else:
                     assert False
                 # form all triangles
                 if not prev_chain:
-                    chain_prev = middle
+                    chain_prev = other_end
                     prev_chain = None
                 else:
                     # otherwise, add the point to the chain
@@ -662,7 +662,7 @@ def monotone_triangulation(points):
                     del open_chains[(prev_chain.prev(), Dir.NEXT)]
                     del open_chains[(prev_chain.next(), Dir.PREV)]
                 if not next_chain:
-                    chain_next = middle
+                    chain_next = other_end
                     next_chain = None
                 else:
                     # otherwise, add the point to the chain
