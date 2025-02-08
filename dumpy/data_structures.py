@@ -199,6 +199,10 @@ class _AVLCursor(Generic[KT, VT]):
         """Get the value at the current node."""
         return self.node.value
 
+    @value.setter
+    def value(self, value):
+        self.node.value = value
+
     @property
     def has_prev(self):
         # type: () -> bool
