@@ -433,13 +433,6 @@ class SegmentWrapper:
             self._y = self.segment.point1.y + dx * self.segment.slope
 
 
-def print_chains(chains, indent):
-    # type: (dict[float, list[Chain]], str) -> None
-    key = (lambda pair: (pair[1].prev().y, pair[0][1]))
-    for key, value in sorted(chains.items(), reverse=True, key=key):
-        print(f'{indent}{key}: {value}')
-
-
 def monotone_triangulation(points):
     # type: (Sequence[Matrix]) -> Sequence[Triangle]
     # initialize the three main data structures
@@ -528,7 +521,6 @@ def monotone_triangulation(points):
             if Segment._orientation(*pair_fn(chain), point) != -1:
                 break
             results.append(Triangle.from_points(*pair_fn(chain), point))
-            print('   ', results[-1], results[-1].area) # FIXME
             trim_head_fn(chain)
         # update the chain
         add_head_fn(point)
@@ -542,7 +534,6 @@ def monotone_triangulation(points):
                 point1,
                 point2,
             ))
-            print('   ', results[-1], results[-1].area) # FIXME
 
     # start the sweep
     while priority_queue:
@@ -556,7 +547,6 @@ def monotone_triangulation(points):
         ) = point_info[point]
         if point_type == 'start':
             # start a new chain
-            print('start', point)
             chain = Chain(point)
             open_chains[(point, Dir.PREV)] = chain
             open_chains[(point, Dir.NEXT)] = chain
@@ -564,7 +554,6 @@ def monotone_triangulation(points):
             partitions[next_segment] = point
         elif point_type == 'add':
             # add a point to an existing chain
-            print('add', point)
             # find the chain that is connected to this point and add to it
             if (prev_point, Dir.PREV) in open_chains:
                 chain = open_chains[(prev_point, Dir.PREV)]
@@ -585,7 +574,6 @@ def monotone_triangulation(points):
             add_to_chain(chain, point, direction)
         elif point_type == 'end':
             # end a chain
-            print('end', point)
             # form all triangles
             link_point = next_point
             while link_point != prev_point:
@@ -598,7 +586,6 @@ def monotone_triangulation(points):
             del partitions[next_segment]
         elif point_type == 'merge':
             # merge two chains
-            print('merge', point)
             add_to_chain(open_chains[(prev_point, Dir.PREV)], point, Dir.PREV)
             add_to_chain(open_chains[(next_point, Dir.NEXT)], point, Dir.NEXT)
             # update partitions
@@ -609,13 +596,9 @@ def monotone_triangulation(points):
             cursor_next.value = point
         elif point_type == 'split':
             # split a chain
-            print('split', point)
             # retrieve the stored point for this position
             cursor_bot, cursor_top = partitions.bracket(point.y)
             assert cursor_bot and cursor_top
-            print(cursor_bot)
-            print(cursor_top)
-            print(open_chains)
             prev_chain = open_chains.get((cursor_bot.value, Dir.PREV))
             next_chain = open_chains.get((cursor_top.value, Dir.NEXT))
             assert prev_chain or next_chain
@@ -624,7 +607,6 @@ def monotone_triangulation(points):
             # * if one of the chains is colinear, ignore it
             if prev_chain and next_chain and prev_chain == next_chain:
                 # the diagonal points are the ends of a chain
-                print('    split single')
                 # form all triangles
                 end_chain(prev_chain, point)
                 # store chain information
@@ -637,7 +619,6 @@ def monotone_triangulation(points):
                 next_chain = None
             else:
                 # the diagonal point is a merge point
-                print('    split double')
                 # cache the end of a chain
                 middle = None # FIXME bad variable name
                 if prev_chain:
@@ -648,12 +629,10 @@ def monotone_triangulation(points):
                     assert False
                 # form all triangles
                 if not prev_chain:
-                    print(1)
                     chain_prev = middle
                     prev_chain = None
                 else:
                     # otherwise, add the point to the chain
-                    print(3)
                     add_to_chain(prev_chain, point, Dir.PREV)
                     # store chain information
                     chain_prev = prev_chain.prev()
@@ -661,12 +640,10 @@ def monotone_triangulation(points):
                     del open_chains[(prev_chain.prev(), Dir.NEXT)]
                     del open_chains[(prev_chain.next(), Dir.PREV)]
                 if not next_chain:
-                    print(4)
                     chain_next = middle
                     next_chain = None
                 else:
                     # otherwise, add the point to the chain
-                    print(6)
                     add_to_chain(next_chain, point, Dir.NEXT)
                     # store chain information
                     chain_next = next_chain.next()
@@ -702,11 +679,6 @@ def monotone_triangulation(points):
             )
             if should_enqueue:
                 priority_queue.push(neighbor)
-        print(f'    {len(open_chains)}')
-        print_chains(open_chains, '        ') # FIXME
-        print(f'    {len(partitions)}')
-        for segment, point in reversed(partitions.items()):
-            print('       ', segment, point, segment.key)
         counter = Counter((chain.prev(), chain.next()) for chain in open_chains.values())
         assert all(count == 2 for _, count in counter.most_common()), counter.most_common()
     assert len(open_chains) == len(partitions) == 0
