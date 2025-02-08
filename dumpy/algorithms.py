@@ -314,6 +314,7 @@ class Dir(IntEnum):
 
     @property
     def opposite(self):
+        # type: () -> Dir
         return Dir(-1 * self)
 
 
@@ -326,15 +327,19 @@ class Chain:
         self.points = [point]
 
     def prev(self, index=1):
+        # type: (int) -> Matrix
         return self.points[index - 1]
 
     def next(self, index=1):
+        # type: (int) -> Matrix
         return self.points[-index]
 
     def prev_pair(self):
+        # type: () -> tuple[Matrix, Matrix]
         return (self.points[0], self.points[1])
 
     def next_pair(self):
+        # type: () -> tuple[Matrix, Matrix]
         return (self.points[-2], self.points[-1])
 
     def __eq__(self, other):
@@ -346,6 +351,7 @@ class Chain:
         return len(self.points)
 
     def __getitem__(self, index):
+        # type: (slice) -> list[Matrix]
         return self.points[index]
 
     def __repr__(self):
@@ -353,17 +359,21 @@ class Chain:
         return f'Chain({self.points})'
 
     def add_prev(self, point):
+        # type: (Matrix) -> None
         self.points.insert(0, point)
 
     def add_next(self, point):
+        # type: (Matrix) -> None
         self.points.append(point)
 
     def trim_prev(self):
+        # type: () -> Matrix
         result = self.points[0]
         self.points = self.points[1:]
         return result
 
     def trim_next(self):
+        # type: () -> Matrix
         result = self.points[-1]
         self.points = self.points[:-1]
         return result
@@ -390,12 +400,13 @@ class SegmentWrapper:
 
     @property
     def key(self):
-        # type: () -> tuple[float, float, Segment]
+        # type: () -> tuple[float, float, float]
         """Return the comparison key."""
         #return (self.y, self.segment.slope)
         return (self.y, self.segment.point1.y, self.segment.slope)
 
     def __eq__(self, other):
+        # type: (Any) -> bool
         if isinstance(other, SegmentWrapper):
             return self.segment == other.segment
         else:
@@ -420,6 +431,7 @@ class SegmentWrapper:
             raise TypeError(f"'>' not supported between instances of 'Segment' and '{type(other)}'")
 
     def __repr__(self):
+        # type: () -> str
         return f'SegmentWrapper@{self.sweep_x}({self.segment})'
 
     def _update_y(self):
@@ -437,8 +449,8 @@ def monotone_triangulation(points):
     # type: (Sequence[Matrix]) -> Sequence[Triangle]
     # initialize the three main data structures
     priority_queue = PriorityQueue() # type: PriorityQueue[tuple[float, float], Matrix]
-    open_chains = {} # type: SortedDict[tuple[Matrix, Dir], Chain]
-    partitions = SortedDict() # type: SortedDict[SegmentWrapper, Point]
+    open_chains = {} # type: dict[tuple[Matrix, Dir], Chain]
+    partitions = SortedDict() # type: SortedDict[Union[SegmentWrapper, float], Matrix]
     # cache information about the points, and enqueue points whose neighbors are to the right
     # we do this to deal with vertical segments, by tracking which point is further "left"
     point_info = {}
@@ -480,15 +492,15 @@ def monotone_triangulation(points):
     results = [] # type: list[Triangle]
 
     def add_to_chain(chain, point, direction):
-        # type: (Chain, Matrix, Matrix, Matrix) -> None
+        # type: (Chain, Matrix, Dir) -> None
         # direction is the FROM THE POINT TO THE CHAIN
         # that is, if direction = NEXT, the point will be added 
         # define everything in terms of head (towards the point) and tail (away from the point)
         if direction == Dir.PREV:
-            head_fn = (lambda chain: chain.next())
-            tail_fn = (lambda chain: chain.prev())
-            pair_fn = (lambda chain: chain.next_pair())
-            trim_head_fn = (lambda chain: chain.trim_next())
+            head_fn = (lambda chain: chain.next()) # type: Callable[[Chain], Matrix]
+            tail_fn = (lambda chain: chain.prev()) # type: Callable[[Chain], Matrix]
+            pair_fn = (lambda chain: chain.next_pair()) # type: Callable[[Chain], tuple[Matrix, Matrix]]
+            trim_head_fn = (lambda chain: chain.trim_next()) # type: Callable[[Chain], Matrix]
             add_head_fn = chain.add_next
             add_tail_fn = chain.add_prev
         elif direction == Dir.NEXT:
