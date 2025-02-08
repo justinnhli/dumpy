@@ -1,10 +1,10 @@
 """Utility algorithms."""
 
 from collections import defaultdict, Counter
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from enum import IntEnum
 from math import inf as INF, copysign, nextafter
-from typing import Any, Optional, Union, Sequence
+from typing import Any, Optional, Union
 
 from .data_structures import SortedDict, PriorityQueue
 from .matrix import Matrix
@@ -16,7 +16,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
     """Implement the Bentley-Ottmann all intersects algorithm.
 
     The Bentley-Ottmann algorithm is a sweep line algorithm for finding all
-    intersects of given segments. Using a vertical sweep line over the 
+    intersects of given segments. Using a vertical sweep line over the
     endpoints of the segments (in a priority queue), it additionally uses a
     balanced binary search tree to track the y-values of each segment. Only
     the intersects of adjacent segments are calculated and added to the
@@ -33,7 +33,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
     the case of n parallel segments, as each new segment requires updating
     all previous segments. Instead, the trick is to recognize that the order
     of the segments cannot change during this update, as otherwise we would
-    have had a "meet" event first. The correct way to do this is therefore 
+    have had a "meet" event first. The correct way to do this is therefore
     to do update the keys ONLY OF SEGMENTS ON THE PATH DOWN FROM THE ROOT TO
     THE NEW LEAF. The tree would lose the binary search tree property, but
     that's okay, because:
@@ -141,7 +141,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
             (BOEvent.END, segment),
             (segment.max_x, BOEvent.END, segment.point2.y),
         )
-    # initialize additional FIXME keeping structures
+    # initialize additional state-keeping structures
     segment_wrappers = {} # type: dict[Segment, BOSegmentWrapper]
     intersect_cache = {} # type: dict[tuple[Segment, Segment], Matrix]
     intersect_segment_counts = defaultdict(Counter) # type: dict[Matrix, Counter[Segment]]
@@ -315,6 +315,7 @@ class Dir(IntEnum):
     @property
     def opposite(self):
         # type: () -> Dir
+        """The opposite direction."""
         return Dir(-1 * self)
 
 
@@ -328,18 +329,22 @@ class Chain:
 
     def prev(self, index=1):
         # type: (int) -> Matrix
+        """The nth point in the previous direction."""
         return self.points[index - 1]
 
     def next(self, index=1):
         # type: (int) -> Matrix
+        """The nth point in the next direction."""
         return self.points[-index]
 
     def prev_pair(self):
         # type: () -> tuple[Matrix, Matrix]
+        """The first two points in the previous direction."""
         return (self.points[0], self.points[1])
 
     def next_pair(self):
         # type: () -> tuple[Matrix, Matrix]
+        """The first two points in the next direction."""
         return (self.points[-2], self.points[-1])
 
     def __eq__(self, other):
@@ -360,20 +365,24 @@ class Chain:
 
     def add_prev(self, point):
         # type: (Matrix) -> None
+        """Add a point in the previous direction."""
         self.points.insert(0, point)
 
     def add_next(self, point):
         # type: (Matrix) -> None
+        """Add a point in the next direction."""
         self.points.append(point)
 
     def trim_prev(self):
         # type: () -> Matrix
+        """Remove a point in the previous direction."""
         result = self.points[0]
         self.points = self.points[1:]
         return result
 
     def trim_next(self):
         # type: () -> Matrix
+        """Remove a point in the next direction."""
         result = self.points[-1]
         self.points = self.points[:-1]
         return result
@@ -447,6 +456,7 @@ class SegmentWrapper:
 
 def monotone_triangulation(points):
     # type: (Sequence[Matrix]) -> Sequence[Triangle]
+    """Triangulate a simple polygon."""
     # initialize the three main data structures
     priority_queue = PriorityQueue() # type: PriorityQueue[tuple[float, float], Matrix]
     open_chains = {} # type: dict[tuple[Matrix, Dir], Chain]
@@ -493,8 +503,8 @@ def monotone_triangulation(points):
 
     def add_to_chain(chain, point, direction):
         # type: (Chain, Matrix, Dir) -> None
-        # direction is the FROM THE POINT TO THE CHAIN
-        # that is, if direction = NEXT, the point will be added 
+        # pylint: disable = superfluous-parens, unnecessary-lambda-assignment
+        # direction is the from the point to the chain
         # define everything in terms of head (towards the point) and tail (away from the point)
         if direction == Dir.PREV:
             head_fn = (lambda chain: chain.next()) # type: Callable[[Chain], Matrix]
