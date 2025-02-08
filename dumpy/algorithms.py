@@ -485,15 +485,15 @@ def monotone_triangulation(points):
         # that is, if direction = NEXT, the point will be added 
         # define everything in terms of head (towards the point) and tail (away from the point)
         if direction == Dir.PREV:
-            head_fn = (lambda chain, index=1: chain.next(index))
-            tail_fn = (lambda chain, index=1: chain.prev(index))
+            head_fn = (lambda chain: chain.next())
+            tail_fn = (lambda chain: chain.prev())
             pair_fn = (lambda chain: chain.next_pair())
             trim_head_fn = (lambda chain: chain.trim_next())
             add_head_fn = chain.add_next
             add_tail_fn = chain.add_prev
         elif direction == Dir.NEXT:
-            head_fn = (lambda chain, index=1: chain.prev(index))
-            tail_fn = (lambda chain, index=1: chain.next(index))
+            head_fn = (lambda chain: chain.prev())
+            tail_fn = (lambda chain: chain.next())
             pair_fn = (lambda chain: chain.prev_pair())
             trim_head_fn = (lambda chain: chain.trim_prev())
             add_head_fn = chain.add_prev
