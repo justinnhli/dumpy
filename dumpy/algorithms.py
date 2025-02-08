@@ -11,6 +11,76 @@ from .matrix import Matrix
 from .simplex import Segment, Triangle
 
 
+class _SegmentWrapper:
+    """A wrapper class for ordering Segments in sweep line algorithms."""
+
+    sweep_x = None # type: float
+
+    def __init__(self, segment):
+        # type: (Segment) -> None
+        self.segment = segment
+        self._x = None # type: Optional[float]
+        self._y = None # type: Optional[float]
+
+    @property
+    def key(self):
+        # type: () -> tuple[...]
+        """Return the comparison key."""
+        raise NotImplementedError()
+
+    @property
+    def y(self):
+        # type: () -> float
+        """Return the correct y value at sweep_x."""
+        if self._x != self.sweep_x:
+            self._update_y()
+        return self._y
+
+    @y.setter
+    def y(self, value):
+        # type: (float) -> None
+        """Set the value of y forcefully."""
+        self._x = self.sweep_x
+        self._y = value
+
+    def __eq__(self, other):
+        # type: (Any) -> bool
+        assert isinstance(other, type(self))
+        return self.segment == other.segment
+
+    def __lt__(self, other):
+        # type: (Any) -> bool
+        if isinstance(other, type(self)):
+            return self.key < other.key
+        elif isinstance(other, (int, float)):
+            return self.y < other
+        else:
+            raise TypeError(f"'<' not supported between instances of 'Segment' and '{type(other)}'")
+
+    def __gt__(self, other):
+        # type: (Any) -> bool
+        if isinstance(other, type(self)):
+            return self.key > other.key
+        elif isinstance(other, (int, float)):
+            return self.y > other
+        else:
+            raise TypeError(f"'>' not supported between instances of 'Segment' and '{type(other)}'")
+
+    def __repr__(self):
+        # type: () -> str
+        return f'{type(self)}@{self.sweep_x}({self.segment})'
+
+    def _update_y(self):
+        # type: () -> None
+        self._x = self.sweep_x
+        if self.segment.point1.x == self.segment.point2.x:
+            if self._y is None:
+                self._y = self.segment.min_y
+        else:
+            dx = self._x - self.segment.point1.x
+            self._y = self.segment.point1.y + dx * self.segment.slope
+
+
 def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable = too-many-statements
     # type: (Sequence[Segment], bool, int) -> list[Matrix]
     """Implement the Bentley-Ottmann all intersects algorithm.
@@ -77,55 +147,14 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
         MEET = 2
         END = 3
 
-    class BOSegmentWrapper:
+    class BOSegmentWrapper(_SegmentWrapper):
         """A wrapper class for ordering Segments."""
-
-        sweep_x = None # type: float
-
-        def __init__(self, segment):
-            # type: (Segment) -> None
-            self.segment = segment
-            self._x = None # type: Optional[float]
-            self._y = None # type: Optional[float]
 
         @property
         def key(self):
             # type: () -> tuple[float, float, Segment]
             """Return the comparison key."""
             return (self.y, -self.segment.slope, self.segment)
-
-        @property
-        def y(self):
-            # type: () -> float
-            """Return the correct y value at BOSegmentWrapper.sweep_x."""
-            if self._x != BOSegmentWrapper.sweep_x:
-                self._update_y()
-            return self._y
-
-        @y.setter
-        def y(self, value):
-            # type: (float) -> None
-            """Set the value of y forcefully."""
-            self._x = BOSegmentWrapper.sweep_x
-            self._y = value
-
-        def __eq__(self, other):
-            # type: (Any) -> bool
-            return self.key == other.key
-
-        def __lt__(self, other):
-            # type: (Any) -> bool
-            return self.key < other.key
-
-        def _update_y(self):
-            # type: () -> None
-            self._x = BOSegmentWrapper.sweep_x
-            if self.segment.point1.x == self.segment.point2.x:
-                if self._y is None:
-                    self._y = self.segment.min_y
-            else:
-                dx = self._x - self.segment.point1.x
-                self._y = self.segment.point1.y + dx * self.segment.slope
 
     Priority = tuple[float, int, float]
 
@@ -388,79 +417,23 @@ class Chain:
         return result
 
 
-class SegmentWrapper:
-    """A wrapper class for ordering Segments."""
-
-    sweep_x = None # type: float
-
-    def __init__(self, segment):
-        # type: (Segment) -> None
-        self.segment = segment
-        self._x = None # type: Optional[float]
-        self._y = None # type: Optional[float]
-
-    @property
-    def y(self):
-        # type: () -> float
-        """Return the correct y value at SegmentWrapper.sweep_x."""
-        if self._x != SegmentWrapper.sweep_x:
-            self._update_y()
-        return self._y
-
-    @property
-    def key(self):
-        # type: () -> tuple[float, float, float]
-        """Return the comparison key."""
-        #return (self.y, self.segment.slope)
-        return (self.y, self.segment.point1.y, self.segment.slope)
-
-    def __eq__(self, other):
-        # type: (Any) -> bool
-        if isinstance(other, SegmentWrapper):
-            return self.segment == other.segment
-        else:
-            raise TypeError(f"'==' not supported between instances of 'Segment' and '{type(other)}'")
-
-    def __lt__(self, other):
-        # type: (Any) -> bool
-        if isinstance(other, SegmentWrapper):
-            return self.key < other.key
-        elif isinstance(other, (int, float)):
-            return self.y < other
-        else:
-            raise TypeError(f"'<' not supported between instances of 'Segment' and '{type(other)}'")
-
-    def __gt__(self, other):
-        # type: (Any) -> bool
-        if isinstance(other, SegmentWrapper):
-            return self.key > other.key
-        elif isinstance(other, (int, float)):
-            return self.y > other
-        else:
-            raise TypeError(f"'>' not supported between instances of 'Segment' and '{type(other)}'")
-
-    def __repr__(self):
-        # type: () -> str
-        return f'SegmentWrapper@{self.sweep_x}({self.segment})'
-
-    def _update_y(self):
-        # type: () -> None
-        self._x = SegmentWrapper.sweep_x
-        if self.segment.point1.x == self.segment.point2.x:
-            if self._y is None:
-                self._y = self.segment.min_y
-        else:
-            dx = self._x - self.segment.point1.x
-            self._y = self.segment.point1.y + dx * self.segment.slope
-
-
 def monotone_triangulation(points):
     # type: (Sequence[Matrix]) -> Sequence[Triangle]
     """Triangulate a simple polygon."""
+
+    class MonotoneSegmentWrapper(_SegmentWrapper):
+        """A wrapper class for ordering Segments."""
+
+        @property
+        def key(self):
+            # type: () -> tuple[float, float, float]
+            """Return the comparison key."""
+            return (self.y, self.segment.point1.y, self.segment.slope)
+
     # initialize the three main data structures
     priority_queue = PriorityQueue() # type: PriorityQueue[tuple[float, float], Matrix]
     open_chains = {} # type: dict[tuple[Matrix, Dir], Chain]
-    partitions = SortedDict() # type: SortedDict[Union[SegmentWrapper, float], Matrix]
+    partitions = SortedDict() # type: SortedDict[Union[MonotoneSegmentWrapper, float], Matrix]
     # cache information about the points, and enqueue points whose neighbors are to the right
     # we do this to deal with vertical segments, by tracking which point is further "left"
     point_info = {}
@@ -490,8 +463,8 @@ def monotone_triangulation(points):
         point_info[point] = (
             (prev_point, next_point),
             (
-                SegmentWrapper(Segment(prev_point, point) if prev_point < point else Segment(point, prev_point)),
-                SegmentWrapper(Segment(next_point, point) if next_point < point else Segment(point, next_point)),
+                MonotoneSegmentWrapper(Segment(prev_point, point) if prev_point < point else Segment(point, prev_point)),
+                MonotoneSegmentWrapper(Segment(next_point, point) if next_point < point else Segment(point, next_point)),
             ),
             point_type,
         )
@@ -561,7 +534,7 @@ def monotone_triangulation(points):
     while priority_queue:
         _, point = priority_queue.pop()
         processed.add(point)
-        SegmentWrapper.sweep_x = point.x
+        MonotoneSegmentWrapper.sweep_x = point.x
         (
             (prev_point, next_point),
             (prev_segment, next_segment),
@@ -678,14 +651,14 @@ def monotone_triangulation(points):
                 prev_chain.add_next(point)
             open_chains[(prev_chain.prev(), Dir.NEXT)] = prev_chain
             open_chains[(prev_chain.next(), Dir.PREV)] = prev_chain
-            partitions[SegmentWrapper(Segment(point, next_point))] = point
+            partitions[MonotoneSegmentWrapper(Segment(point, next_point))] = point
             # add diagonal for bottom polygon
             if not next_chain:
                 next_chain = Chain(chain_next)
                 next_chain.add_prev(point)
             open_chains[(next_chain.prev(), Dir.NEXT)] = next_chain
             open_chains[(next_chain.next(), Dir.PREV)] = next_chain
-            partitions[SegmentWrapper(Segment(point, prev_point))] = point
+            partitions[MonotoneSegmentWrapper(Segment(point, prev_point))] = point
         else:
             assert False
         # add the eligible neighbors to the priority queue, which are points:
