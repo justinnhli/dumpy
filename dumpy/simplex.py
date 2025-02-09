@@ -5,7 +5,9 @@ from math import atan2
 from typing import Any, Optional, Iterator
 
 from .metaprogramming import cached_class
+from .camera import Camera
 from .matrix import Matrix, Point2D
+from .mixins import Transform
 
 @cached_class
 class Segment:
@@ -220,6 +222,13 @@ class Segment:
         else:
             return None
 
+    def draw(self, camera, transform=None):
+        # type: (Camera, Transform) -> None
+        """Draw the segment."""
+        if transform is None:
+            transform = Transform()
+        camera.draw_line(transform @ self.point1, transform @ self.point2)
+
     def to_components(self):
         # type: () -> tuple[Any, ...]
         """Return the components of this object."""
@@ -304,6 +313,13 @@ class Triangle:
         # type: () -> str
         points = ', '.join(repr(point) for point in self.points)
         return f'{type(self).__name__}({points})'
+
+    def draw(self, camera, transform):
+        # type: (Camera, Transform) -> None
+        """Draw the triangle."""
+        if transform is None:
+            transform = Transform()
+        camera.draw_poly([transform @ point for point in self.points])
 
     def to_components(self):
         # type: () -> tuple[Any, ...]
