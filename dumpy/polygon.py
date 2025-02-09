@@ -34,7 +34,13 @@ class Polygon(TransformMixIn):
     def centroid(self):
         # type: () -> Matrix
         """Calculate the centroid of the polygon."""
-        raise NotImplementedError()
+        total_area = 0
+        centroid = Point2D()
+        for triangle in self.triangles:
+            total_area += triangle.area
+            centroid += triangle.area * triangle.centroid
+        result = centroid / total_area
+        return Point2D(result.x, result.y)
 
     def __hash__(self):
         # type: () -> int
