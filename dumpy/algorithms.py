@@ -162,6 +162,8 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
     priority_queue = PriorityQueue() # type: PriorityQueue[Priority, tuple[BOEvent, Union[Segment, Matrix]]]
     tree = SortedDict() # type: SortedDict[BOSegmentWrapper, Segment]
     for segment in segments:
+        if segment > segment.twin:
+            segment = segment.twin
         priority_queue.push(
             (BOEvent.START, segment),
             (segment.min_x, BOEvent.START, segment),
@@ -270,7 +272,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
         # arrange segments by increasing slope
         segments = tuple(sorted(
             segments,
-            key=(lambda segment: (-segment.slope, segment.min_x, segment.min_y)), # pylint: disable = superfluous-parens
+            key=(lambda segment: (-segment.slope, segment)), # pylint: disable = superfluous-parens
         ))
         # manually update the SegmentWrappers to avoid floating point precision issues
         intersect = get_intersect(*segments[:2])

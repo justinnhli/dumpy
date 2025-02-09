@@ -114,6 +114,14 @@ def test_bentley_ottmann():
             ],
             include_end=include_end,
         ) == expected
+    # bug 2025-02-08
+    assert bentley_ottmann(
+        [
+            Segment(Point2D(0, 0), Point2D(-2, -2)),
+            Segment(Point2D(0, 0), Point2D(2, 2)),
+        ],
+        include_end=True,
+    ) == [Point2D(0, 0)]
 
 
 def _test_triangulation(points):
