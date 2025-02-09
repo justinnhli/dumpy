@@ -131,7 +131,6 @@ class Canvas:
         # type: () -> None
         """Draw the page to the canvas."""
         self.image_tk = PhotoImage(self.image, master=self.tk)
-        print(self.image)
         self.canvas.create_image(
             1, 1,
             anchor=NW,
