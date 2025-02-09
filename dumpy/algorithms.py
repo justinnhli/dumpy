@@ -164,11 +164,11 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
     for segment in segments:
         priority_queue.push(
             (BOEvent.START, segment),
-            (segment.min_x, BOEvent.START, segment.point1.y),
+            (segment.min_x, BOEvent.START, segment),
         )
         priority_queue.push(
             (BOEvent.END, segment),
-            (segment.max_x, BOEvent.END, segment.point2.y),
+            (segment.max_x, BOEvent.END, segment),
         )
     # initialize additional state-keeping structures
     segment_wrappers = {} # type: dict[Segment, BOSegmentWrapper]
