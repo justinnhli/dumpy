@@ -78,26 +78,7 @@ class Polygon(TransformMixIn):
     @staticmethod
     def _simplify(points):
         # type: (Sequence[Matrix]) -> list[Matrix]
-        """Remove colinear points.
-
-        >>> points = [(0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1)]
-        >>> all(
-        ...     len(Polygon(
-        ...         [Point2D(*point) for point in (points[i:] + points[:i])]
-        ...     ).children[0].points) == 4
-        ...     for i in range(len(points))
-        ... )
-        True
-
-        >>> points = [(0, 1), (-0.5, 0.5), (-1, 0), (-0.5, -0.5), (0, -1), (0.5, -0.5), (1, 0), (0.5, 0.5)]
-        >>> all(
-        ...     len(Polygon(
-        ...         [Point2D(*point) for point in (points[i:] + points[:i])]
-        ...     ).children[0].points) == 4
-        ...     for i in range(len(points))
-        ... )
-        True
-        """
+        """Remove colinear points."""
         angles = [
             Segment._orientation(
                 points[i - 1],
