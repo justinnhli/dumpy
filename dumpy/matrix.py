@@ -6,28 +6,31 @@ from functools import lru_cache as cache, cached_property
 from math import sqrt, isclose, sin, cos
 from typing import Any, Union, Sequence
 
+from .metaprogramming import cached_class
+
 
 EPSILON = 0.00001
 
 
+@cached_class
 class Matrix: # pylint: disable = too-many-public-methods
     """A matrix."""
 
     def __init__(self, values):
-        # type: (Sequence[Sequence[float]]) -> None
+        # type: (tuple[tuple[float, ...], ...]) -> None
         """Initialize a matrix."""
-        self.rows = tuple(tuple(row) for row in values)
+        self.rows = values
         self.height = len(values)
         self.width = len(values[0])
 
     @cached_property
     def cols(self):
-        # type: () -> list[list[float]]
+        # type: () -> tuple[tuple[float, ...], ...]
         """Get the columns of the matrix."""
-        return [
-            [self.rows[r][c] for r in range(self.height)]
+        return tuple(
+            tuple(self.rows[r][c] for r in range(self.height))
             for c in range(self.width)
-        ]
+        )
 
     @cached_property
     def is_tuple(self):
@@ -149,8 +152,8 @@ class Matrix: # pylint: disable = too-many-public-methods
         """Inverse the matrix."""
         result = []
         for r in range(self.height):
-            result.append([self.cofactor(r, c) for c in range(self.width)])
-        return Matrix(result).transpose / self.determinant
+            result.append(tuple(self.cofactor(r, c) for c in range(self.width)))
+        return Matrix(tuple(result)).transpose / self.determinant
 
     def __hash__(self):
         # type: () -> int
@@ -199,31 +202,31 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def __add__(self, other):
         # type: (Matrix) -> Matrix
-        return Matrix([
-            [val1 + val2 for val1, val2 in zip(row1, row2)]
+        return Matrix(tuple(
+            tuple(val1 + val2 for val1, val2 in zip(row1, row2))
             for row1, row2 in zip(self.rows, other.rows)
-        ])
+        ))
 
     def __sub__(self, other):
         # type: (Matrix) -> Matrix
-        return Matrix([
-            [val1 - val2 for val1, val2 in zip(row1, row2)]
+        return Matrix(tuple(
+            tuple(val1 - val2 for val1, val2 in zip(row1, row2))
             for row1, row2 in zip(self.rows, other.rows)
-        ])
+        ))
 
     def __neg__(self):
         # type: () -> Matrix
-        return Matrix([
-            [-val for val in row]
+        return Matrix(tuple(
+            tuple(-val for val in row)
             for row in self.rows
-        ])
+        ))
 
     def __mul__(self, other):
         # type: (Union[int, float]) -> Matrix
-        result = []
-        for row in self.rows:
-            result.append([val * other for val in row])
-        return Matrix(result)
+        return Matrix(tuple(
+            tuple(val * other for val in row)
+            for row in self.rows
+        ))
 
     def __rmul__(self, other):
         # type: (Union[int, float]) -> Matrix
@@ -246,11 +249,11 @@ class Matrix: # pylint: disable = too-many-public-methods
             for c in range(other.width):
                 col = other.cols[c]
                 result_row.append(sum(a * b for a, b in zip(row, col)))
-            result.append(result_row)
+            result.append(tuple(result_row))
         if is_tuple:
-            return Matrix(result).transpose
+            return Matrix(tuple(result)).transpose
         else:
-            return Matrix(result)
+            return Matrix(tuple(result))
 
     def reflect(self, other):
         # type: (Matrix) -> Matrix
@@ -275,11 +278,11 @@ class Matrix: # pylint: disable = too-many-public-methods
     def submatrix(self, dr, dc): # pylint: disable = invalid-name
         # type: (int, int) -> Matrix
         """Slice out a submatrix."""
-        return Matrix([
+        return Matrix(tuple(
             row[:dc] + row[dc + 1:]
             for r, row in enumerate(self.rows)
             if r != dr
-        ])
+        ))
 
     def minor(self, dr, dc): # pylint: disable = invalid-name
         # type: (int, int) -> float
@@ -298,67 +301,67 @@ class Matrix: # pylint: disable = too-many-public-methods
         # type: (float, float, float) -> Matrix
         """Translate the matrix."""
         return Matrix((
-            [1, 0, 0, x],
-            [0, 1, 0, y],
-            [0, 0, 1, z],
-            [0, 0, 0, 1],
+            (1, 0, 0, x),
+            (0, 1, 0, y),
+            (0, 0, 1, z),
+            (0, 0, 0, 1),
         )) @ self
 
     def scale(self, x, y, z):
         # type: (float, float, float) -> Matrix
         """Scale the matrix."""
-        return Matrix([
-            [x, 0, 0, 0],
-            [0, y, 0, 0],
-            [0, 0, z, 0],
-            [0, 0, 0, 1],
-        ]) @ self
+        return Matrix((
+            (x, 0, 0, 0),
+            (0, y, 0, 0),
+            (0, 0, z, 0),
+            (0, 0, 0, 1),
+        )) @ self
 
     def rotate_x(self, r):
         # type: (float) -> Matrix
         """Rotate the matrix along the x-axis."""
-        return Matrix([
-            [1, 0, 0, 0],
-            [0, cos(r), -sin(r), 0],
-            [0, sin(r), cos(r), 0],
-            [0, 0, 0, 1],
-        ]) @ self
+        return Matrix((
+            (1, 0, 0, 0),
+            (0, cos(r), -sin(r), 0),
+            (0, sin(r), cos(r), 0),
+            (0, 0, 0, 1),
+        )) @ self
 
     def rotate_y(self, r):
         # type: (float) -> Matrix
         """Rotate the matrix along the y-axis."""
-        return Matrix([
-            [cos(r), 0, sin(r), 0],
-            [0, 1, 0, 0],
-            [-sin(r), 0, cos(r), 0],
-            [0, 0, 0, 1],
-        ]) @ self
+        return Matrix((
+            (cos(r), 0, sin(r), 0),
+            (0, 1, 0, 0),
+            (-sin(r), 0, cos(r), 0),
+            (0, 0, 0, 1),
+        )) @ self
 
     def rotate_z(self, r):
         # type: (float) -> Matrix
         """Rotate the matrix along the z-axis."""
-        return Matrix([
-            [cos(r), -sin(r), 0, 0],
-            [sin(r), cos(r), 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1],
-        ]) @ self
+        return Matrix((
+            (cos(r), -sin(r), 0, 0),
+            (sin(r), cos(r), 0, 0),
+            (0, 0, 1, 0),
+            (0, 0, 0, 1),
+        )) @ self
 
     def shear(self, x_y, x_z, y_x, y_z, z_x, z_y):
         # pylint: disable = too-many-positional-arguments
         # type: (float, float, float, float, float, float) -> Matrix
         """Shear the matrix."""
-        return Matrix([
-            [1, x_y, x_z, 0],
-            [y_x, 1, y_z, 0],
-            [z_x, z_y, 1, 0],
-            [0, 0, 0, 1],
-        ]) @ self
+        return Matrix((
+            (1, x_y, x_z, 0),
+            (y_x, 1, y_z, 0),
+            (z_x, z_y, 1, 0),
+            (0, 0, 0, 1),
+        )) @ self
 
     def to_tuple(self):
         # type: () -> tuple[tuple[float, ...], ...]
         """Convert to a tuple."""
-        return tuple(tuple(row) for row in self.rows)
+        return self.rows
 
     @staticmethod
     def from_tuple(values):
@@ -370,32 +373,32 @@ class Matrix: # pylint: disable = too-many-public-methods
 def Vector3D(x=0, y=0, z=0): # pylint: disable = invalid-name
     # type: (float, float, float) -> Matrix
     """Create a 4-tuple that represents a 3D vector."""
-    return Matrix([[x, y, z, 0]])
+    return Matrix(((x, y, z, 0),))
 
 
 def Point3D(x=0, y=0, z=0): # pylint: disable = invalid-name
     # type: (float, float, float) -> Matrix
     """Create a 4-tuple that represents a 3D point."""
-    return Matrix([[x, y, z, 1]])
+    return Matrix(((x, y, z, 1),))
 
 
 def Vector2D(x=0, y=0): # pylint: disable = invalid-name
     # type: (float, float) -> Matrix
     """Create a 4-tuple that represents a 2D vector."""
-    return Matrix([[x, y, 0, 0]])
+    return Matrix(((x, y, 0, 0),))
 
 
 def Point2D(x=0, y=0): # pylint: disable = invalid-name
     # type: (float, float) -> Matrix
     """Create a 4-tuple that represents a 2D point."""
-    return Matrix([[x, y, 0, 1]])
+    return Matrix(((x, y, 0, 1),))
 
 
 @cache
 def identity(size=4):
     # type: (int) -> Matrix
     """Create an identity matrix."""
-    return Matrix([
-        (i * [0.0]) + [1.0] + (size - i - 1) * [0.0]
+    return Matrix(tuple(
+        (i * (0.0,)) + (1.0,) + (size - i - 1) * (0.0,)
         for i in range(size)
-    ])
+    ))
