@@ -276,7 +276,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
         ))
         # manually update the SegmentWrappers to avoid floating point precision issues
         intersect = get_intersect(*segments[:2])
-        steps = list(range(-(len(segments) // 2), len(segments) // 2 + 1))
+        steps = list(range(-len(segments) // 2, len(segments) // 2 + 1))
         if len(segments) % 2 == 0:
             steps.remove(0)
         for segment, step in zip(segments, steps):
@@ -286,18 +286,18 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
                 steps=abs(step),
             )
         # update intersects with surrounding segments
-        cursor_head = tree.cursor(segment_wrappers[segments[0]])
-        if cursor_head.has_prev:
-            segment_prev = cursor_head.prev().value
+        cursor_bot = tree.cursor(segment_wrappers[segments[0]])
+        if cursor_bot.has_prev:
+            segment_prev = cursor_bot.prev().value
             unschedule_intersect(segment_prev, segments[0])
             schedule_intersect(segment_prev, segments[-1])
-        cursor_tail = tree.cursor(segment_wrappers[segments[-1]])
-        if cursor_tail.has_next:
-            segment_next = cursor_tail.next().value
+        cursor_top = tree.cursor(segment_wrappers[segments[-1]])
+        if cursor_top.has_next:
+            segment_next = cursor_top.next().value
             unschedule_intersect(segments[-1], segment_next)
             schedule_intersect(segments[0], segment_next)
         # reverse the segments in the tree
-        curr_cursor = cursor_head
+        curr_cursor = cursor_bot
         for segment, step in zip(reversed(segments), steps):
             segment_wrappers[segment].y = nextafter(
                 intersect.y,
