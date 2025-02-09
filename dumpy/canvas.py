@@ -107,19 +107,6 @@ class Canvas:
             width=1,
         )
 
-    def draw_oval(self, point1, point2, fill_color=None, line_color=None):
-        # type: (Matrix, Matrix, Color, Color) -> None
-        """Draw an oval."""
-        point1 = round(point1)
-        point2 = round(point2)
-        fill_color, line_color = Canvas._set_default_colors(fill_color, line_color)
-        self.draw.ellipse(
-            [(point1.x, point1.y), (point2.x, point2.y)],
-            outline=line_color.to_rgba_tuple(),
-            fill=fill_color.to_rgba_tuple(),
-            width=1,
-        )
-
     def draw_text(self, point, text, anchor=None):
         # type: (Matrix, Color, Color) -> None
         """Draw text."""
