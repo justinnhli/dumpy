@@ -153,7 +153,11 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
         @property
         def key(self):
             # type: () -> tuple[float, float, Segment]
-            """Return the comparison key."""
+            """Return the comparison key.
+
+            When the y-value is the same, this key sorts segments by the
+            vertical order on the left side.
+            """
             return (self.y, -self.segment.slope, self.segment)
 
     Priority = tuple[float, int, float]
@@ -269,7 +273,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
 
     def swap(*segments):
         # type: (*Segment) -> None
-        # arrange segments by increasing slope
+        # arrange segments by decreasing slope, which correspond to bottom to top
         segments = tuple(sorted(
             segments,
             key=(lambda segment: (-segment.slope, segment)), # pylint: disable = superfluous-parens
@@ -339,7 +343,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
 
 
 class Dir(IntEnum):
-    """Enum for different Bentley-Ottmann events."""
+    """Enum for different directions."""
     PREV = -1
     NEXT = 1
 
@@ -429,7 +433,11 @@ def monotone_triangulation(points):
         @property
         def key(self):
             # type: () -> tuple[float, float, float]
-            """Return the comparison key."""
+            """Return the comparison key.
+
+            Since segments never intersect in the middle, this key sorts
+            segments by the vertical order on either side.
+            """
             return (self.y, self.segment.point1.y, self.segment.slope)
 
     # initialize the three main data structures
