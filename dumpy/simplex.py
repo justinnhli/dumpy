@@ -283,7 +283,8 @@ class Triangle:
     def centroid(self):
         # type: () -> Matrix
         """The centroid of the Triangle."""
-        return sum(self.points) / 3
+        result = sum(self.points, start=Point2D()) / 3
+        return Point2D(result.x, result.y)
 
     def __hash__(self):
         # type: () -> int
