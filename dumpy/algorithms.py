@@ -68,7 +68,7 @@ class _SegmentWrapper:
 
     def __repr__(self):
         # type: () -> str
-        return f'{type(self)}@{self.sweep_x}({self.segment})'
+        return f'{type(self).__name__}@{self.sweep_x}({self.segment.point1}, {self.segment.point2})'
 
     def _update_y(self):
         # type: () -> None
