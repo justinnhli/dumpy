@@ -22,18 +22,9 @@ class Canvas:
         self.image = None # type: Image
         self.draw = None # type: Draw
         self.new_page()
-        # gets around weird casing in title
-        # see https://bugs.python.org/issue13553
-        self.tk = Tk(className=('\u200B' + self.title)) # pylint: disable = superfluous-parens
-        self.tk.minsize(self.size.x, self.size.y)
-
-        self.canvas = TKCanvas(
-            self.tk,
-            width=self.size.x, height=self.size.y,
-            background='#FFFFFF',
-        )
-        self.canvas.place(relx=.5, rely=.5, anchor=CENTER)
-        self.image_tk = PhotoImage(self.image, master=self.tk)
+        self.tk = None # type: Tk
+        self.canvas = None # type: TKCanvas
+        self.image_tk = None # type: PhotoImage
 
     # drawing functions
 
@@ -110,6 +101,19 @@ class Canvas:
         """Draw text."""
         pass # FIXME
 
+    def create_tk(self):
+        # gets around weird casing in title
+        # see https://bugs.python.org/issue13553
+        self.tk = Tk(className=('\u200B' + self.title)) # pylint: disable = superfluous-parens
+        self.tk.minsize(self.size.x, self.size.y)
+        self.canvas = TKCanvas(
+            self.tk,
+            width=self.size.x, height=self.size.y,
+            background='#FFFFFF',
+        )
+        self.canvas.place(relx=.5, rely=.5, anchor=CENTER)
+        self.image_tk = PhotoImage(self.image, master=self.tk)
+
     def new_page(self):
         # type: () -> None
         """Clear the image buffer.
@@ -128,6 +132,8 @@ class Canvas:
     def display_page(self):
         # type: () -> None
         """Draw the page to the canvas."""
+        if self.tk is None:
+            self.create_tk()
         self.image_tk = PhotoImage(self.image, master=self.tk)
         self.canvas.create_image(
             1, 1,
@@ -165,12 +171,16 @@ class Canvas:
     def bind_key(self, key, callback):
         # type: (str, Callable[[Event[TKCanvas]], None]) -> None
         """Add a keybind."""
+        if self.tk is None:
+            self.create_tk()
         # FIXME need parameters for modifier keys
         self.canvas.bind(key, callback)
 
     def bind_mouse_click(self, button, callback):
         # type: (str, Callable[[Event[TKCanvas]], None]) -> None
         """Bind a mouse click."""
+        if self.tk is None:
+            self.create_tk()
         if button == 'left':
             self.canvas.bind('<Button-1>', callback)
         elif button == 'middle':
@@ -181,4 +191,6 @@ class Canvas:
     def bind_mouse_movement(self, callback):
         # type: (Callable[[Event[TKCanvas]], None]) -> None
         """Bind mouse movement."""
+        if self.tk is None:
+            self.create_tk()
         self.canvas.bind('<Motion>', callback)
