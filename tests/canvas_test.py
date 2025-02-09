@@ -135,10 +135,13 @@ def test_canvas_rect_outline():
     check_image(canvas.image, 'canvas_rect_outline_test.ppm')
 
 
-def test_new_page():
+def test_canvas_display():
     # type: () -> None
-    """Test new page clears the screen."""
     canvas = Canvas(Point2D(3, 3), 'test')
-    canvas.draw_pixel(Point2D(1, 1))
-    canvas.new_page()
-    check_image(canvas.image, 'canvas_new_page_test.ppm')
+    canvas.draw_pixel(Point2D(1, 0))
+    canvas.draw_pixel(Point2D(2, 1))
+    canvas.draw_pixel(Point2D(0, 2))
+    canvas.draw_pixel(Point2D(1, 2))
+    canvas.draw_pixel(Point2D(2, 2))
+    image = grab_screen(canvas)
+    check_image(canvas.image, 'canvas_display_test.ppm')
