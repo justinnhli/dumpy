@@ -135,6 +135,7 @@ class Segment:
 
     @staticmethod
     def _angle(p1, p2, p3):
+        # type: (Matrix, Matrix, Matrix) -> float
         return atan2(p3.y - p2.y, p3.x - p2.x) - atan2(p1.y - p2.y, p1.x - p2.x)
 
     @staticmethod
