@@ -33,7 +33,7 @@ class Canvas:
             background='#FFFFFF',
         )
         self.canvas.place(relx=.5, rely=.5, anchor=CENTER)
-        self.image_tk = PhotoImage(self.image)
+        self.image_tk = PhotoImage(self.image, master=self.tk)
 
     # drawing functions
 
@@ -130,7 +130,8 @@ class Canvas:
     def display_page(self):
         # type: () -> None
         """Draw the page to the canvas."""
-        self.image_tk = PhotoImage(self.image)
+        self.image_tk = PhotoImage(self.image, master=self.tk)
+        print(self.image)
         self.canvas.create_image(
             1, 1,
             anchor=NW,
