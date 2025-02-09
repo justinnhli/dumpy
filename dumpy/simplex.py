@@ -269,6 +269,12 @@ class Triangle:
             + point3.x * (point1.y - point2.y)
         ) / 2
 
+    @cached_property
+    def centroid(self):
+        # type: () -> Matrix
+        """The centroid of the Triangle."""
+        return sum(self.points) / 3
+
     def __hash__(self):
         # type: () -> int
         return hash(self.to_tuple())
