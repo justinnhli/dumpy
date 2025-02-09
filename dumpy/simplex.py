@@ -17,6 +17,7 @@ class Segment:
         # type: (Matrix, Matrix) -> None
         self.point1 = point1
         self.point2 = point2
+        self._hash = None
 
     @cached_property
     def min(self):
@@ -78,17 +79,19 @@ class Segment:
 
     def __hash__(self):
         # type: () -> int
-        return hash(self.to_tuple())
+        if not self._hash:
+            self._hash = hash((self.point1, self.point2))
+        return self._hash
 
     def __eq__(self, other):
         # type: (Any) -> bool
         assert isinstance(other, type(self))
-        return self.to_tuple() == other.to_tuple()
+        return self.to_components == other.to_components
 
     def __lt__(self, other):
         # type: (Any) -> bool
         assert isinstance(other, type(self))
-        return self.to_tuple() < other.to_tuple()
+        return self.to_components < other.to_components
 
     def __iter__(self):
         # type: () -> Iterator[Matrix]
@@ -101,7 +104,7 @@ class Segment:
 
     def __repr__(self):
         # type: () -> str
-        components = ', '.join(repr(component) for component in self.to_components())
+        components = ', '.join(repr(component) for component in self.to_components)
         return f'{type(self).__name__}({components})'
 
     def is_parallel(self, other):
@@ -229,15 +232,17 @@ class Segment:
             transform = Transform()
         camera.draw_line(transform @ self.point1, transform @ self.point2)
 
+    @cached_property
     def to_components(self):
         # type: () -> tuple[Any, ...]
         """Return the components of this object."""
         return self.point1, self.point2
 
+    @cached_property
     def to_tuple(self):
         # type: () -> tuple[Any, ...]
         """Convert to a tuple."""
-        return tuple(component.to_tuple() for component in self.to_components())
+        return tuple(component.to_tuple for component in self.to_components)
 
     @staticmethod
     def from_tuple(value):
@@ -261,12 +266,13 @@ class Triangle:
         if Segment._orientation(segments[0].point1, segments[0].point2, segments[1].point2) == 1:
             segments = list(segment.twin for segment in reversed(segments))
         self.segment1, self.segment2, self.segment3 = segments
+        self._hash = None
 
     @cached_property
     def points(self):
         # type: () -> tuple[Matrix, Matrix, Matrix]
         """The points that make up the Triangle."""
-        return tuple(segment.point1 for segment in self.to_components())
+        return tuple(segment.point1 for segment in self.to_components)
 
     @cached_property
     def area(self):
@@ -288,17 +294,19 @@ class Triangle:
 
     def __hash__(self):
         # type: () -> int
-        return hash(self.to_tuple())
+        if not self._hash:
+            self._hash = hash((self.segment1, self.segment2, self.segment3))
+        return self._hash
 
     def __eq__(self, other):
         # type: (Any) -> bool
         assert isinstance(other, type(self))
-        return self.to_components() == other.to_components()
+        return self.to_components == other.to_components
 
     def __lt__(self, other):
         # type: (Any) -> bool
         assert isinstance(other, type(self))
-        return self.to_components() < other.to_components()
+        return self.to_components < other.to_components
 
     def __iter__(self):
         # type: () -> Iterator[Segment]
@@ -322,15 +330,17 @@ class Triangle:
             transform = Transform()
         camera.draw_poly([transform @ point for point in self.points])
 
+    @cached_property
     def to_components(self):
         # type: () -> tuple[Any, ...]
         """Return the components of this object."""
         return self.segment1, self.segment2, self.segment3
 
+    @cached_property
     def to_tuple(self):
         # type: () -> tuple[Any, ...]
         """Convert to a tuple."""
-        return tuple(component.to_tuple() for component in self.to_components())
+        return tuple(component.to_tuple for component in self.to_components)
 
     @staticmethod
     def from_tuple(value):

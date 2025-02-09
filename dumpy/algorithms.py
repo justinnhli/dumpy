@@ -185,7 +185,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
     def get_intersect(segment1, segment2):
         # type: (Segment, Segment) -> Matrix
         # need to deal with all intersects, including ends, to keep tree in order
-        if segment1.to_tuple() < segment2.to_tuple():
+        if segment1 < segment2:
             intersect_key = (segment1, segment2)
         else:
             intersect_key = (segment2, segment1)

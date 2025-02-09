@@ -22,6 +22,7 @@ class Matrix: # pylint: disable = too-many-public-methods
         self.rows = values
         self.height = len(values)
         self.width = len(values[0])
+        self._hash = None
 
     @cached_property
     def cols(self):
@@ -157,7 +158,9 @@ class Matrix: # pylint: disable = too-many-public-methods
 
     def __hash__(self):
         # type: () -> int
-        return hash(self.to_tuple())
+        if not self._hash:
+            self._hash = hash(self.rows)
+        return self._hash
 
     def __eq__(self, other):
         # type: (Any) -> bool
@@ -358,6 +361,7 @@ class Matrix: # pylint: disable = too-many-public-methods
             (0, 0, 0, 1),
         )) @ self
 
+    @cached_property
     def to_tuple(self):
         # type: () -> tuple[tuple[float, ...], ...]
         """Convert to a tuple."""

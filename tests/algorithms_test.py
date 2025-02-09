@@ -60,11 +60,11 @@ def test_bentley_ottmann():
     def test_segments(segments, include_end):
         # type: (Sequence[Segment], bool) -> None
         expected = sorted(set(
-            round(intersect, 3).to_tuple()[0][:2] for intersect
+            round(intersect, 3).to_tuple[0][:2] for intersect
             in _naive_all_intersects(segments, include_end=include_end)
         ))
         actual = sorted(
-            round(intersect, 3).to_tuple()[0][:2] for intersect
+            round(intersect, 3).to_tuple[0][:2] for intersect
             in bentley_ottmann(segments, include_end=include_end)
         )
         assert expected == actual, (segments, expected, actual)

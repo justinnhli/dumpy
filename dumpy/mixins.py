@@ -17,6 +17,7 @@ class Transform:
             translation = Vector2D()
         self.translation = translation
         self.rotation = rotation
+        self._hash = None
 
     @cached_property
     def x(self):
@@ -52,13 +53,29 @@ class Transform:
             .translate(self.translation.x, self.translation.y, 0)
         )
 
+    def __hash__(self):
+        # type: () -> int
+        if not self._hash:
+            self._hash = hash((self.translation, self.rotation))
+        return self._hash
+
+    def __eq__(self, other):
+        # type: (Any) -> bool
+        assert isinstance(other, type(self))
+        return self.to_components == other.to_components
+
+    def __lt__(self, other):
+        # type: (Any) -> bool
+        assert isinstance(other, type(self))
+        return self.to_components < other.to_components
+
     def __str__(self):
         # type: () -> str
         return repr(self)
 
     def __repr__(self):
         # type: () -> str
-        return f'{type(self).__name__}{self.to_tuple()}'
+        return f'{type(self).__name__}{self.to_tuple}'
 
     def __add__(self, other):
         # type: (Transform) -> Transform
@@ -75,10 +92,17 @@ class Transform:
         # type: (Matrix) -> Matrix
         return self.matrix @ other
 
+    @cached_property
+    def to_components(self):
+        # type: () -> tuple[Any, ...]
+        """Return the components of this object."""
+        return (self.translation, self.rotation)
+
+    @cached_property
     def to_tuple(self):
         # type: () -> tuple[Any, ...]
         """Convert to a tuple."""
-        return (self.translation.to_tuple(), self.rotation)
+        return tuple(component.to_tuple for component in self.to_components)
 
     @staticmethod
     def from_tuple(value):

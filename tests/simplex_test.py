@@ -9,7 +9,7 @@ def test_segment():
     assert tuple(segment) == (Point2D(1, 2), Point2D(3, 4))
     assert segment.twin == Segment(Point2D(3, 4), Point2D(1, 2))
     assert str(segment) == 'Segment(Point3D(1, 2, 0), Point3D(3, 4, 0))'
-    assert Segment.from_tuple(segment.to_tuple()) == segment
+    assert Segment.from_tuple(segment.to_tuple) == segment
     # at most one point of intersection, include_end=True
     segments = [
         # vertical second segment
@@ -77,5 +77,5 @@ def test_triangle():
     assert triangle.segment2 == Segment(Point2D(3, 4), Point2D(5, 6))
     assert triangle.segment3 == Segment(Point2D(5, 6), Point2D(1, 2))
     assert str(triangle) == 'Triangle(Point3D(1, 2, 0), Point3D(3, 4, 0), Point3D(5, 6, 0))'
-    assert Triangle.from_tuple(triangle.to_tuple()) == triangle 
+    assert Triangle.from_tuple(triangle.to_tuple) == triangle 
 

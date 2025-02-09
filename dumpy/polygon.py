@@ -19,9 +19,10 @@ class Polygon(TransformMixIn):
         # type: (Sequence[Matrix], Any, Any) -> None
         super().__init__(*args, **kwargs)
         # remove colinear points
-        points = Polygon._simplify(points)
+        self.points = Polygon._simplify(points)
         # partition
-        self.triangles = monotone_triangulation(points)
+        self.triangles = monotone_triangulation(self.points)
+        self._hash = None
 
     @cached_property
     def area(self):
@@ -34,6 +35,16 @@ class Polygon(TransformMixIn):
         # type: () -> Matrix
         """Calculate the centroid of the polygon."""
         raise NotImplementedError()
+
+    def __hash__(self):
+        # type: () -> int
+        if not self._hash:
+            self._hash = hash(self.points)
+        return self._hash
+
+    def __eq__(self, other):
+        assert isinstance(other, type(self))
+        return self.to_components == other.to_components
 
     def union(self, *polygons):
         # type: (*Polygon) -> Polygon
@@ -90,10 +101,10 @@ class Polygon(TransformMixIn):
             for i in range(-1, len(points) - 1)
         ]
         angles = angles[1:] + [angles[0]]
-        return [
+        return tuple(
             point for point, angle in zip(points, angles)
             if angle != 0 # FIXME use a more meaningful test
-        ]
+        )
 
     @staticmethod
     def rectangle(width, height, *args, **kwargs):
@@ -123,10 +134,17 @@ class Polygon(TransformMixIn):
             **kwargs
         )
 
+    @cached_property
+    def to_components(self):
+        # type: () -> tuple[Any, ...]
+        """Return the components of this object."""
+        return self.points
+
+    @cached_property
     def to_tuple(self):
         # type: () -> tuple[...]
         """Convert to a tuple."""
-        return tuple(point.to_tuple() for point in self.points)
+        return tuple(point.to_tuple for point in self.points)
 
     @staticmethod
     def from_tuple(value):
