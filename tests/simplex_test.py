@@ -62,18 +62,24 @@ def test_segment():
 
 
 def test_triangle():
-    triangle = Triangle(Point2D(1, 2), Point2D(3, 0), Point2D(5, 6))
+    try:
+        Triangle(Point2D(1, 2), Point2D(3, 4), Point2D(5, 6))
+        assert False
+    except ValueError:
+        pass
+    triangle = Triangle(Point2D(-4, -1), Point2D(1, -3), Point2D(3, 4))
     assert triangle == Triangle.from_segments(
-        Segment(Point2D(1, 2), Point2D(3, 0)),
-        Segment(Point2D(3, 0), Point2D(5, 6)),
-        Segment(Point2D(5, 6), Point2D(1, 2)),
+        Segment(Point2D(-4, -1), Point2D(1, -3)),
+        Segment(Point2D(1, -3), Point2D(3, 4)),
+        Segment(Point2D(3, 4), Point2D(-4, -1)),
     )
-    assert tuple(triangle.points) == (Point2D(1, 2), Point2D(3, 0), Point2D(5, 6))
+    assert tuple(triangle.points) == (Point2D(-4, -1), Point2D(1, -3), Point2D(3, 4))
     assert triangle.segments == (
-        Segment(Point2D(1, 2), Point2D(3, 0)),
-        Segment(Point2D(3, 0), Point2D(5, 6)),
-        Segment(Point2D(5, 6), Point2D(1, 2)),
+        Segment(Point2D(-4, -1), Point2D(1, -3)),
+        Segment(Point2D(1, -3), Point2D(3, 4)),
+        Segment(Point2D(3, 4), Point2D(-4, -1)),
     )
-    assert str(triangle) == 'Triangle(Point3D(1, 2, 0), Point3D(3, 0, 0), Point3D(5, 6, 0))'
+    assert str(triangle) == 'Triangle(Point3D(-4, -1, 0), Point3D(1, -3, 0), Point3D(3, 4, 0))'
     assert Triangle.from_tuple(triangle.to_tuple) == triangle 
-
+    assert triangle.area == 19.5
+    assert triangle.centroid == Point2D()
