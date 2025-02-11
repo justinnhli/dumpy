@@ -7,7 +7,11 @@ from dumpy.simplex import Segment, Triangle
 def test_segment():
     segment = Segment(Point2D(1, 2), Point2D(3, 4))
     assert tuple(segment) == (Point2D(1, 2), Point2D(3, 4))
+    assert segment.min == Point2D(1, 2)
+    assert segment.max == Point2D(3, 4)
     assert segment.twin == Segment(Point2D(3, 4), Point2D(1, 2))
+    assert segment.twin.min == Point2D(1, 2)
+    assert segment.twin.max == Point2D(3, 4)
     assert str(segment) == 'Segment(Point3D(1, 2, 0), Point3D(3, 4, 0))'
     assert Segment.from_tuple(segment.to_tuple) == segment
     # at most one point of intersection, include_end=True

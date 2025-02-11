@@ -23,7 +23,7 @@ class Segment:
     def min(self):
         # type: () -> Matrix
         """The "smaller" point."""
-        if self.point1 <= self.point2:
+        if self.point1.to_tuple <= self.point2.to_tuple:
             return self.point1
         else:
             return self.point2
@@ -32,7 +32,7 @@ class Segment:
     def max(self):
         # type: () -> Matrix
         """The "larger" point."""
-        if self.point1 <= self.point2:
+        if self.point1.to_tuple <= self.point2.to_tuple:
             return self.point2
         else:
             return self.point1
