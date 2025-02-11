@@ -525,7 +525,7 @@ def monotone_triangulation(points):
         while len(chain) > 1:
             if Segment._orientation(*pair_fn(chain), point) != -1:
                 break
-            results.append(Triangle.from_points(*pair_fn(chain), point))
+            results.append(Triangle(*pair_fn(chain), point))
             trim_head_fn(chain)
         # update the chain
         add_head_fn(point)
@@ -534,11 +534,7 @@ def monotone_triangulation(points):
     def end_chain(chain, point):
         # type: (Chain, Matrix) -> None
         for point1, point2 in zip(chain[:-1], chain[1:]):
-            results.append(Triangle.from_points(
-                point,
-                point1,
-                point2,
-            ))
+            results.append(Triangle(point, point1, point2))
 
     # start the sweep
     while priority_queue:

@@ -258,21 +258,24 @@ class Segment:
 class Triangle:
     """A triangle."""
 
-    def __init__(self, segment1, segment2, segment3):
-        # type: (Segment, Segment, Segment) -> None
-        segments = sorted([segment1, segment2, segment3])
-        if segments[0].point2 != segments[1].point1:
-            segments[1], segments[2] = segments[2], segments[1]
-        if Segment._orientation(segments[0].point1, segments[0].point2, segments[1].point2) == 1:
-            segments = list(segment.twin for segment in reversed(segments))
-        self.segment1, self.segment2, self.segment3 = segments
+    def __init__(self, point1, point2, point3):
+        # type: (Matrix, Matrix, Matrix) -> None
+        points_list = [point1, point2, point3]
+        if Segment._orientation(point1, point2, point3) != -1:
+            raise ValueError(f'triangle is not counterclockwise: {points_list}')
+        min_index = min(enumerate(points_list), key=(lambda pair: pair[1]))[0]
+        self.points = tuple(points_list[min_index:] + points_list[:min_index])
         self._hash = None
 
     @cached_property
-    def points(self):
-        # type: () -> tuple[Matrix, Matrix, Matrix]
-        """The points that make up the Triangle."""
-        return tuple(segment.point1 for segment in self.to_components)
+    def segments(self):
+        # type: () -> tuple[Segment]
+        point1, point2, point3 = self.points
+        return (
+            Segment(point1, point2),
+            Segment(point2, point3),
+            Segment(point3, point1),
+        )
 
     @cached_property
     def area(self):
@@ -310,9 +313,7 @@ class Triangle:
 
     def __iter__(self):
         # type: () -> Iterator[Segment]
-        yield self.segment1
-        yield self.segment2
-        yield self.segment3
+        yield from self.points
 
     def __str__(self):
         # type: () -> str
@@ -320,8 +321,8 @@ class Triangle:
 
     def __repr__(self):
         # type: () -> str
-        points = ', '.join(repr(point) for point in self.points)
-        return f'{type(self).__name__}({points})'
+        components = ', '.join(repr(component) for component in self.to_components)
+        return f'{type(self).__name__}({components})'
 
     def draw(self, camera, transform):
         # type: (Camera, Transform) -> None
@@ -334,7 +335,7 @@ class Triangle:
     def to_components(self):
         # type: () -> tuple[Any, ...]
         """Return the components of this object."""
-        return self.segment1, self.segment2, self.segment3
+        return self.points
 
     @cached_property
     def to_tuple(self):
@@ -347,17 +348,15 @@ class Triangle:
         # type: () -> Triangle
         """Create from a tuple."""
         return Triangle(
-            Segment.from_tuple(value[0]),
-            Segment.from_tuple(value[1]),
-            Segment.from_tuple(value[2]),
+            Matrix.from_tuple(value[0]),
+            Matrix.from_tuple(value[1]),
+            Matrix.from_tuple(value[2]),
         )
 
     @staticmethod
-    def from_points(point1, point2, point3):
-        # type: (Matrix, Matrix, Matrix) -> Triangle
-        """Create from three points."""
+    def from_segments(segment1, segment2, segment3):
         return Triangle(
-            Segment(point1, point2),
-            Segment(point2, point3),
-            Segment(point3, point1),
+            segment1.point1,
+            segment2.point1,
+            segment3.point1,
         )

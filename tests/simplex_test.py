@@ -62,20 +62,18 @@ def test_segment():
 
 
 def test_triangle():
-    triangle = Triangle.from_points(
-        Point2D(1, 2),
-        Point2D(3, 4),
-        Point2D(5, 6),
-    )
-    assert triangle == Triangle(
-        Segment(Point2D(1, 2), Point2D(3, 4)),
-        Segment(Point2D(3, 4), Point2D(5, 6)),
+    triangle = Triangle(Point2D(1, 2), Point2D(3, 0), Point2D(5, 6))
+    assert triangle == Triangle.from_segments(
+        Segment(Point2D(1, 2), Point2D(3, 0)),
+        Segment(Point2D(3, 0), Point2D(5, 6)),
         Segment(Point2D(5, 6), Point2D(1, 2)),
     )
-    assert tuple(triangle.points) == (Point2D(1, 2), Point2D(3, 4), Point2D(5, 6))
-    assert triangle.segment1 == Segment(Point2D(1, 2), Point2D(3, 4))
-    assert triangle.segment2 == Segment(Point2D(3, 4), Point2D(5, 6))
-    assert triangle.segment3 == Segment(Point2D(5, 6), Point2D(1, 2))
-    assert str(triangle) == 'Triangle(Point3D(1, 2, 0), Point3D(3, 4, 0), Point3D(5, 6, 0))'
+    assert tuple(triangle.points) == (Point2D(1, 2), Point2D(3, 0), Point2D(5, 6))
+    assert triangle.segments == (
+        Segment(Point2D(1, 2), Point2D(3, 0)),
+        Segment(Point2D(3, 0), Point2D(5, 6)),
+        Segment(Point2D(5, 6), Point2D(1, 2)),
+    )
+    assert str(triangle) == 'Triangle(Point3D(1, 2, 0), Point3D(3, 0, 0), Point3D(5, 6, 0))'
     assert Triangle.from_tuple(triangle.to_tuple) == triangle 
 

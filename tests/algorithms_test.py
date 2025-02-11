@@ -151,7 +151,7 @@ def _test_triangulation(points):
         # verify that all triangle edges either:
         # * have a twin that belongs to another triangle, or
         # * is part of the perimeter of the polygon
-        for segment in triangle:
+        for segment in triangle.segments:
             assert segment not in segments, segment
             if segment.twin in segments:
                 segments.remove(segment.twin)
