@@ -158,6 +158,10 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
             result.append(tuple(self.cofactor(r, c) for c in range(self.width)))
         return Matrix(tuple(result)).transpose / self.determinant
 
+    def __getitem__(self, index):
+        # type: (int) -> tuple[float, ...]
+        return self.rows[index]
+
     def __round__(self, ndigits=None):
         # type: (int) -> Matrix
         return Matrix(tuple(
