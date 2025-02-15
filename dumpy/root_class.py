@@ -39,7 +39,7 @@ class RootClass:
 
     def calculate_hash(self):
         # type: () -> int
-        """Calculate the hash, without using cached methods/properties."""
+        """Calculate the hash without using cached methods/properties."""
         raise NotImplementedError
 
     @cached_property

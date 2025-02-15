@@ -7,18 +7,20 @@ from math import sqrt, isclose, sin, cos
 from typing import Any, Union, Sequence
 
 from .metaprogramming import cached_class
+from .root_class import RootClass
 
 
 EPSILON = 0.00001
 
 
 @cached_class
-class Matrix: # pylint: disable = too-many-public-methods
+class Matrix(RootClass): # pylint: disable = too-many-public-methods
     """A matrix."""
 
     def __init__(self, values):
         # type: (tuple[tuple[float, ...], ...]) -> None
         """Initialize a matrix."""
+        super().__init__()
         self.rows = values
         self.height = len(values)
         self.width = len(values[0])
@@ -156,46 +158,6 @@ class Matrix: # pylint: disable = too-many-public-methods
             result.append(tuple(self.cofactor(r, c) for c in range(self.width)))
         return Matrix(tuple(result)).transpose / self.determinant
 
-    def __hash__(self):
-        # type: () -> int
-        if not self._hash:
-            self._hash = hash(self.rows)
-        return self._hash
-
-    def __eq__(self, other):
-        # type: (Any) -> bool
-        assert isinstance(other, type(self))
-        return (
-            self.height == other.height and self.width == other.width
-            and all(
-                isclose(self_val, other_val, abs_tol=EPSILON)
-                for self_row, other_row in zip(self.rows, other.rows)
-                for self_val, other_val in zip(self_row, other_row)
-            )
-        )
-
-    def __lt__(self, other):
-        # type: (Any) -> bool
-        assert isinstance(other, type(self))
-        return self.rows < other.rows
-
-    def __str__(self):
-        # type: () -> str
-        return repr(self)
-
-    def __repr__(self):
-        # type: () -> str
-        if self.is_tuple:
-            vals = [str(abs(i) if i == 0 else i) for i in self.rows[0]]
-            if self.is_vector:
-                return f'Vector3D({", ".join(vals[:-1])})'
-            elif self.is_point:
-                return f'Point3D({", ".join(vals[:-1])})'
-            else:
-                return f'Tuple({", ".join(vals)})'
-        else:
-            return f'Matrix({self.rows})'
-
     def __round__(self, ndigits=None):
         # type: (int) -> Matrix
         return Matrix(tuple(
@@ -257,6 +219,9 @@ class Matrix: # pylint: disable = too-many-public-methods
             return Matrix(tuple(result)).transpose
         else:
             return Matrix(tuple(result))
+
+    def calculate_hash(self):
+        return hash(self.rows)
 
     def reflect(self, other):
         # type: (Matrix) -> Matrix
@@ -362,16 +327,8 @@ class Matrix: # pylint: disable = too-many-public-methods
         )) @ self
 
     @cached_property
-    def to_tuple(self):
-        # type: () -> tuple[tuple[float, ...], ...]
-        """Convert to a tuple."""
-        return self.rows
-
-    @staticmethod
-    def from_tuple(values):
-        # type: (tuple[...]) -> Matrix
-        """Create from a tuple."""
-        return Matrix(values)
+    def init_args(self):
+        return (self.rows,)
 
 
 def Vector3D(x=0, y=0, z=0): # pylint: disable = invalid-name

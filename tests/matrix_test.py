@@ -53,14 +53,14 @@ def test_matrix():
     assert Matrix(((-6, 1, 1, 6), (-8, 5, 8, 6), (-1, 0, 8, 2), (-7, 1, -1, 1))).submatrix(2, 1) == Matrix(((-6, 1, 6), (-8, 8, 6), (-7, -1, 1)))
     assert Matrix(((3, 5, 0), (2, -1, -7), (6, -1, 5))).minor(1, 0) == 25
     m = Matrix(((3, 5, 0), (2, -1, -7), (6, -1, 5)))
-    m.cofactor(0, 0) == -12
+    assert m.cofactor(0, 0) == -12
     assert m.cofactor(1, 0) == -25
     assert Matrix(((1, 2, 6), (-5, 8, -4), (2, 6, 4))).determinant == -196
     assert Matrix(((-2, -8, 3, 5), (-3, 1, 7, 3), (1, 2, -9, 6), (-6, 7, 7, -9))).determinant == -4071
     # inverse
     m1 = Matrix(((3, -9, 7, 3), (3, -8, 2, -9), (-4, 4, 4, 1), (-6, 5, -1, 1)))
     m2 = Matrix(((8, 2, 2, 2), (3, -1, 7, 0), (7, 0, 5, 4), (6, -2, 0, 5)))
-    assert m1 @ m2 @ m2.inverse == m1
+    assert round(m1 @ m2 @ m2.inverse, 3) == round(m1, 3)
     # translation and scaling
     assert identity(4).translate(5, -3, 2) @ Point3D(-3, 4, 5) == Point3D(2, 1, 7)
     assert identity(4).translate(5, -3, 2).inverse @ Point3D(-3, 4, 5) == Point3D(-8, 7, 3)
