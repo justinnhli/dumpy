@@ -4,8 +4,8 @@ from itertools import product
 from typing import Iterator
 
 from dumpy.algorithms import bentley_ottmann, monotone_triangulation
-from dumpy.matrix import Matrix, Point2D
-from dumpy.simplex import Segment
+from dumpy.matrix import Matrix
+from dumpy.simplex import Point2D, Segment
 
 
 def _no_duplicates_coord_segments(num_segments):
@@ -60,11 +60,11 @@ def test_bentley_ottmann():
     def test_segments(segments, include_end):
         # type: (Sequence[Segment], bool) -> None
         expected = sorted(set(
-            round(intersect, 3).to_tuple[0][:2] for intersect
+            round(intersect, 3) for intersect
             in _naive_all_intersects(segments, include_end=include_end)
         ))
         actual = sorted(
-            round(intersect, 3).to_tuple[0][:2] for intersect
+            round(intersect, 3) for intersect
             in bentley_ottmann(segments, include_end=include_end)
         )
         assert expected == actual, (segments, expected, actual)
@@ -138,7 +138,7 @@ def _test_triangulation(points):
     for triangle in triangles:
         # verify triangle is counter-clockwise
         assert all(
-            Segment._orientation(
+            Segment.orientation(
                 triangle.points[i - 1],
                 triangle.points[i],
                 triangle.points[i + 1],

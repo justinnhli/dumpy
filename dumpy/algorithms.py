@@ -7,8 +7,7 @@ from math import inf as INF, copysign, nextafter
 from typing import Any, Optional, Union
 
 from .data_structures import SortedDict, PriorityQueue
-from .matrix import Matrix
-from .simplex import Segment, Triangle
+from .simplex import Point2D, Segment, Triangle
 
 
 class _SegmentWrapper:
@@ -24,7 +23,7 @@ class _SegmentWrapper:
 
     @property
     def key(self):
-        # type: () -> tuple[...]
+        # type: () -> Any
         """Return the comparison key."""
         raise NotImplementedError()
 
@@ -82,7 +81,7 @@ class _SegmentWrapper:
 
 
 def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable = too-many-statements
-    # type: (Sequence[Segment], bool, int) -> list[Matrix]
+    # type: (Sequence[Segment], bool, int) -> list[Point2D]
     """Implement the Bentley-Ottmann all intersects algorithm.
 
     The Bentley-Ottmann algorithm is a sweep line algorithm for finding all
@@ -160,14 +159,13 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
             """
             return (self.y, -self.segment.slope, self.segment)
 
-    Priority = tuple[float, int, float]
+    Priority = tuple[float, BOEvent, Union[float, Segment]]
 
     # initialize the two main data structures
-    priority_queue = PriorityQueue() # type: PriorityQueue[Priority, tuple[BOEvent, Union[Segment, Matrix]]]
+    priority_queue = PriorityQueue() # type: PriorityQueue[Priority, tuple[BOEvent, Union[Point2D, Segment]]]
     tree = SortedDict() # type: SortedDict[BOSegmentWrapper, Segment]
     for segment in segments:
-        if segment > segment.twin:
-            segment = segment.twin
+        segment = min(segment, segment.twin)
         priority_queue.push(
             (BOEvent.START, segment),
             (segment.min_x, BOEvent.START, segment),
@@ -178,12 +176,12 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
         )
     # initialize additional state-keeping structures
     segment_wrappers = {} # type: dict[Segment, BOSegmentWrapper]
-    intersect_cache = {} # type: dict[tuple[Segment, Segment], Matrix]
-    intersect_segment_counts = defaultdict(Counter) # type: dict[Matrix, Counter[Segment]]
-    segment_intersect_map = defaultdict(dict) # type: dict[Segment, dict[Matrix, bool]]
+    intersect_cache = {} # type: dict[tuple[Segment, Segment], Point2D]
+    intersect_segment_counts = defaultdict(Counter) # type: dict[Point2D, Counter[Segment]]
+    segment_intersect_map = defaultdict(dict) # type: dict[Segment, dict[Point2D, bool]]
 
     def get_intersect(segment1, segment2):
-        # type: (Segment, Segment) -> Matrix
+        # type: (Segment, Segment) -> Point2D
         # need to deal with all intersects, including ends, to keep tree in order
         if segment1 < segment2:
             intersect_key = (segment1, segment2)
@@ -314,7 +312,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
                 curr_cursor = curr_cursor.next()
 
     def non_endpoint_intersect(intersect):
-        # type: (Matrix) -> bool
+        # type: (Point2D) -> bool
         count = 0
         for segment in intersect_segment_counts[intersect]:
             if segment_intersect_map[segment][intersect]:
@@ -323,7 +321,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
                     return True
         return False
 
-    results = [] # type: list[Matrix]
+    results = [] # type: list[Point2D]
     while priority_queue:
         (sweep_x, *_), (event_type, data) = priority_queue.pop()
         BOSegmentWrapper.sweep_x = sweep_x
@@ -334,7 +332,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
             assert isinstance(data, Segment)
             remove_from_tree(data)
         elif event_type == BOEvent.MEET:
-            assert isinstance(data, Matrix)
+            assert isinstance(data, Point2D)
             intersect = data
             if include_end or non_endpoint_intersect(intersect):
                 results.append(intersect)
@@ -358,27 +356,27 @@ class Chain:
     """A chain of untriangulated points."""
 
     def __init__(self, point):
-        # type: (Matrix) -> None
+        # type: (Point2D) -> None
         self.points = []
         self.points = [point]
 
     def prev(self, index=1):
-        # type: (int) -> Matrix
+        # type: (int) -> Point2D
         """The nth point in the previous direction."""
         return self.points[index - 1]
 
     def next(self, index=1):
-        # type: (int) -> Matrix
+        # type: (int) -> Point2D
         """The nth point in the next direction."""
         return self.points[-index]
 
     def prev_pair(self):
-        # type: () -> tuple[Matrix, Matrix]
+        # type: () -> tuple[Point2D, Point2D]
         """The first two points in the previous direction."""
         return (self.points[0], self.points[1])
 
     def next_pair(self):
-        # type: () -> tuple[Matrix, Matrix]
+        # type: () -> tuple[Point2D, Point2D]
         """The first two points in the next direction."""
         return (self.points[-2], self.points[-1])
 
@@ -391,7 +389,7 @@ class Chain:
         return len(self.points)
 
     def __getitem__(self, index):
-        # type: (slice) -> list[Matrix]
+        # type: (slice) -> list[Point2D]
         return self.points[index]
 
     def __repr__(self):
@@ -399,24 +397,24 @@ class Chain:
         return f'Chain({self.points})'
 
     def add_prev(self, point):
-        # type: (Matrix) -> None
+        # type: (Point2D) -> None
         """Add a point in the previous direction."""
         self.points.insert(0, point)
 
     def add_next(self, point):
-        # type: (Matrix) -> None
+        # type: (Point2D) -> None
         """Add a point in the next direction."""
         self.points.append(point)
 
     def trim_prev(self):
-        # type: () -> Matrix
+        # type: () -> Point2D
         """Remove a point in the previous direction."""
         result = self.points[0]
         self.points = self.points[1:]
         return result
 
     def trim_next(self):
-        # type: () -> Matrix
+        # type: () -> Point2D
         """Remove a point in the next direction."""
         result = self.points[-1]
         self.points = self.points[:-1]
@@ -424,7 +422,7 @@ class Chain:
 
 
 def monotone_triangulation(points):
-    # type: (Sequence[Matrix]) -> Sequence[Triangle]
+    # type: (Sequence[Point2D]) -> Sequence[Triangle]
     """Triangulate a simple polygon."""
 
     class MonotoneSegmentWrapper(_SegmentWrapper):
@@ -441,9 +439,9 @@ def monotone_triangulation(points):
             return (self.y, self.segment.point1.y, self.segment.slope)
 
     # initialize the three main data structures
-    priority_queue = PriorityQueue() # type: PriorityQueue[tuple[float, float], Matrix]
-    open_chains = {} # type: dict[tuple[Matrix, Dir], Chain]
-    partitions = SortedDict() # type: SortedDict[Union[MonotoneSegmentWrapper, float], Matrix]
+    priority_queue = PriorityQueue() # type: PriorityQueue[tuple[float, float], Point2D]
+    open_chains = {} # type: dict[tuple[Point2D, Dir], Chain]
+    partitions = SortedDict() # type: SortedDict[Union[MonotoneSegmentWrapper, float], Point2D]
     # cache information about the points, and enqueue points whose neighbors are to the right
     # we do this to deal with vertical segments, by tracking which point is further "left"
     point_info = {}
@@ -451,7 +449,7 @@ def monotone_triangulation(points):
         point = points[i]
         prev_point = points[i - 1]
         next_point = points[i + 1]
-        orientation = Segment._orientation(prev_point, point, next_point)
+        orientation = Segment.orientation(prev_point, point, next_point)
         point_type = None
         if prev_point > point and next_point > point:
             if orientation == -1:
@@ -473,8 +471,16 @@ def monotone_triangulation(points):
         point_info[point] = (
             (prev_point, next_point),
             (
-                MonotoneSegmentWrapper(Segment(prev_point, point) if prev_point < point else Segment(point, prev_point)),
-                MonotoneSegmentWrapper(Segment(next_point, point) if next_point < point else Segment(point, next_point)),
+                MonotoneSegmentWrapper(
+                    Segment(prev_point, point)
+                    if prev_point < point else
+                    Segment(point, prev_point)
+                ),
+                MonotoneSegmentWrapper(
+                    Segment(next_point, point)
+                    if next_point < point else
+                    Segment(point, next_point)
+                ),
             ),
             point_type,
         )
@@ -485,15 +491,15 @@ def monotone_triangulation(points):
     results = [] # type: list[Triangle]
 
     def add_to_chain(chain, point, direction):
-        # type: (Chain, Matrix, Dir) -> None
+        # type: (Chain, Point2D, Dir) -> None
         # pylint: disable = superfluous-parens, unnecessary-lambda-assignment
         # direction is the from the point to the chain
         # define everything in terms of head (towards the point) and tail (away from the point)
         if direction == Dir.PREV:
-            head_fn = (lambda chain: chain.next()) # type: Callable[[Chain], Matrix]
-            tail_fn = (lambda chain: chain.prev()) # type: Callable[[Chain], Matrix]
-            pair_fn = (lambda chain: chain.next_pair()) # type: Callable[[Chain], tuple[Matrix, Matrix]]
-            trim_head_fn = (lambda chain: chain.trim_next()) # type: Callable[[Chain], Matrix]
+            head_fn = (lambda chain: chain.next()) # type: Callable[[Chain], Point2D]
+            tail_fn = (lambda chain: chain.prev()) # type: Callable[[Chain], Point2D]
+            pair_fn = (lambda chain: chain.next_pair()) # type: Callable[[Chain], tuple[Point2D, Point2D]]
+            trim_head_fn = (lambda chain: chain.trim_next()) # type: Callable[[Chain], Point2D]
             add_head_fn = chain.add_next
             add_tail_fn = chain.add_prev
         elif direction == Dir.NEXT:
@@ -523,7 +529,7 @@ def monotone_triangulation(points):
                     add_tail_fn(trim_head_fn(other_chain))
         # form all triangles possible
         while len(chain) > 1:
-            if Segment._orientation(*pair_fn(chain), point) != -1:
+            if Segment.orientation(*pair_fn(chain), point) != -1:
                 break
             results.append(Triangle(*pair_fn(chain), point))
             trim_head_fn(chain)
@@ -532,7 +538,7 @@ def monotone_triangulation(points):
         open_chains[(head_fn(chain), direction)] = chain
 
     def end_chain(chain, point):
-        # type: (Chain, Matrix) -> None
+        # type: (Chain, Point2D) -> None
         for point1, point2 in zip(chain[:-1], chain[1:]):
             results.append(Triangle(point, point1, point2))
 
