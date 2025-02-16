@@ -32,6 +32,30 @@ class PointsMatrix(RootClass):
         # type: () -> tuple[Any, ...]
         return (self.matrix,)
 
+    @cached_property
+    def x_reflection(self):
+        """Reflect across the x-axis."""
+        return type(self).from_matrix(Matrix(tuple(
+            (-row[0], row[1], row[2], row[3])
+            for row in self.matrix.rows
+        )))
+
+    @cached_property
+    def y_reflection(self):
+        """Reflect across the y-axis."""
+        return type(self).from_matrix(Matrix(tuple(
+            (row[0], -row[1], row[2], row[3])
+            for row in self.matrix.rows
+        )))
+
+    @cached_property
+    def z_reflection(self):
+        """Reflect across the z-axis."""
+        return type(self).from_matrix(Matrix(tuple(
+            (row[0], row[1], -row[2], row[3])
+            for row in self.matrix.rows
+        )))
+
     @staticmethod
     def from_matrix(matrix):
         # type: (Matrix) -> PointsMatrix
