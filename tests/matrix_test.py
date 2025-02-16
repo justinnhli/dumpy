@@ -1,4 +1,4 @@
-from dumpy.matrix import Matrix, Point3D, Vector3D, identity
+from dumpy.matrix import Matrix, identity
 
 
 def test_matrix():
@@ -12,32 +12,32 @@ def test_matrix():
     # identity
     assert identity(4) == Matrix(((1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1)))
     # element-wise arithmetic
-    assert Point3D(3, -2, 5) + Vector3D(-2, 3, 1) == Point3D(1, 1, 6)
-    assert Point3D(3, 2, 1) - Point3D(5, 6, 7) == Vector3D(-2, -4, -6)
-    assert Point3D(3, 2, 1) - Vector3D(5, 6, 7) == Point3D(-2, -4, -6)
-    assert Vector3D(3, 2, 1) - Vector3D(5, 6, 7) == Vector3D(-2, -4, -6)
+    assert Matrix(((3, -2, 5, 1),)) + Matrix(((-2, 3, 1, 0),)) == Matrix(((1, 1, 6, 1),))
+    assert Matrix(((3, 2, 1, 1),)) - Matrix(((5, 6, 7, 1),)) == Matrix(((-2, -4, -6, 0),))
+    assert Matrix(((3, 2, 1, 1),)) - Matrix(((5, 6, 7, 0),)) == Matrix(((-2, -4, -6, 1),))
+    assert Matrix(((3, 2, 1, 0),)) - Matrix(((5, 6, 7, 0),)) == Matrix(((-2, -4, -6, 0),))
     assert Matrix(((1, -2, 3, -4),)) * 3.5 == Matrix(((3.5, -7, 10.5, -14),))
     assert 0.5 * Matrix(((1, -2, 3, -4),)) == Matrix(((0.5, -1, 1.5, -2),))
     assert Matrix(((1, -2, 3, -4),)) / 2 == Matrix(((0.5, -1, 1.5, -2),))
     # magnitude and normalization
-    assert Vector3D(1, 0, 0).magnitude == 1
-    assert Vector3D(0, 1, 0).magnitude == 1
-    assert Vector3D(0, 0, 1).magnitude == 1
-    assert Vector3D(2, 3, 6).magnitude == 7
-    assert Vector3D(-2, -3, -6).magnitude == 7
-    assert Vector3D(4, 0, 0).normalized == Vector3D(1, 0, 0)
-    assert Vector3D(1, 2, 3).normalized.magnitude == 1
+    assert Matrix(((1, 0, 0, 0),)).magnitude == 1
+    assert Matrix(((0, 1, 0, 0),)).magnitude == 1
+    assert Matrix(((0, 0, 1, 0),)).magnitude == 1
+    assert Matrix(((2, 3, 6, 0),)).magnitude == 7
+    assert Matrix(((-2, -3, -6, 0),)).magnitude == 7
+    assert Matrix(((4, 0, 0, 0),)).normalized == Matrix(((1, 0, 0, 0),))
+    assert Matrix(((1, 2, 3, 0),)).normalized.magnitude == 1
     # dot and cross product
-    assert Vector3D(1, 2, 3).dot(Vector3D(2, 3, 4)) == 20
-    assert Vector3D(1, 2, 3).cross(Vector3D(2, 3, 4)) == Vector3D(-1, 2, -1)
-    assert Vector3D(2, 3, 4).cross(Vector3D(1, 2, 3)) == Vector3D(1, -2, 1)
+    assert Matrix(((1, 2, 3, 0),)).dot(Matrix(((2, 3, 4, 0),))) == 20
+    assert Matrix(((1, 2, 3, 0),)).cross(Matrix(((2, 3, 4, 0),))) == Matrix(((-1, 2, -1, 0),))
+    assert Matrix(((2, 3, 4, 0),)).cross(Matrix(((1, 2, 3, 0),))) == Matrix(((1, -2, 1, 0),))
     # matrix multiplication
     m1 = Matrix(((1, 2, 3, 4), (5, 6, 7, 8), (9, 8, 7, 6), (5, 4, 3, 2)))
     m2 = Matrix(((-2, 1, 2, 3), (3, 2, 1, -1), (4, 3, 6, 5), (1, 2, 7, 8)))
     m3 = Matrix(((20, 22, 50, 48), (44, 54, 114, 108), (40, 58, 110, 102), (16, 26, 46, 42)))
     assert m1 @ m2 == m3
     m1 = Matrix(((1, 2, 3, 4), (2, 4, 4, 2), (8, 6, 4, 1), (0, 0, 0, 1)))
-    assert m1 @ Point3D(1, 2, 3) == Point3D(18, 24, 33)
+    assert m1 @ Matrix(((1, 2, 3, 1),)) == Matrix(((18, 24, 33, 1),))
     m1 = Matrix(((0, 1, 2, 4), (1, 2, 4, 8), (2, 4, 8, 16), (4, 8, 16, 32)))
     m2 = identity(4)
     assert m1 @ m2 == m1
@@ -62,16 +62,16 @@ def test_matrix():
     m2 = Matrix(((8, 2, 2, 2), (3, -1, 7, 0), (7, 0, 5, 4), (6, -2, 0, 5)))
     assert round(m1 @ m2 @ m2.inverse, 3) == round(m1, 3)
     # translation and scaling
-    assert identity(4).translate(5, -3, 2) @ Point3D(-3, 4, 5) == Point3D(2, 1, 7)
-    assert identity(4).translate(5, -3, 2).inverse @ Point3D(-3, 4, 5) == Point3D(-8, 7, 3)
-    assert identity(4).translate(5, -3, 2) @ Vector3D(-3, 4, 5) == Vector3D(-3, 4, 5)
-    assert identity(4).scale(2, 3, 4) @ Point3D(-4, 6, 8) == Point3D(-8, 18, 32)
-    assert identity(4).scale(2, 3, 4) @ Vector3D(-4, 6, 8) == Vector3D(-8, 18, 32)
-    assert identity(4).scale(2, 3, 4).inverse @ Point3D(-4, 6, 8) == Point3D(-2, 2, 2)
+    assert identity(4).translate(5, -3, 2) @ Matrix(((-3, 4, 5, 1),)) == Matrix(((2, 1, 7, 1),))
+    assert identity(4).translate(5, -3, 2).inverse @ Matrix(((-3, 4, 5, 1),)) == Matrix(((-8, 7, 3, 1),))
+    assert identity(4).translate(5, -3, 2) @ Matrix(((-3, 4, 5, 0),)) == Matrix(((-3, 4, 5, 0),))
+    assert identity(4).scale(2, 3, 4) @ Matrix(((-4, 6, 8, 1),)) == Matrix(((-8, 18, 32, 1),))
+    assert identity(4).scale(2, 3, 4) @ Matrix(((-4, 6, 8, 0),)) == Matrix(((-8, 18, 32, 0),))
+    assert identity(4).scale(2, 3, 4).inverse @ Matrix(((-4, 6, 8, 1),)) == Matrix(((-2, 2, 2, 1),))
     # shear
-    assert identity(4).shear(1, 0, 0, 0, 0, 0) @ Point3D(2, 3, 4) == Point3D(5, 3, 4)
-    assert identity(4).shear(0, 1, 0, 0, 0, 0) @ Point3D(2, 3, 4) == Point3D(6, 3, 4)
-    assert identity(4).shear(0, 0, 1, 0, 0, 0) @ Point3D(2, 3, 4) == Point3D(2, 5, 4)
-    assert identity(4).shear(0, 0, 0, 1, 0, 0) @ Point3D(2, 3, 4) == Point3D(2, 7, 4)
-    assert identity(4).shear(0, 0, 0, 0, 1, 0) @ Point3D(2, 3, 4) == Point3D(2, 3, 6)
-    assert identity(4).shear(0, 0, 0, 0, 0, 1) @ Point3D(2, 3, 4) == Point3D(2, 3, 7)
+    assert identity(4).shear(1, 0, 0, 0, 0, 0) @ Matrix(((2, 3, 4, 1),)) == Matrix(((5, 3, 4, 1),))
+    assert identity(4).shear(0, 1, 0, 0, 0, 0) @ Matrix(((2, 3, 4, 1),)) == Matrix(((6, 3, 4, 1),))
+    assert identity(4).shear(0, 0, 1, 0, 0, 0) @ Matrix(((2, 3, 4, 1),)) == Matrix(((2, 5, 4, 1),))
+    assert identity(4).shear(0, 0, 0, 1, 0, 0) @ Matrix(((2, 3, 4, 1),)) == Matrix(((2, 7, 4, 1),))
+    assert identity(4).shear(0, 0, 0, 0, 1, 0) @ Matrix(((2, 3, 4, 1),)) == Matrix(((2, 3, 6, 1),))
+    assert identity(4).shear(0, 0, 0, 0, 0, 1) @ Matrix(((2, 3, 4, 1),)) == Matrix(((2, 3, 7, 1),))

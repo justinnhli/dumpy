@@ -241,11 +241,14 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
     def cross(self, other):
         # type: (Matrix) -> Matrix
         """Take the cross product with another matrix."""
-        return Vector3D(
-            self.y * other.z - self.z * other.y,
-            self.z * other.x - self.x * other.z,
-            self.x * other.y - self.y * other.x,
-        )
+        return Matrix((
+            (
+                self.y * other.z - self.z * other.y,
+                self.z * other.x - self.x * other.z,
+                self.x * other.y - self.y * other.x,
+                0,
+            ),
+        ))
 
     def submatrix(self, dr, dc): # pylint: disable = invalid-name
         # type: (int, int) -> Matrix
@@ -333,30 +336,6 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
     @cached_property
     def init_args(self):
         return (self.rows,)
-
-
-def Vector3D(x=0, y=0, z=0): # pylint: disable = invalid-name
-    # type: (float, float, float) -> Matrix
-    """Create a 4-tuple that represents a 3D vector."""
-    return Matrix(((x, y, z, 0),))
-
-
-def Point3D(x=0, y=0, z=0): # pylint: disable = invalid-name
-    # type: (float, float, float) -> Matrix
-    """Create a 4-tuple that represents a 3D point."""
-    return Matrix(((x, y, z, 1),))
-
-
-def Vector2D(x=0, y=0): # pylint: disable = invalid-name
-    # type: (float, float) -> Matrix
-    """Create a 4-tuple that represents a 2D vector."""
-    return Matrix(((x, y, 0, 0),))
-
-
-def Point2D(x=0, y=0): # pylint: disable = invalid-name
-    # type: (float, float) -> Matrix
-    """Create a 4-tuple that represents a 2D point."""
-    return Matrix(((x, y, 0, 1),))
 
 
 @cache
