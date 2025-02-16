@@ -2,12 +2,43 @@
 
 from functools import cached_property
 from math import atan2
-from typing import Any, Optional, Iterator
+from typing import Any, Optional, Iterator, Self
 
-from .metaprogramming import cached_class
 from .camera import Camera
 from .matrix import Matrix, Point2D
+from .metaprogramming import cached_class
 from .mixins import Transform
+from .root_class import RootClass
+
+
+@cached_class
+class PointsMatrix(RootClass):
+    """Abstract class for a sequence of points."""
+
+    def __init__(self, matrix):
+        # type: (Matrix) -> None
+        super().__init__()
+        self.matrix = matrix
+
+    def __round__(self, ndigits=0):
+        # type: (int) -> Self
+        return type(self).from_matrix(round(self.matrix, ndigits))
+
+    def calculate_hash(self):
+        # type: () -> int
+        return hash(self.matrix)
+
+    @cached_property
+    def init_args(self):
+        # type: () -> tuple[Any, ...]
+        return (self.matrix,)
+
+    @staticmethod
+    def from_matrix(matrix):
+        # type: (Matrix) -> PointsMatrix
+        """Create the class from a matrix."""
+        raise NotImplementedError()
+
 
 @cached_class
 class Segment:
