@@ -7,8 +7,8 @@ from typing import Iterator
 from PIL import Image, ImageGrab
 
 from dumpy.canvas import Canvas
-from dumpy.matrix import Point2D
 from dumpy.color import Color
+from dumpy.simplex import Point2D
 
 
 def ppm_value_generator(path):
