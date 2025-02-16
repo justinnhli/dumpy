@@ -34,14 +34,17 @@ class Camera(GameObject):
             .scale(self.zoom, self.zoom, self.zoom)
             .y_reflection
         )
-        return self.origin_transform.matrix @ (transform_matrix @ matrix)
+        return (
+            self.origin_transform.matrix
+            @ transform_matrix
+            @ matrix.transpose
+        ).transpose
 
     def draw_points_matrix(self, points_matrix):
         # type: (PointsMatrix) -> None
         """Draw a PointsMatrix."""
         matrix = self._translate(points_matrix.matrix)
         if matrix.height == 1:
-            print(matrix)
             self.canvas.draw_pixel((matrix[0][0], matrix[0][1]))
         elif matrix.height == 2:
             self.canvas.draw_line(
