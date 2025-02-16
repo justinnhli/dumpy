@@ -1,11 +1,9 @@
 """Tests for camera.py."""
 
-from itertools import batched
-from pathlib import Path
-
 from dumpy.camera import Camera
 from dumpy.canvas import Canvas
-from dumpy.simplex import Point2D, Segment, Triangle
+from dumpy.polygon import Polygon
+from dumpy.simplex import Point2D
 
 from canvas_test import check_image
 
@@ -17,3 +15,12 @@ def test_canvas_pixel():
     camera = Camera(canvas)
     camera.draw_points_matrix(Point2D(0, 0))
     check_image(canvas.image, 'canvas_pixel_test.ppm')
+
+
+def test_canvas_rect():
+    # type: () -> None
+    """Test drawing a rectangle."""
+    canvas = Canvas(5, 5, 'test')
+    camera = Camera(canvas)
+    camera.draw_points_matrix(Polygon.rectangle(2, 2))
+    check_image(canvas.image, 'canvas_rect_outline_test.ppm')
