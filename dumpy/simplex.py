@@ -111,6 +111,10 @@ class Tuple2D(PointsMatrix):
         # type: (Union[int, float]) -> Self
         return type(self).from_matrix(other * self.matrix)
 
+    def __rmul__(self, other):
+        # type: (Union[int, float]) -> Self
+        return type(self).from_matrix(other * self.matrix)
+
     def __truediv__(self, other):
         # type: (float) -> Self
         return type(self).from_matrix((1 / other) * self.matrix)
