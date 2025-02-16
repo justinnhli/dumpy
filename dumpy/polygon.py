@@ -24,7 +24,6 @@ class Polygon(PointsMatrix):
         self.points = Polygon._simplify(points)
         # partition
         self.triangles = monotone_triangulation(self.points)
-        self._hash = None
 
     @cached_property
     def area(self):
