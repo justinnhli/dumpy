@@ -8,7 +8,6 @@ from PIL import Image, ImageGrab
 
 from dumpy.canvas import Canvas
 from dumpy.color import Color
-from dumpy.simplex import Point2D
 
 
 def ppm_value_generator(path):
@@ -69,8 +68,8 @@ def check_image(image, filename):
 def test_canvas_pixel():
     # type: () -> None
     """Test drawing a pixel."""
-    canvas = Canvas(Point2D(3, 3), 'test')
-    canvas.draw_pixel(Point2D(1, 1))
+    canvas = Canvas(3, 3, 'test')
+    canvas.draw_pixel((1, 1))
     check_image(canvas.image, 'canvas_pixel_test.ppm')
 
 
@@ -80,16 +79,16 @@ def test_canvas_line():
     # test all combinations of primes
     sizes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]
     for width, height in product(sizes, repeat=2):
-        canvas = Canvas(Point2D(width, height), 'test')
+        canvas = Canvas(width, height, 'test')
         # draw NW to SE diagonal
         canvas.draw_line(
-            Point2D(0, 0),
-            Point2D(width - 1, height - 1),
+            (0, 0),
+            (width - 1, height - 1),
         )
         # draw SW to NE diagonal
         canvas.draw_line(
-            Point2D(0, height - 1),
-            Point2D(width - 1, 0),
+            (0, height - 1),
+            (width - 1, 0),
         )
         # get the resulting image
         image = canvas.image.convert('RGB')
@@ -114,10 +113,10 @@ def test_canvas_line():
 def test_canvas_rect():
     # type: () -> None
     """Test drawing a filled rectangle."""
-    canvas = Canvas(Point2D(5, 5), 'test')
+    canvas = Canvas(5, 5, 'test')
     canvas.draw_rect(
-        Point2D(1, 1),
-        Point2D(3, 3),
+        (1, 1),
+        (3, 3),
         fill_color=Color.from_hex('#000000'),
     )
     check_image(canvas.image, 'canvas_rect_test.ppm')
@@ -126,10 +125,10 @@ def test_canvas_rect():
 def test_canvas_rect_outline():
     # type: () -> None
     """Test drawing a rectangle outline."""
-    canvas = Canvas(Point2D(5, 5), 'test')
+    canvas = Canvas(5, 5, 'test')
     canvas.draw_rect(
-        Point2D(1, 1),
-        Point2D(3, 3),
+        (1, 1),
+        (3, 3),
         line_color=Color.from_hex('#000000'),
     )
     check_image(canvas.image, 'canvas_rect_outline_test.ppm')
@@ -137,11 +136,11 @@ def test_canvas_rect_outline():
 
 def test_canvas_display():
     # type: () -> None
-    canvas = Canvas(Point2D(3, 3), 'test')
-    canvas.draw_pixel(Point2D(1, 0))
-    canvas.draw_pixel(Point2D(2, 1))
-    canvas.draw_pixel(Point2D(0, 2))
-    canvas.draw_pixel(Point2D(1, 2))
-    canvas.draw_pixel(Point2D(2, 2))
+    canvas = Canvas(3, 3, 'test')
+    canvas.draw_pixel((1, 0))
+    canvas.draw_pixel((2, 1))
+    canvas.draw_pixel((0, 2))
+    canvas.draw_pixel((1, 2))
+    canvas.draw_pixel((2, 2))
     image = grab_screen(canvas)
     check_image(canvas.image, 'canvas_display_test.ppm')

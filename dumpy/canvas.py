@@ -11,14 +11,17 @@ from .color import Color
 from .matrix import Matrix
 from .simplex import Point2D
 
+Tuple2D = tuple[float, float]
+
 
 class Canvas:
     """A TkCanvas backed by Pillow Image."""
 
-    def __init__(self, size, title=''):
-        # type: (Matrix, str) -> None
+    def __init__(self, width, height, title=''):
+        # type: (int, int, str) -> None
         """Initialize the Canvas."""
-        self.size = size
+        self.width = width
+        self.height = height
         self.title = title
         self.image = None # type: Image
         self.draw = None # type: Draw
@@ -43,23 +46,23 @@ class Canvas:
         return fill_color, line_color
 
     def draw_pixel(self, point, color=None):
-        # type: (Matrix, Color) -> None
+        # type: (Tuple2D, Color) -> None
         """Draw a pixel."""
         if color is None:
             color = Color(0, 0, 0)
-        self.image.putpixel((round(point.x), round(point.y)), color.to_rgba_tuple())
+        self.image.putpixel((round(point[0]), round(point[1])), color.to_rgba_tuple())
 
     def draw_line(self, point1, point2, line_color=None):
-        # type: (Matrix, Matrix, Color) -> None
+        # type: (Tuple2D, Tuple2D, Color) -> None
         """Draw a line.
 
         This function draws the line twice, in opposite directions, to ensure
         symmetry.
         """
-        point1_x = round(point1.x)
-        point1_y = round(point1.y)
-        point2_x = round(point2.x)
-        point2_y = round(point2.y)
+        point1_x = round(point1[0])
+        point1_y = round(point1[1])
+        point2_x = round(point2[0])
+        point2_y = round(point2[1])
         _, line_color = Canvas._set_default_colors(None, line_color)
         self.draw.line(
             [(point1_x, point1_y), (point2_x, point2_y)],
@@ -73,43 +76,45 @@ class Canvas:
         )
 
     def draw_rect(self, point1, point2, fill_color=None, line_color=None):
-        # type: (Matrix, Matrix, Color, Color) -> None
+        # type: (Tuple2D, Tuple2D, Color, Color) -> None
         """Draw a rectangle."""
         self.draw_poly(
             [
                 point1,
-                Point2D(point1.x, point2.y),
+                (point1[0], point2[1]),
                 point2,
-                Point2D(point2.x, point1.y),
+                (point2[0], point1[1]),
             ],
             fill_color,
             line_color,
         )
 
     def draw_poly(self, points, fill_color=None, line_color=None):
-        # type: (Sequence[Matrix], Color, Color) -> None
+        # type: (Sequence[Tuple2D], Color, Color) -> None
         """Draw a polygon."""
         fill_color, line_color = Canvas._set_default_colors(fill_color, line_color)
         self.draw.polygon(
-            [(round(point.x), round(point.y)) for point in points],
+            [(round(point[0]), round(point[1])) for point in points],
             outline=line_color.to_rgba_tuple(),
             fill=fill_color.to_rgba_tuple(),
             width=1,
         )
 
     def draw_text(self, point, text, anchor=None):
-        # type: (Matrix, Color, Color) -> None
+        # type: (Tuple2D, Color, Color) -> None
         """Draw text."""
         pass # FIXME
 
     def create_tk(self):
+        # type: () -> None
+        """Create the Tk window."""
         # gets around weird casing in title
         # see https://bugs.python.org/issue13553
         self.tk = Tk(className=('\u200B' + self.title)) # pylint: disable = superfluous-parens
-        self.tk.minsize(self.size.x, self.size.y)
+        self.tk.minsize(self.width, self.height)
         self.canvas = TKCanvas(
             self.tk,
-            width=self.size.x, height=self.size.y,
+            width=self.width, height=self.height,
             background='#FFFFFF',
         )
         self.canvas.place(relx=.5, rely=.5, anchor=CENTER)
@@ -125,7 +130,7 @@ class Canvas:
         """
         self.image = Image.new(
             mode='RGB',
-            size=(self.size.x, self.size.y),
+            size=(self.width, self.height),
             color='#FFFFFFFF',
         )
         self.draw = Draw(self.image, 'RGBA')
