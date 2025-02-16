@@ -34,6 +34,7 @@ class PointsMatrix(RootClass):
 
     @cached_property
     def x_reflection(self):
+        # type: () -> Self
         """Reflect across the x-axis."""
         return type(self).from_matrix(Matrix(tuple(
             (-row[0], row[1], row[2], row[3])
@@ -42,6 +43,7 @@ class PointsMatrix(RootClass):
 
     @cached_property
     def y_reflection(self):
+        # type: () -> Self
         """Reflect across the y-axis."""
         return type(self).from_matrix(Matrix(tuple(
             (row[0], -row[1], row[2], row[3])
@@ -50,6 +52,7 @@ class PointsMatrix(RootClass):
 
     @cached_property
     def z_reflection(self):
+        # type: () -> Self
         """Reflect across the z-axis."""
         return type(self).from_matrix(Matrix(tuple(
             (row[0], row[1], -row[2], row[3])
@@ -376,6 +379,7 @@ class Segment(PointsMatrix):
     @staticmethod
     def angle(p1, p2, p3):
         # type: (Point2D, Point2D, Point2D) -> float
+        """Determine the angle going from p1 to p2 to p3."""
         return atan2(p3.y - p2.y, p3.x - p2.x) - atan2(p1.y - p2.y, p1.x - p2.x)
 
     @staticmethod
