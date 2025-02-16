@@ -6,7 +6,6 @@ from math import sin, cos, pi as PI
 from typing import Any
 
 from .algorithms import monotone_triangulation
-from .camera import Camera
 from .matrix import Matrix
 from .simplex import PointsMatrix, Point2D, Segment
 from .transform import Transform
@@ -69,14 +68,6 @@ class Polygon(PointsMatrix):
         # type: (*Polygon) -> Polygon
         """Create the intersection of polygons."""
         raise NotImplementedError()
-
-    def draw(self, camera, transform=None):
-        # type: (Camera, Transform) -> None
-        """Abstract method for drawing."""
-        if transform is None:
-            transform = Transform()
-        for triangle in self.triangles:
-            triangle.draw(camera, transform)
 
     @staticmethod
     def _simplify(points):
