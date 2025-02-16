@@ -20,10 +20,8 @@ class Polygon(PointsMatrix):
             (point.x, point.y, 0, 1)
             for point in points
         )))
-        # remove colinear points
-        self.points = Polygon._simplify(points)
         # partition
-        self.triangles = monotone_triangulation(self.points)
+        self.triangles = monotone_triangulation(points)
 
     @cached_property
     def area(self):
@@ -67,24 +65,6 @@ class Polygon(PointsMatrix):
         # type: (*Polygon) -> Polygon
         """Create the intersection of polygons."""
         raise NotImplementedError()
-
-    @staticmethod
-    def _simplify(points):
-        # type: (Sequence[Matrix]) -> list[Matrix]
-        """Remove colinear points."""
-        angles = [
-            Segment.orientation(
-                points[i - 1],
-                points[i],
-                points[i + 1],
-            )
-            for i in range(-1, len(points) - 1)
-        ]
-        angles = angles[1:] + [angles[0]]
-        return tuple(
-            point for point, angle in zip(points, angles)
-            if angle != 0 # FIXME use a more meaningful test
-        )
 
     @staticmethod
     def rectangle(width, height):
