@@ -8,14 +8,13 @@ from typing import Any
 from .algorithms import monotone_triangulation
 from .matrix import Matrix
 from .simplex import PointsMatrix, Point2D, Segment
-from .transform import Transform
 
 
 class Polygon(PointsMatrix):
     """A (potentially non-convex) polygon."""
 
     def __init__(self, points):
-        # type: (Sequence[Matrix], Any, Any) -> None
+        # type: (Sequence[Point2D]) -> None
         super().__init__(Matrix(tuple(
             (point.x, point.y, 0, 1)
             for point in points
@@ -54,9 +53,9 @@ class Polygon(PointsMatrix):
 
     @cached_property
     def centroid(self):
-        # type: () -> Matrix
+        # type: () -> Point2D
         """Calculate the centroid of the polygon."""
-        total_area = 0
+        total_area = 0 # type: float
         centroid = Point2D()
         for triangle in self.triangles:
             total_area += triangle.area
@@ -98,7 +97,7 @@ class Polygon(PointsMatrix):
         # type: (float, float, int) -> Polygon
         """Create a ellipse."""
         step = PI / (num_points / 2)
-        return Polygon((
+        return Polygon(tuple(
             Point2D(width_radius * cos(i * step), height_radius * sin(i * step))
             for i in range(num_points)
         ))
