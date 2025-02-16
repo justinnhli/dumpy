@@ -328,10 +328,10 @@ class Segment(PointsMatrix):
         )
         if not bounding_box_overlaps:
             return None
-        o1 = Segment._orientation(self.point1, other.point1, other.point2)
-        o2 = Segment._orientation(self.point2, other.point1, other.point2)
-        o3 = Segment._orientation(other.point1, self.point1, self.point2)
-        o4 = Segment._orientation(other.point2, self.point1, self.point2)
+        o1 = Segment.orientation(self.point1, other.point1, other.point2)
+        o2 = Segment.orientation(self.point2, other.point1, other.point2)
+        o3 = Segment.orientation(other.point1, self.point1, self.point2)
+        o4 = Segment.orientation(other.point2, self.point1, self.point2)
         # general case: no co-linearity
         if 0 not in (o1, o2, o3, o4):
             if self.is_parallel(other):
@@ -372,12 +372,12 @@ class Segment(PointsMatrix):
             return None
 
     @staticmethod
-    def _angle(p1, p2, p3):
+    def angle(p1, p2, p3):
         # type: (Point2D, Point2D, Point2D) -> float
         return atan2(p3.y - p2.y, p3.x - p2.x) - atan2(p1.y - p2.y, p1.x - p2.x)
 
     @staticmethod
-    def _orientation(p1, p2, p3):
+    def orientation(p1, p2, p3):
         # type: (Point2D, Point2D, Point2D) -> int
         """Determine the orientation going from p1 to p2 to p3."""
         val = (
@@ -406,7 +406,7 @@ class Triangle(PointsMatrix):
     def __init__(self, point1, point2, point3):
         # type: (Point2D, Point2D, Point2D) -> None
         points_list = [point1, point2, point3]
-        if Segment._orientation(point1, point2, point3) != -1:
+        if Segment.orientation(point1, point2, point3) != -1:
             raise ValueError(f'triangle is not counterclockwise: {points_list}')
         super().__init__(Matrix((
             (point1.x, point1.y, 0, 1),
