@@ -3,8 +3,8 @@
 # pylint: disable = too-many-lines
 
 from functools import lru_cache as cache, cached_property
-from math import sqrt, isclose, sin, cos
-from typing import Any, Union, Sequence
+from math import sqrt, sin, cos
+from typing import Any
 
 from .metaprogramming import cached_class
 from .root_class import RootClass
@@ -173,18 +173,18 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
         ))
 
     def __mul__(self, other):
-        # type: (Union[int, float]) -> Matrix
+        # type: (float) -> Matrix
         return Matrix(tuple(
             tuple(val * other for val in row)
             for row in self.rows
         ))
 
     def __rmul__(self, other):
-        # type: (Union[int, float]) -> Matrix
+        # type: (float) -> Matrix
         return self * other
 
     def __truediv__(self, other):
-        # type: (Union[int, float]) -> Matrix
+        # type: (float) -> Matrix
         return self * (1 / other)
 
     def __matmul__(self, other):
@@ -201,6 +201,7 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
         return Matrix(tuple(result))
 
     def calculate_hash(self):
+        # type: () -> int
         return hash(self.rows)
 
     def reflect(self, other):
@@ -311,6 +312,7 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
 
     @cached_property
     def init_args(self):
+        # type: () -> tuple[Any, ...]
         return (self.rows,)
 
 
