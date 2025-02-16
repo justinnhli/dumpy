@@ -5,19 +5,22 @@ from functools import cached_property
 from math import sin, cos, pi as PI
 from typing import Any
 
-from .camera import Camera
-from .matrix import Matrix, Point2D
-from .mixins import TransformMixIn, Transform
-from .simplex import Segment
 from .algorithms import monotone_triangulation
+from .camera import Camera
+from .matrix import Matrix
+from .simplex import PointsMatrix, Point2D, Segment
+from .transform import Transform
 
 
-class Polygon(TransformMixIn):
+class Polygon(PointsMatrix):
     """A (potentially non-convex) polygon."""
 
-    def __init__(self, points, *args, **kwargs):
+    def __init__(self, points):
         # type: (Sequence[Matrix], Any, Any) -> None
-        super().__init__(*args, **kwargs)
+        super().__init__(Matrix(tuple(
+            (point.x, point.y, 0, 1)
+            for point in points
+        )))
         # remove colinear points
         self.points = Polygon._simplify(points)
         # partition
@@ -50,7 +53,7 @@ class Polygon(TransformMixIn):
 
     def __eq__(self, other):
         assert isinstance(other, type(self))
-        return self.to_components == other.to_components
+        return self.init_args == other.init_args
 
     def union(self, *polygons):
         # type: (*Polygon) -> Polygon
@@ -80,7 +83,7 @@ class Polygon(TransformMixIn):
         # type: (Sequence[Matrix]) -> list[Matrix]
         """Remove colinear points."""
         angles = [
-            Segment._orientation(
+            Segment.orientation(
                 points[i - 1],
                 points[i],
                 points[i + 1],
@@ -94,47 +97,31 @@ class Polygon(TransformMixIn):
         )
 
     @staticmethod
-    def rectangle(width, height, *args, **kwargs):
-        # type: (float, float, *Any, **Any) -> Polygon
+    def rectangle(width, height):
+        # type: (float, float) -> Polygon
         """Create a rectangle."""
         half_width = width / 2
         half_height = height / 2
-        points = [
+        points = (
             Point2D(-half_width, half_height),
             Point2D(-half_width, -half_height),
             Point2D(half_width, -half_height),
             Point2D(half_width, half_height),
-        ]
-        return Polygon(points, *args, **kwargs)
+        )
+        return Polygon(points)
 
     @staticmethod
-    def ellipse(width_radius, height_radius, *args, num_points=40, **kwargs):
-        # type: (float, float, Any, int, Any) -> Polygon
+    def ellipse(width_radius, height_radius, num_points=40):
+        # type: (float, float, int) -> Polygon
         """Create a ellipse."""
         step = PI / (num_points / 2)
-        return Polygon(
-            [
-                Point2D(width_radius * cos(i * step), height_radius * sin(i * step))
-                for i in range(num_points)
-            ],
-            *args,
-            **kwargs
-        )
+        return Polygon((
+            Point2D(width_radius * cos(i * step), height_radius * sin(i * step))
+            for i in range(num_points)
+        ))
 
     @cached_property
-    def to_components(self):
+    def init_args(self):
         # type: () -> tuple[Any, ...]
         """Return the components of this object."""
-        return self.points
-
-    @cached_property
-    def to_tuple(self):
-        # type: () -> tuple[...]
-        """Convert to a tuple."""
-        return tuple(point.to_tuple for point in self.points)
-
-    @staticmethod
-    def from_tuple(value):
-        # type: (tuple[...]) -> Polygon
-        """Create from a tuple."""
-        return Polygon([Matrix.from_tuple(point) for point in value])
+        return (self.points,)
