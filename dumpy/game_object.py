@@ -20,9 +20,30 @@ class GameObject:
         """The transform defined by the position of this object."""
         return Transform(self.position.x, self.position.y, self.theta)
 
+    def move_to(self, x, y):
+        # type: (float, float) -> None
+        """Move the object to the point."""
+        self.position = Point2D(x, y)
+
+    def move_by(self, x, y):
+        # type: (float, float) -> None
+        """Move the object by the vector."""
+        self.position += Vector2D(x, y)
+
+    def rotate_to(self, theta):
+        # type: (float) -> None
+        """Rotate the object to the angle."""
+        self.theta = theta
+
+    def rotate_by(self, theta):
+        # type: (float) -> None
+        """Rotate the object by the angle."""
+        self.theta += theta
+
     def update(self):
         # type: () -> None
         """Update the object."""
+        raise NotImplementedError()
 
 
 class PhysicsObject(GameObject):
