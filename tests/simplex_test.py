@@ -1,19 +1,18 @@
 """Tests for simplex.py."""
 
-from dumpy.matrix import Point2D
-from dumpy.simplex import Segment, Triangle
+from dumpy.simplex import Point2D, Segment, Triangle
 
 
 def test_segment():
     segment = Segment(Point2D(1, 2), Point2D(3, 4))
-    assert tuple(segment) == (Point2D(1, 2), Point2D(3, 4))
+    assert segment.points == (Point2D(1, 2), Point2D(3, 4))
     assert segment.min == Point2D(1, 2)
     assert segment.max == Point2D(3, 4)
     assert segment.twin == Segment(Point2D(3, 4), Point2D(1, 2))
     assert segment.twin.min == Point2D(1, 2)
     assert segment.twin.max == Point2D(3, 4)
-    assert str(segment) == 'Segment(Point3D(1, 2, 0), Point3D(3, 4, 0))'
-    assert Segment.from_tuple(segment.to_tuple) == segment
+    assert str(segment) == 'Segment(Point2D(1, 2), Point2D(3, 4))'
+    assert Segment.from_matrix(segment.matrix) == segment
     # at most one point of intersection, include_end=True
     segments = [
         # vertical second segment
@@ -77,13 +76,13 @@ def test_triangle():
         Segment(Point2D(1, -3), Point2D(3, 4)),
         Segment(Point2D(3, 4), Point2D(-4, -1)),
     )
-    assert tuple(triangle.points) == (Point2D(-4, -1), Point2D(1, -3), Point2D(3, 4))
+    assert triangle.points == (Point2D(-4, -1), Point2D(1, -3), Point2D(3, 4))
     assert triangle.segments == (
         Segment(Point2D(-4, -1), Point2D(1, -3)),
         Segment(Point2D(1, -3), Point2D(3, 4)),
         Segment(Point2D(3, 4), Point2D(-4, -1)),
     )
-    assert str(triangle) == 'Triangle(Point3D(-4, -1, 0), Point3D(1, -3, 0), Point3D(3, 4, 0))'
-    assert Triangle.from_tuple(triangle.to_tuple) == triangle 
+    assert str(triangle) == 'Triangle(Point2D(-4, -1), Point2D(1, -3), Point2D(3, 4))'
+    assert Triangle.from_matrix(triangle.matrix) == triangle 
     assert triangle.area == 19.5
     assert triangle.centroid == Point2D()
