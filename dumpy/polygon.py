@@ -24,6 +24,11 @@ class Polygon(PointsMatrix):
         self.triangles = monotone_triangulation(points)
 
     @cached_property
+    def init_args(self):
+        # type: () -> tuple[Any, ...]
+        return (self.points,)
+
+    @cached_property
     def area(self):
         # type: () -> float
         """Calculate the area of the polygon."""
@@ -40,16 +45,6 @@ class Polygon(PointsMatrix):
             centroid += triangle.area * triangle.centroid
         result = centroid / total_area
         return Point2D(result.x, result.y)
-
-    def __hash__(self):
-        # type: () -> int
-        if not self._hash:
-            self._hash = hash(self.points)
-        return self._hash
-
-    def __eq__(self, other):
-        assert isinstance(other, type(self))
-        return self.init_args == other.init_args
 
     def union(self, *polygons):
         # type: (*Polygon) -> Polygon
@@ -90,8 +85,10 @@ class Polygon(PointsMatrix):
             for i in range(num_points)
         ))
 
-    @cached_property
-    def init_args(self):
-        # type: () -> tuple[Any, ...]
-        """Return the components of this object."""
-        return (self.points,)
+    @staticmethod
+    def from_matrix(matrix):
+        # type: (Matrix) -> Polygon
+        return Polygon(tuple(
+            Point2D(row[0], row[1])
+            for row in matrix.rows
+        ))
