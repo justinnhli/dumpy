@@ -37,7 +37,13 @@ def test_matrix():
     m3 = Matrix(((20, 22, 50, 48), (44, 54, 114, 108), (40, 58, 110, 102), (16, 26, 46, 42)))
     assert m1 @ m2 == m3
     m1 = Matrix(((1, 2, 3, 4), (2, 4, 4, 2), (8, 6, 4, 1), (0, 0, 0, 1)))
-    assert m1 @ Matrix(((1, 2, 3, 1),)) == Matrix(((18, 24, 33, 1),))
+    try:
+        m1 @ Matrix(((1, 2, 3, 1),)) 
+        assert False
+    except AssertionError:
+        pass
+    assert m1 @ Matrix(((1, 2, 3, 1),)).transpose == Matrix(((18, 24, 33, 1),)).transpose
+    #assert m1 @ Matrix(((1,), (2,), (3,), (1,))) == Matrix(((1,),))
     m1 = Matrix(((0, 1, 2, 4), (1, 2, 4, 8), (2, 4, 8, 16), (4, 8, 16, 32)))
     m2 = identity(4)
     assert m1 @ m2 == m1
@@ -62,16 +68,16 @@ def test_matrix():
     m2 = Matrix(((8, 2, 2, 2), (3, -1, 7, 0), (7, 0, 5, 4), (6, -2, 0, 5)))
     assert round(m1 @ m2 @ m2.inverse, 3) == round(m1, 3)
     # translation and scaling
-    assert identity(4).translate(5, -3, 2) @ Matrix(((-3, 4, 5, 1),)) == Matrix(((2, 1, 7, 1),))
-    assert identity(4).translate(5, -3, 2).inverse @ Matrix(((-3, 4, 5, 1),)) == Matrix(((-8, 7, 3, 1),))
-    assert identity(4).translate(5, -3, 2) @ Matrix(((-3, 4, 5, 0),)) == Matrix(((-3, 4, 5, 0),))
-    assert identity(4).scale(2, 3, 4) @ Matrix(((-4, 6, 8, 1),)) == Matrix(((-8, 18, 32, 1),))
-    assert identity(4).scale(2, 3, 4) @ Matrix(((-4, 6, 8, 0),)) == Matrix(((-8, 18, 32, 0),))
-    assert identity(4).scale(2, 3, 4).inverse @ Matrix(((-4, 6, 8, 1),)) == Matrix(((-2, 2, 2, 1),))
+    assert identity(4).translate(5, -3, 2) @ Matrix(((-3, 4, 5, 1),)).transpose == Matrix(((2, 1, 7, 1),)).transpose
+    assert identity(4).translate(5, -3, 2).inverse @ Matrix(((-3, 4, 5, 1),)).transpose == Matrix(((-8, 7, 3, 1),)).transpose
+    assert identity(4).translate(5, -3, 2) @ Matrix(((-3, 4, 5, 0),)).transpose == Matrix(((-3, 4, 5, 0),)).transpose
+    assert identity(4).scale(2, 3, 4) @ Matrix(((-4, 6, 8, 1),)).transpose == Matrix(((-8, 18, 32, 1),)).transpose
+    assert identity(4).scale(2, 3, 4) @ Matrix(((-4, 6, 8, 0),)).transpose == Matrix(((-8, 18, 32, 0),)).transpose
+    assert identity(4).scale(2, 3, 4).inverse @ Matrix(((-4, 6, 8, 1),)).transpose == Matrix(((-2, 2, 2, 1),)).transpose
     # shear
-    assert identity(4).shear(1, 0, 0, 0, 0, 0) @ Matrix(((2, 3, 4, 1),)) == Matrix(((5, 3, 4, 1),))
-    assert identity(4).shear(0, 1, 0, 0, 0, 0) @ Matrix(((2, 3, 4, 1),)) == Matrix(((6, 3, 4, 1),))
-    assert identity(4).shear(0, 0, 1, 0, 0, 0) @ Matrix(((2, 3, 4, 1),)) == Matrix(((2, 5, 4, 1),))
-    assert identity(4).shear(0, 0, 0, 1, 0, 0) @ Matrix(((2, 3, 4, 1),)) == Matrix(((2, 7, 4, 1),))
-    assert identity(4).shear(0, 0, 0, 0, 1, 0) @ Matrix(((2, 3, 4, 1),)) == Matrix(((2, 3, 6, 1),))
-    assert identity(4).shear(0, 0, 0, 0, 0, 1) @ Matrix(((2, 3, 4, 1),)) == Matrix(((2, 3, 7, 1),))
+    assert identity(4).shear(1, 0, 0, 0, 0, 0) @ Matrix(((2, 3, 4, 1),)).transpose == Matrix(((5, 3, 4, 1),)).transpose
+    assert identity(4).shear(0, 1, 0, 0, 0, 0) @ Matrix(((2, 3, 4, 1),)).transpose == Matrix(((6, 3, 4, 1),)).transpose
+    assert identity(4).shear(0, 0, 1, 0, 0, 0) @ Matrix(((2, 3, 4, 1),)).transpose == Matrix(((2, 5, 4, 1),)).transpose
+    assert identity(4).shear(0, 0, 0, 1, 0, 0) @ Matrix(((2, 3, 4, 1),)).transpose == Matrix(((2, 7, 4, 1),)).transpose
+    assert identity(4).shear(0, 0, 0, 0, 1, 0) @ Matrix(((2, 3, 4, 1),)).transpose == Matrix(((2, 3, 6, 1),)).transpose
+    assert identity(4).shear(0, 0, 0, 0, 0, 1) @ Matrix(((2, 3, 4, 1),)).transpose == Matrix(((2, 3, 7, 1),)).transpose

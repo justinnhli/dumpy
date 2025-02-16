@@ -36,24 +36,6 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
         )
 
     @cached_property
-    def is_tuple(self):
-        # type: () -> bool
-        """Return True if the matrix is a 4-tuple."""
-        return self.height == 1 and self.width == 4
-
-    @cached_property
-    def is_vector(self):
-        # type: () -> bool
-        """Return True if the matrix is a graphics vector."""
-        return self.is_tuple and self.rows[0][3] == 0
-
-    @cached_property
-    def is_point(self):
-        # type: () -> bool
-        """Return True if the matrix is a graphics point."""
-        return self.is_tuple and self.rows[0][3] == 1
-
-    @cached_property
     def x(self):
         # type: () -> float
         """Return the x value of a 4-tuple."""
@@ -207,10 +189,7 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
 
     def __matmul__(self, other):
         # type: (Matrix) -> Matrix
-        is_tuple = False
-        if other.is_tuple:
-            other = other.transpose
-            is_tuple = True
+        assert self.width == other.height, f'({self.height}, {self.width}) x ({other.height}, {other.width})'
         result = []
         for r in range(self.height):
             row = self.rows[r]
@@ -219,10 +198,7 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
                 col = other.cols[c]
                 result_row.append(sum(a * b for a, b in zip(row, col)))
             result.append(tuple(result_row))
-        if is_tuple:
-            return Matrix(tuple(result)).transpose
-        else:
-            return Matrix(tuple(result))
+        return Matrix(tuple(result))
 
     def calculate_hash(self):
         return hash(self.rows)
