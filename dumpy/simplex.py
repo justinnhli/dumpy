@@ -343,16 +343,14 @@ class Segment(PointsMatrix):
             vector1 = self.point2 - self.point1
             vector2 = other.point2 - other.point1
             perpendicular1 = Point2D(-vector2.y, vector2.x)
-            #proportion1 = (other.point1 - self.point1).dot(perpendicular1) / vector1.dot(perpendicular1)
             proportion1 = (
-                ((other.point1 - self.point1).matrix @ perpendicular1.matrix).rows[0][0]
-                / (vector1.matrix @ perpendicular1.matrix).rows[0][0]
+                ((other.point1 - self.point1).matrix @ perpendicular1.matrix.transpose).rows[0][0]
+                / (vector1.matrix @ perpendicular1.matrix.transpose).rows[0][0]
             )
             perpendicular2 = Point2D(-vector1.y, vector1.x)
-            # proportion2 = (self.point1 - other.point1).dot(perpendicular2) / vector2.dot(perpendicular2)
             proportion2 = (
-                    ((self.point1 - other.point1).matrix @ perpendicular2.matrix).rows[0][0]
-                    / (vector2.matrix @ perpendicular2.matrix).rows[0][0]
+                    ((self.point1 - other.point1).matrix @ perpendicular2.matrix.transpose).rows[0][0]
+                    / (vector2.matrix @ perpendicular2.matrix.transpose).rows[0][0]
             )
             if 0 <= proportion1 <= 1 and 0 <= proportion2 <= 1:
                 if include_end or (proportion1 not in (0, 1) and proportion2 not in (0, 1)):
