@@ -1,26 +1,25 @@
 """A 2D camera."""
 
-from typing import Any, Sequence
-
 from .canvas import Canvas
-from .color import Color
-from .matrix import Matrix, Point2D
-from .mixins import Transform, TransformMixIn
+from .game_object import GameObject
+from .matrix import Matrix
+from .simplex import PointsMatrix
+from .transform import Transform
 
 
-class Camera(TransformMixIn):
+class Camera(GameObject):
     """A 2D camera."""
 
-    def __init__(self, canvas, *args, zoom_level=0, **kwargs):
-        # type: (Canvas, Any, int, Any) -> None
+    def __init__(self, canvas, zoom_level=0):
+        # type: (Canvas, int) -> None
         """Initialize the Camera."""
-        super().__init__(*args, **kwargs)
+        super().__init__()
         self.canvas = canvas
         self.zoom_level = zoom_level
-        self.origin_transform = Transform(Point2D(
-            self.canvas.size.x // 2,
-            self.canvas.size.y // 2,
-        ))
+        self.origin_transform = Transform(
+            self.canvas.width // 2,
+            self.canvas.height // 2,
+        )
 
     @property
     def zoom(self):
@@ -28,47 +27,28 @@ class Camera(TransformMixIn):
         """Get the zoom level."""
         return 1.25 ** self.zoom_level
 
-    def _translate(self, point):
+    def _translate(self, matrix):
         # type: (Matrix) -> Matrix
         transform_matrix = (
             self.transform.matrix
             .scale(self.zoom, self.zoom, self.zoom)
             .y_reflection
         )
-        return self.origin_transform @ transform_matrix @ point
+        return self.origin_transform.matrix @ (transform_matrix @ matrix)
 
-    def draw_pixel(self, point, color=None):
-        # type: (Matrix, Color) -> None
-        """Draw a pixel."""
-        self.canvas.draw_pixel(
-            self._translate(point),
-            color,
-        )
-
-    def draw_line(self, point1, point2, line_color=None):
-        # type: (Matrix, Matrix, Color) -> None
-        """Draw a line."""
-        self.canvas.draw_line(
-            self._translate(point1),
-            self._translate(point2),
-            line_color,
-        )
-
-    def draw_rect(self, point1, point2, fill_color=None, line_color=None):
-        # type: (Matrix, Matrix, Color, Color) -> None
-        """Draw a rectangle."""
-        self.canvas.draw_rect(
-            self._translate(point1),
-            self._translate(point2),
-            fill_color,
-            line_color,
-        )
-
-    def draw_poly(self, points, fill_color=None, line_color=None):
-        # type: (Sequence[Matrix], Color, Color) -> None
-        """Draw a polygon."""
-        self.canvas.draw_poly(
-            [self._translate(point) for point in points],
-            fill_color,
-            line_color,
-        )
+    def draw_points_matrix(self, points_matrix):
+        # type: (PointsMatrix) -> None
+        """Draw a PointsMatrix."""
+        matrix = self._translate(points_matrix.matrix)
+        if matrix.height == 1:
+            print(matrix)
+            self.canvas.draw_pixel((matrix[0][0], matrix[0][1]))
+        elif matrix.height == 2:
+            self.canvas.draw_line(
+                (matrix[0][0], matrix[0][1]),
+                (matrix[1][0], matrix[2][1]),
+            )
+        else:
+            self.canvas.draw_poly(
+                tuple((row[0], row[1]) for row in matrix.rows),
+            )
