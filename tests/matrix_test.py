@@ -9,6 +9,9 @@ def test_matrix():
     m1 = Matrix(((1, 2, 3, 4), (5, 6, 7, 8), (9, 8, 7, 6), (5, 4, 3, 2)))
     m2 = Matrix(((2, 3, 4, 5), (6, 7, 8, 9), (8, 7, 6, 5), (4, 3, 2, 1)))
     assert m1 != m2
+    # indexing
+    assert Matrix(((1, 2), (3, 4)))[0] == (1, 2)
+    assert Matrix(((1, 2), (3, 4)))[1] == (3, 4)
     # identity
     assert identity(4) == Matrix(((1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1)))
     # element-wise arithmetic
@@ -19,6 +22,11 @@ def test_matrix():
     assert Matrix(((1, -2, 3, -4),)) * 3.5 == Matrix(((3.5, -7, 10.5, -14),))
     assert 0.5 * Matrix(((1, -2, 3, -4),)) == Matrix(((0.5, -1, 1.5, -2),))
     assert Matrix(((1, -2, 3, -4),)) / 2 == Matrix(((0.5, -1, 1.5, -2),))
+    assert -Matrix(((1, 2), (3, 4))) == Matrix(((-1, -2), (-3, -4)))
+    # reflection
+    assert Matrix(((1, 2, 3, 4),)).transpose.x_reflection == Matrix(((-1, 2, 3, 4),)).transpose
+    assert Matrix(((1, 2, 3, 4),)).transpose.y_reflection == Matrix(((1, -2, 3, 4),)).transpose
+    assert Matrix(((1, 2, 3, 4),)).transpose.z_reflection == Matrix(((1, 2, -3, 4),)).transpose
     # magnitude and normalization
     assert Matrix(((1, 0, 0, 0),)).magnitude == 1
     assert Matrix(((0, 1, 0, 0),)).magnitude == 1
@@ -43,10 +51,8 @@ def test_matrix():
     except AssertionError:
         pass
     assert m1 @ Matrix(((1, 2, 3, 1),)).transpose == Matrix(((18, 24, 33, 1),)).transpose
-    #assert m1 @ Matrix(((1,), (2,), (3,), (1,))) == Matrix(((1,),))
     m1 = Matrix(((0, 1, 2, 4), (1, 2, 4, 8), (2, 4, 8, 16), (4, 8, 16, 32)))
-    m2 = identity(4)
-    assert m1 @ m2 == m1
+    assert m1 @ identity(4) == m1
     # transposition
     m1 = Matrix(((0, 9, 3, 0), (9, 8, 0, 8), (1, 8, 5, 3), (0, 0, 5, 8)))
     m2 = Matrix(((0, 9, 1, 0), (9, 8, 8, 0), (3, 0, 5, 5), (0, 8, 3, 8)))
@@ -66,6 +72,8 @@ def test_matrix():
     # inverse
     m1 = Matrix(((3, -9, 7, 3), (3, -8, 2, -9), (-4, 4, 4, 1), (-6, 5, -1, 1)))
     m2 = Matrix(((8, 2, 2, 2), (3, -1, 7, 0), (7, 0, 5, 4), (6, -2, 0, 5)))
+    assert m2.invertible
+    assert not Matrix(((2, 4), (2, 4))).invertible
     assert round(m1 @ m2 @ m2.inverse, 3) == round(m1, 3)
     # translation and scaling
     assert identity(4).translate(5, -3, 2) @ Matrix(((-3, 4, 5, 1),)).transpose == Matrix(((2, 1, 7, 1),)).transpose
