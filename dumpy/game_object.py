@@ -12,13 +12,13 @@ class GameObject:
         # type: () -> None
         self.polygon = None # type: Polygon
         self.position = Point2D()
-        self.rotation = 0 # type: float
+        self.theta = 0 # type: float
 
     @property
     def transform(self):
         # type: () -> Transform
         """The transform defined by the position of this object."""
-        return Transform(self.position.x, self.position.y, self.rotation)
+        return Transform(self.position.x, self.position.y, self.theta)
 
     def update(self):
         # type: () -> None
@@ -41,4 +41,4 @@ class PhysicsObject(GameObject):
         self.velocity += self.acceleration
         self.angular_velocity += self.angular_acceleration
         self.position += self.velocity
-        self.rotation += self.angular_velocity
+        self.theta += self.angular_velocity
