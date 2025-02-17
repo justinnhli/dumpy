@@ -28,13 +28,14 @@ class Camera(GameObject):
         """Get the zoom level."""
         return 1.25 ** self.zoom_level
 
-    def _translate(self, matrix):
+    def _project(self, matrix):
         # type: (Matrix) -> Matrix
-        transform_matrix = (
-            self.transform.matrix
-            .scale(self.zoom, self.zoom, self.zoom)
-            .y_reflection
-        )
+        """Project to screen coordinates.
+
+        Because this project involves flipping the y-axis, it cannot be
+        represented as a Transform, and the underlying matrix must be used
+        instead.
+        """
         return (
             self.origin_transform.matrix
             @ transform_matrix
@@ -44,7 +45,7 @@ class Camera(GameObject):
     def draw_points_matrix(self, points_matrix, color=None, fill_color=None, line_color=None):
         # type: (PointsMatrix, Color, Color, Color) -> None
         """Draw a PointsMatrix."""
-        matrix = self._translate(points_matrix.matrix)
+        matrix = self._project(points_matrix.matrix)
         if matrix.height == 1:
             self.canvas.draw_pixel(
                 (matrix[0][0], matrix[0][1]),
