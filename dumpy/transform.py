@@ -21,6 +21,12 @@ class Transform(RootClass):
         self.scale = scale
 
     @cached_property
+    def init_args(self):
+        # type: () -> tuple[Any, ...]
+        """Return the components of this object."""
+        return self.x, self.y, self.theta, self.scale
+
+    @cached_property
     def radians(self):
         # type: () -> float
         """Return the rotation."""
@@ -35,12 +41,6 @@ class Transform(RootClass):
             .rotate_z(self.radians)
             .translate(self.x, self.y, 0)
         )
-
-    @cached_property
-    def init_args(self):
-        # type: () -> tuple[Any, ...]
-        """Return the components of this object."""
-        return self.x, self.y, self.theta, self.scale
 
     def __add__(self, other):
         # type: (Transform) -> Transform
