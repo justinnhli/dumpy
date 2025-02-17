@@ -1,7 +1,7 @@
 """The Transform class."""
 
 from functools import cached_property
-from math import pi as PI
+from math import sin, cos, pi as PI
 from typing import Any
 
 from .matrix import Matrix, identity
@@ -42,19 +42,44 @@ class Transform(RootClass):
             .translate(self.x, self.y, 0)
         )
 
-    def __add__(self, other):
-        # type: (Transform) -> Transform
-        assert isinstance(other, type(self))
+    @cached_property
+    def inverse(self):
+        # type: () -> Transform
+        """Return the inverse transform.
+
+        Equivalent to:
+
+        return (
+            Transform(scale=(1 / self.scale))
+            @ Transform(theta=-self.theta)
+            @ Transform(-self.x, -self.y)
+        )
+        """
+        sin_radians = sin(self.radians)
+        cos_radians = cos(self.radians)
         return Transform(
-            self.x + other.x,
-            self.y + other.y,
-            self.theta + other.theta,
-            self.scale * other.scale,
+            (-self.x * cos_radians - self.y * sin_radians) / self.scale,
+            (self.x * sin_radians - self.y * cos_radians) / self.scale,
+            -self.theta,
+            1 / self.scale,
         )
 
-    def __neg__(self):
-        # type: () -> Transform
-        return Transform(-self.x, -self.y, -self.theta, 1 / self.scale)
+    def __matmul__(self, other):
+        # type: (Any) -> Any
+        """Matrix multiplication.
+
+        Returning NotImplemented allows other classes to implement __rmatmul__.
+        """
+        if isinstance(other, Transform):
+            # from https://gamedev.stackexchange.com/a/207764
+            return Transform(
+                self.x + self.scale * (other.x * cos(self.radians) - other.y * sin(self.radians)),
+                self.y + self.scale * (other.x * sin(self.radians) + other.y * cos(self.radians)),
+                other.theta + self.theta,
+                other.scale * self.scale,
+            )
+        else:
+            return NotImplemented
 
     def calculate_hash(self):
         # type: () -> int
