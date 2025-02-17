@@ -1,5 +1,6 @@
 """A basic window for basic drawing."""
 
+from math import sin, cos
 from tkinter import Event
 
 from .camera import Camera
@@ -40,20 +41,22 @@ class BasicWindow:
         """Deal with key presses."""
         translation = 25 / self.camera.zoom
         if event.keysym == 'w':
-            self.camera.move_by(0, translation)
+            self.camera.move_by(translation * sin(-self.camera.radians), translation * cos(-self.camera.radians))
         elif event.keysym == 's':
-            self.camera.move_by(0, -translation)
+            self.camera.move_by(-translation * sin(-self.camera.radians), -translation * cos(-self.camera.radians))
         elif event.keysym == 'a':
-            self.camera.move_by(-translation, 0)
+            self.camera.move_by(-translation * cos(self.camera.radians), -translation * sin(self.camera.radians))
         elif event.keysym == 'd':
-            self.camera.move_by(translation, 0)
+            self.camera.move_by(translation * cos(self.camera.radians), translation * sin(self.camera.radians))
         elif event.keysym == 'q':
             self.camera.rotate_by(0.125)
         elif event.keysym == 'e':
             self.camera.rotate_by(-0.125)
         elif event.keysym == 'space':
             self.camera.move_to(0, 0)
+            self.camera.rotate_to(0)
+            self.camera.zoom_level = 0
         elif event.keysym == 'r':
-            self.camera.zoom_level -= 1
-        elif event.keysym == 'f':
             self.camera.zoom_level += 1
+        elif event.keysym == 'f':
+            self.camera.zoom_level -= 1
