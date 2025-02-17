@@ -29,7 +29,7 @@ class Transform(RootClass):
     @cached_property
     def radians(self):
         # type: () -> float
-        """Return the rotation."""
+        """Return the rotation in radians."""
         return self.theta * PI
 
     @cached_property
@@ -37,7 +37,8 @@ class Transform(RootClass):
         # type: () -> Matrix
         """Create the transformation matrix."""
         return (
-            (self.scale * identity())
+            identity()
+            .scale(self.scale, self.scale, self.scale)
             .rotate_z(self.radians)
             .translate(self.x, self.y, 0)
         )
