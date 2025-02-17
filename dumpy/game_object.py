@@ -1,5 +1,7 @@
 """GameObject and its hierarchy."""
 
+from math import pi as PI
+
 from .polygon import Polygon
 from .simplex import Point2D, Vector2D
 from .transform import Transform
@@ -13,6 +15,12 @@ class GameObject:
         self.polygon = None # type: Polygon
         self.position = Point2D()
         self.theta = 0 # type: float
+
+    @property
+    def radians(self):
+        # type: () -> float
+        """Return the rotation in radians."""
+        return self.theta * PI
 
     @property
     def transform(self):
