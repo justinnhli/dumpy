@@ -1,11 +1,23 @@
 """A 2D camera."""
 
+from functools import lru_cache
+
 from .canvas import Canvas
 from .color import Color
 from .game_object import GameObject
 from .matrix import Matrix
 from .simplex import PointsMatrix
 from .transform import Transform
+
+
+@lru_cache
+def projection_matrix(width, height, x, y, theta, zoom): # pylint: disable = too-many-positional-arguments
+    # type: (int, int, float, float, float, float) -> Matrix
+    """Create the projection matrix."""
+    return (
+        Transform(width // 2, height // 2).matrix
+        @ Transform(x, y, theta, 1 / zoom).matrix.inverse.y_reflection
+    )
 
 
 class Camera(GameObject):
@@ -34,12 +46,18 @@ class Camera(GameObject):
 
         Because this project involves flipping the y-axis, it cannot be
         represented as a Transform, and the underlying matrix must be used
-        instead.
+        instead. The creation of the matrix is put in a separate function to
+        take advantage of caching.
         """
         return (
-            self.origin_transform.matrix
-            @ transform_matrix
-            @ matrix.transpose
+            projection_matrix(
+                self.canvas.width,
+                self.canvas.height,
+                self.position.x,
+                self.position.y,
+                self.theta,
+                self.zoom,
+            ) @ matrix.transpose
         ).transpose
 
     def draw_points_matrix(self, points_matrix, color=None, fill_color=None, line_color=None):
