@@ -64,6 +64,16 @@ class Transform(RootClass):
             1 / self.scale,
         )
 
+    def __round__(self, ndigits=0):
+        # type: (int) -> Transform
+        """Round the transform."""
+        return Transform(
+            round(self.x, ndigits),
+            round(self.y, ndigits),
+            round(self.theta, ndigits),
+            round(self.scale, ndigits),
+        )
+
     def __matmul__(self, other):
         # type: (Any) -> Any
         """Matrix multiplication.
