@@ -5,6 +5,7 @@ from tkinter import Event
 
 from .camera import Camera
 from .canvas import Canvas
+from .color import Color
 from .simplex import PointsMatrix
 
 
@@ -17,19 +18,24 @@ class BasicWindow:
         self.camera = Camera(self.canvas)
         for key in ['w', 's', 'a', 'd', 'e', 'q', 'space', 'r', 'f']:
             self.canvas.bind_key(f'<{key}>', self.key_callback)
-        self.points_matrixes = [] # type: list[PointsMatrix]
+        self.points_matrixes = [] # type: list[tuple[PointsMatrix, Color, Color, Color]]
 
-    def draw(self, geometry):
-        # type: (PointsMatrix) -> None
-        """Add a geometry to be drawn later."""
-        self.points_matrixes.append(geometry)
+    def draw(self, points_matrix, color=None, fill_color=None, line_color=None):
+        # type: (PointsMatrix, Color, Color, Color) -> None
+        """Add a PointsMatrix to be drawn later."""
+        self.points_matrixes.append((points_matrix, color, fill_color, line_color))
 
     def _draw(self):
         # type: () -> None
         """Draw all geometries."""
         self.canvas.new_page()
-        for points_matrix in self.points_matrixes:
-            self.camera.draw_points_matrix(points_matrix)
+        for points_matrix, color, fill_color, line_color in self.points_matrixes:
+            self.camera.draw_points_matrix(
+                points_matrix,
+                color=color,
+                fill_color=fill_color,
+                line_color=line_color,
+            )
 
     def start(self):
         # type: () -> None
