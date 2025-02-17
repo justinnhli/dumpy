@@ -1,6 +1,7 @@
 """A 2D camera."""
 
 from .canvas import Canvas
+from .color import Color
 from .game_object import GameObject
 from .matrix import Matrix
 from .simplex import PointsMatrix
@@ -40,18 +41,24 @@ class Camera(GameObject):
             @ matrix.transpose
         ).transpose
 
-    def draw_points_matrix(self, points_matrix):
-        # type: (PointsMatrix) -> None
+    def draw_points_matrix(self, points_matrix, color=None, fill_color=None, line_color=None):
+        # type: (PointsMatrix, Color, Color, Color) -> None
         """Draw a PointsMatrix."""
         matrix = self._translate(points_matrix.matrix)
         if matrix.height == 1:
-            self.canvas.draw_pixel((matrix[0][0], matrix[0][1]))
+            self.canvas.draw_pixel(
+                (matrix[0][0], matrix[0][1]),
+                color=color,
+            )
         elif matrix.height == 2:
             self.canvas.draw_line(
                 (matrix[0][0], matrix[0][1]),
                 (matrix[1][0], matrix[2][1]),
+                line_color=line_color,
             )
         else:
             self.canvas.draw_poly(
                 tuple((row[0], row[1]) for row in matrix.rows),
+                fill_color=fill_color,
+                line_color=line_color,
             )
