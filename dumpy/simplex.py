@@ -4,10 +4,10 @@ from functools import cached_property
 from math import atan2
 from typing import Any, Union, Optional, Self
 
-
 from .matrix import Matrix
 from .metaprogramming import cached_class
 from .root_class import RootClass
+from .transform import Transform
 
 
 @cached_class
@@ -22,6 +22,10 @@ class PointsMatrix(RootClass):
     def __round__(self, ndigits=0):
         # type: (int) -> Self
         return type(self).from_matrix(round(self.matrix, ndigits))
+
+    def __rmatmul__(self, other):
+        assert isinstance(other, Transform)
+        return type(self).from_matrix((other.matrix @ self.matrix.transpose).transpose)
 
     def calculate_hash(self):
         # type: () -> int
