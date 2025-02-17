@@ -97,14 +97,6 @@ class Tuple2D(PointsMatrix):
         """Return the w component of the tuple."""
         return self.matrix.w
 
-    def __add__(self, other):
-        # type: (Tuple2D) -> Tuple2D
-        assert isinstance(other, Tuple2D)
-        if isinstance(self, Point2D) or isinstance(other, Point2D):
-            return Point2D(self.x + other.x, self.y + other.y)
-        else:
-            return Vector2D(self.x + other.x, self.y + other.y)
-
     def __sub__(self, other):
         # type: (Tuple2D) -> Vector2D
         assert isinstance(other, type(self))
@@ -150,6 +142,11 @@ class Point2D(Tuple2D):
         # type: () -> tuple[Any, ...]
         return self.x, self.y
 
+    def __add__(self, other):
+        # type: (Vector2D) -> Point2D
+        assert isinstance(other, Tuple2D)
+        return Point2D(self.x + other.x, self.y + other.y)
+
     @staticmethod
     def from_matrix(matrix):
         # type: (Matrix) -> Point2D
@@ -170,6 +167,11 @@ class Vector2D(Tuple2D):
     def init_args(self):
         # type: () -> tuple[Any, ...]
         return self.x, self.y
+
+    def __add__(self, other):
+        # type: (Tuple2D) -> Tuple2D
+        assert isinstance(other, Tuple2D)
+        return type(other)(self.x + other.x, self.y + other.y)
 
     @staticmethod
     def from_matrix(matrix):
