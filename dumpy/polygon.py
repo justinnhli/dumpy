@@ -35,6 +35,7 @@ class Polygon(PointsMatrix):
             Point2D(row[0], row[1])
             for row in self.matrix.rows
         )
+
     @cached_property
     def segments(self):
         # type: () -> tuple[Segment, ...]
