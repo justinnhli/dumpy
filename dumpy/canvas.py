@@ -8,8 +8,6 @@ from PIL.ImageDraw import Draw
 from PIL.ImageTk import PhotoImage
 
 from .color import Color
-from .matrix import Matrix
-from .simplex import Point2D
 
 Tuple2D = tuple[float, float]
 
