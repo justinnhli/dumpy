@@ -7,9 +7,11 @@ from typing import Any
 
 from .algorithms import monotone_triangulation
 from .matrix import Matrix
+from .metaprogramming import cached_class
 from .simplex import PointsMatrix, Point2D, Segment
 
 
+@cached_class
 class Polygon(PointsMatrix):
     """A (potentially non-convex) polygon."""
 

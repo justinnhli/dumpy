@@ -10,7 +10,6 @@ from .root_class import RootClass
 from .transform import Transform
 
 
-@cached_class
 class PointsMatrix(RootClass):
     """Abstract class for a sequence of points."""
 
@@ -134,6 +133,7 @@ class Tuple2D(PointsMatrix):
         )
 
 
+@cached_class
 class Point2D(Tuple2D):
     """A 2D point."""
 
@@ -160,6 +160,7 @@ class Point2D(Tuple2D):
         )
 
 
+@cached_class
 class Vector2D(Tuple2D):
     """A 2D Vector."""
 
@@ -186,6 +187,7 @@ class Vector2D(Tuple2D):
         )
 
 
+@cached_class
 class Segment(PointsMatrix):
     """A line segment."""
 
@@ -412,6 +414,7 @@ class Segment(PointsMatrix):
         )
 
 
+@cached_class
 class Triangle(PointsMatrix):
     """A triangle."""
 
