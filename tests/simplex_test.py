@@ -106,3 +106,16 @@ def test_triangle():
     assert Triangle.from_matrix(triangle.matrix) == triangle 
     assert triangle.area == 19.5
     assert triangle.centroid == Point2D()
+    assert round(
+        Transform(1, 3, 0.5, 2) 
+        @ Triangle(
+            Point2D(0, 2),
+            Point2D(-2, -1),
+            Point2D(2, -1),
+        ),
+        3,
+    ) == Triangle(
+        Point2D(-3, 3),
+        Point2D(3, -1),
+        Point2D(3, 7),
+    )
