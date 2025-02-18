@@ -1,12 +1,15 @@
 """The Color class."""
 
-from typing import Any, Iterator
+from functools import cached_property
+from typing import Iterator
 
 from ._okhsv import RGB as _RGB, HSV as _HSV
 from ._okhsv import okhsv_to_rgb as _okhsv_to_rgb, rgb_to_okhsv as _rgb_to_okhsv
+from .metaprogramming import cached_class
+from .root_class import RootClass
 
-
-class Color:
+@cached_class
+class Color(RootClass):
     """A color, canonically represented as in OkHSVA."""
 
     # pylint: disable = invalid-name
@@ -19,6 +22,7 @@ class Color:
     def __init__(self, h, s, v, a=1):
         # type: (float, float, float, float) -> None
         """Initialize the Color."""
+        super().__init__()
         assert 0 <= h <= 1
         assert 0 <= s <= 1
         assert 0 <= v <= 1
@@ -28,31 +32,18 @@ class Color:
         self.v = v
         self.a = a
 
-    def __hash__(self):
-        # type: () -> int
-        return hash(self.to_hsva_tuple())
-
-    def __eq__(self, other):
-        # type: (Any) -> bool
-        assert isinstance(other, type(self))
-        return self.to_hsva_tuple() == other.to_hsva_tuple()
-
-    def __lt__(self, other):
-        # type: (Color) -> bool
-        assert isinstance(other, type(self))
-        return self.to_hsva_tuple() < other.to_hsva_tuple()
-
     def __iter__(self):
         # type: () -> Iterator[float]
         yield from self.to_hsva_tuple()
 
-    def __str__(self):
-        # type: () -> str
-        return repr(self)
+    @cached_property
+    def init_args(self):
+        # type: () -> tuple[float, float, float, float]
+        return self.to_hsva_tuple(integer=False)
 
-    def __repr__(self):
-        # type: () -> str
-        return f'Color({self.h}, {self.s}, {self.v}, {self.a})'
+    def calculate_hash(self):
+        # type: () -> int
+        return hash((self.h, self.s, self.v, self.a))
 
     def to_hsva_tuple(self, integer=True):
         # type: (bool) -> tuple[float, float, float, float]
