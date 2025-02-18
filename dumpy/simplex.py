@@ -23,6 +23,7 @@ class PointsMatrix(RootClass):
         return type(self).from_matrix(round(self.matrix, ndigits))
 
     def __rmatmul__(self, other):
+        # type: (Transform) -> Self
         assert isinstance(other, Transform)
         return type(self).from_matrix((other.matrix @ self.matrix.transpose).transpose)
 
