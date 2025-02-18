@@ -1,6 +1,5 @@
 """The Polygon class."""
 
-from collections.abc import Sequence
 from functools import cached_property
 from math import sin, cos, pi as PI
 from typing import Any
@@ -16,7 +15,7 @@ class Polygon(PointsMatrix):
     """A (potentially non-convex) polygon."""
 
     def __init__(self, points):
-        # type: (Sequence[Point2D]) -> None
+        # type: (tuple[Point2D, ...]) -> None
         # rotate points so the minimum point is first
         min_index = min(enumerate(points), key=(lambda pair: pair[1]))[0] # pylint: disable = superfluous-parens
         points = points[min_index:] + points[:min_index]
