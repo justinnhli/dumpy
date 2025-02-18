@@ -68,8 +68,9 @@ class Color(RootClass):
         """Convert the color to a RGB tuple."""
         rgba = (*_okhsv_to_rgb(_HSV(self.h, self.s, self.v)), self.a)
         if integer:
-            rgba = tuple(min(round(256 * x), 255) for x in rgba)
-        return rgba
+            return tuple(min(round(256 * x), 255) for x in rgba)
+        else:
+            return rgba
 
     def to_rgb_hex(self):
         # type: () -> str
