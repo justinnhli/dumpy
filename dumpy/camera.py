@@ -60,14 +60,14 @@ class Camera(GameObject):
             ) @ matrix.transpose
         ).transpose
 
-    def draw_points_matrix(self, points_matrix, color=None, fill_color=None, line_color=None):
-        # type: (PointsMatrix, Color, Color, Color) -> None
+    def draw_points_matrix(self, points_matrix, fill_color=None, line_color=None):
+        # type: (PointsMatrix, Color, Color) -> None
         """Draw a PointsMatrix."""
         matrix = self._project(points_matrix.matrix)
         if matrix.height == 1:
             self.canvas.draw_pixel(
                 (matrix[0][0], matrix[0][1]),
-                color=color,
+                fill_color=fill_color,
             )
         elif matrix.height == 2:
             self.canvas.draw_line(
