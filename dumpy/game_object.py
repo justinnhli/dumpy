@@ -53,7 +53,7 @@ class GameObject:
     def update(self):
         # type: () -> None
         """Update the object."""
-        raise NotImplementedError()
+        pass
 
 
 class PhysicsObject(GameObject):
