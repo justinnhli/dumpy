@@ -2,6 +2,7 @@
 
 from math import pi as PI
 
+from .color import Color
 from .simplex import PointsMatrix, Point2D, Vector2D
 from .transform import Transform
 
@@ -12,6 +13,8 @@ class GameObject:
     def __init__(self): # pylint: disable = unused-argument
         # type: () -> None
         self.points_matrix = None # type: PointsMatrix
+        self.fill_color = Color.from_hex('#FFFFFF')
+        self.line_color = Color.from_hex('#FFFFFF')
         self.position = Point2D()
         self.theta = 0 # type: float
 
