@@ -43,12 +43,12 @@ class Canvas:
             fill_color = Color(0, 0, 0, 0)
         return fill_color, line_color
 
-    def draw_pixel(self, point, color=None):
+    def draw_pixel(self, point, fill_color=None):
         # type: (Tuple2D, Color) -> None
         """Draw a pixel."""
-        if color is None:
-            color = Color(0, 0, 0)
-        self.image.putpixel((round(point[0]), round(point[1])), color.to_rgba_tuple())
+        if fill_color is None:
+            fill_color = Color(0, 0, 0)
+        self.image.putpixel((round(point[0]), round(point[1])), fill_color.to_rgba_tuple())
 
     def draw_line(self, point1, point2, line_color=None):
         # type: (Tuple2D, Tuple2D, Color) -> None
