@@ -151,6 +151,7 @@ class Canvas:
 
         def callback():
             # type: () -> None
+            self.new_page()
             update_fn()
             self.display_page()
             self.tk.after(msecs, callback)
