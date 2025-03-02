@@ -9,7 +9,7 @@ from PIL.ImageTk import PhotoImage
 
 from .color import Color
 
-Tuple2D = tuple[float, float]
+FloatCoord = tuple[float, float]
 
 
 class Canvas:
@@ -44,14 +44,14 @@ class Canvas:
         return fill_color, line_color
 
     def draw_pixel(self, point, fill_color=None):
-        # type: (Tuple2D, Color) -> None
+        # type: (FloatCoord, Color) -> None
         """Draw a pixel."""
         if fill_color is None:
             fill_color = Color(0, 0, 0)
         self.image.putpixel((round(point[0]), round(point[1])), fill_color.to_rgba_tuple())
 
     def draw_line(self, point1, point2, line_color=None):
-        # type: (Tuple2D, Tuple2D, Color) -> None
+        # type: (FloatCoord, FloatCoord, Color) -> None
         """Draw a line.
 
         This function draws the line twice, in opposite directions, to ensure
@@ -74,7 +74,7 @@ class Canvas:
         )
 
     def draw_rect(self, point1, point2, fill_color=None, line_color=None):
-        # type: (Tuple2D, Tuple2D, Color, Color) -> None
+        # type: (FloatCoord, FloatCoord, Color, Color) -> None
         """Draw a rectangle."""
         self.draw_poly(
             [
@@ -88,7 +88,7 @@ class Canvas:
         )
 
     def draw_poly(self, points, fill_color=None, line_color=None):
-        # type: (Sequence[Tuple2D], Color, Color) -> None
+        # type: (Sequence[FloatCoord], Color, Color) -> None
         """Draw a polygon."""
         fill_color, line_color = Canvas._set_default_colors(fill_color, line_color)
         self.draw.polygon(
@@ -99,7 +99,7 @@ class Canvas:
         )
 
     def draw_text(self, point, text, anchor=None):
-        # type: (Tuple2D, Color, Color) -> None
+        # type: (FloatCoord, Color, Color) -> None
         """Draw text."""
         pass # FIXME
 
