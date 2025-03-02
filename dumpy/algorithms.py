@@ -423,7 +423,34 @@ class Chain:
 
 def monotone_triangulation(points):
     # type: (Sequence[Point2D]) -> Sequence[Triangle]
-    """Triangulate a simple polygon."""
+    """Triangulate a simple polygon.
+
+    This is an overly-complicated implementation of monotone polygon
+    triangularization. This (pre-complication) implementation is based on the
+    lecture notes by David Mount at the University of Maryland. The primary
+    complication comes from doing the monotone partitioning and the
+    triangularization itself in one sweep, in addition to dealing with vertical
+    segments. Instead of sorting points by their y-values - which could cause
+    points to be processed without being connected to a chain - the queue for
+    the main loop is initialized with only start and split points, with other
+    points added as the points to the left are processed. This forces points in
+    a vertical line to be processed in increasing distance from points to the
+    left, forming a chain. Nonetheless, as a tiebreaker, points with a smaller
+    y-value are processed before points with a larger y-value; as a result, if
+    the polygon is a square, the bottom-left vertex would be the start point,
+    the top-right vertex would be the end point, and both other vertices would
+    be treated normally. Split and merge points are similarly ordered.
+
+    Since monotone partitioning is normally the first step in triangulation, it
+    is does not significantly deviate from using a sorted binary search tree
+    to maintain where split point should connect to. Triangularization, however,
+    must deal with  partition boundaries being added at the same time. The main
+    problem is when two merge points should be connected as part of the
+    partitioning process, as triangles should be formed with both the middle
+    chain and the chain on the other side. To accommodate this, before a point
+    is added to a chain, the chain could be "extended" to subsume the next
+    chain, which simplifies the triangle forming process.
+    """
 
     class MonotoneSegmentWrapper(_SegmentWrapper):
         """A wrapper class for ordering Segments."""
