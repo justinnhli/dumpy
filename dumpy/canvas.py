@@ -158,17 +158,11 @@ class Canvas:
 
         return callback
 
-    def start(self, update_fn=None, secs=0):
-        # type: (Callable[[], None], float) -> None
+    def start(self, update_fn, msecs):
+        # type: (Callable[[], None], int) -> None
         """Display the canvas."""
         self.canvas.focus_set()
-        if update_fn is None:
-            self.display_page()
-        elif secs > 0:
-            msecs = int(1000 * secs)
-            self.tk.after(msecs, self._create_update_callback(update_fn, msecs))
-        else:
-            self.tk.after(0, update_fn)
+        self.tk.after(msecs, self._create_update_callback(update_fn, msecs))
         self.canvas.mainloop()
 
     # interaction functions
