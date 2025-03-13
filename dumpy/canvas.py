@@ -3,7 +3,7 @@
 from tkinter import CENTER, Tk, Canvas as TKCanvas, Event, NW
 from typing import Callable, Sequence
 
-from PIL import Image
+from PIL.Image import Image, new as new_image
 from PIL.ImageDraw import Draw
 from PIL.ImageTk import PhotoImage
 
@@ -216,7 +216,7 @@ class Canvas:
         necessary for transparency to work when drawing. See:
         https://github.com/python-pillow/Pillow/issues/2496#issuecomment-1814380516
         """
-        self.image = Image.new(
+        self.image = new_image(
             mode='RGB',
             size=(self.width, self.height),
             color='#FFFFFFFF',
