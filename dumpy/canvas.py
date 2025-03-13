@@ -9,7 +9,97 @@ from PIL.ImageTk import PhotoImage
 
 from .color import Color
 
+_CHAR_KEYSYM_MAP = {
+    ' ': 'space',
+    '!': 'exclam',
+    '"': 'quotedbl',
+    '#': 'numbersign',
+    '$': 'dollar',
+    '%': 'percent',
+    '&': 'ampersand',
+    '\'': 'apostrophe',
+    '(': 'parenleft',
+    ')': 'parenright',
+    '*': 'asterisk',
+    '+': 'plus',
+    ',': 'comma',
+    '-': 'minus',
+    '.': 'period',
+    '/': 'slash',
+    ':': 'colon',
+    ';': 'semicolon',
+    '<': 'less',
+    '=': 'equal',
+    '>': 'greater',
+    '?': 'question',
+    '@': 'at',
+    '[': 'bracketleft',
+    '\\': 'backslash',
+    ']': 'bracketright',
+    '^': 'asciicircum',
+    '_': 'underscore',
+    '`': 'grave',
+    '{': 'braceleft',
+    '|': 'bar',
+    '}': 'braceright',
+    '~': 'asciitilde',
+}
+_CHAR_KEYSYMS = set(_CHAR_KEYSYM_MAP.values())
+_CONTROL_KEYSYMS = set([
+    'Escape',
+    'F1', 'F2', 'F3', 'F4', 'F5', 'F6',
+    'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
+    'BackSpace', 'Tab', 'Return',
+    'Insert', 'Delete', 'Home', 'End', 'Prior', 'Next',
+    'Up', 'Left', 'Down', 'Right',
+])
+_ABSTRACT_KEYSYMS = set([
+    'KeyPress', 'KeyRelease', 'Key'
+])
+
+
 FloatCoord = tuple[float, float]
+
+
+def build_key_pattern(char_or_keysym, shift=False, control=False):
+    # type: (str, bool, bool) -> KeyPattern
+    if len(char_or_keysym) == 1:
+        shift = False
+        if char_or_keysym in _CHAR_KEYSYM_MAP:
+            keysym = _CHAR_KEYSYM_MAP[char_or_keysym]
+        elif char_or_keysym.isascii() and char_or_keysym.isalpha():
+            keysym = char_or_keysym
+        else:
+            raise ValueError(f'unrecognized character: "{char_or_keysym}"')
+    elif char_or_keysym in _CONTROL_KEYSYMS:
+        keysym = char_or_keysym
+    else:
+        raise ValueError(f'unrecognized keysym: "{char_or_keysym}"')
+    modifiers = ''
+    if control:
+        modifiers += 'Control-'
+    if shift:
+        modifiers += 'Shift-'
+    return f'<{modifiers}{keysym}>'
+
+
+def valid_key_pattern(key_pattern):
+    # type: (str) -> bool
+    if key_pattern[0] != '<' or key_pattern[-1] != '>':
+        return False
+    *modifiers, keysym = key_pattern[1:-1].split('-')
+    valid_modifiers = set(['Control', 'Shift'])
+    # FIXME does order matter?
+    if not all(modifier in valid_modifiers for modifier in modifiers):
+        return False
+    if len(keysym) == 1:
+        return keysym.isascii() and keysym.isalpha()
+    else:
+        return (
+            keysym in _CHAR_KEYSYMS
+            or keysym in _CONTROL_KEYSYMS
+            or keysym in _ABSTRACT_KEYSYMS
+        )
 
 
 class Canvas:
@@ -172,7 +262,7 @@ class Canvas:
         """Add a keybind."""
         if self.tk is None:
             self.create_tk()
-        # FIXME need parameters for modifier keys
+        assert valid_key_pattern(key), key
         self.canvas.bind(key, callback)
 
     def bind_mouse_click(self, button, callback):
