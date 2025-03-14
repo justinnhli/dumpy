@@ -1,7 +1,7 @@
 """A canvas built in tk and Pillow."""
 
 from tkinter import CENTER, Tk, Canvas as TKCanvas, Event as TkEvent, NW
-from typing import Callable, Sequence
+from typing import Callable, Iterable, Sequence
 
 from PIL.Image import Image, new as new_image
 from PIL.ImageDraw import Draw
@@ -53,8 +53,20 @@ _CONTROL_KEYSYMS = set([
     'Insert', 'Delete', 'Home', 'End', 'Prior', 'Next',
     'Up', 'Left', 'Down', 'Right',
 ])
-_ABSTRACT_KEYSYMS = set([
-    'KeyPress', 'KeyRelease', 'Key'
+_KEY_MODIFIERS = set(['Shift', 'Control'])
+_BUTTON_MODIFIERS = _KEY_MODIFIERS | set(['Double', 'Triple', 'Quadruple'])
+_MOTION_MODIFIERS = _KEY_MODIFIERS | set([
+    'Button1',
+    'Button2',
+    'Button3',
+    'Button4',
+    'Button5',
+])
+_EVENT_TYPES = set([
+    'KeyPress', 'KeyRelease',
+    'ButtonPress', 'ButtonRelease',
+    'MouseWheel',
+    'Motion',
 ])
 
 
@@ -62,10 +74,10 @@ FloatCoord = tuple[float, float]
 EventCallback = Callable[[str, TkEvent], None]
 
 
-def build_key_pattern(char_or_keysym, shift=False, control=False):
-    # type: (str, bool, bool) -> KeyPattern
+def char_to_keysym(char_or_keysym):
+    # type: (str) -> str
+    """Determine the keysym for the character."""
     if len(char_or_keysym) == 1:
-        shift = False
         if char_or_keysym in _CHAR_KEYSYM_MAP:
             keysym = _CHAR_KEYSYM_MAP[char_or_keysym]
         elif char_or_keysym.isascii() and char_or_keysym.isalpha():
@@ -76,31 +88,49 @@ def build_key_pattern(char_or_keysym, shift=False, control=False):
         keysym = char_or_keysym
     else:
         raise ValueError(f'unrecognized keysym: "{char_or_keysym}"')
-    modifiers = ''
-    if control:
-        modifiers += 'Control-'
-    if shift:
-        modifiers += 'Shift-'
-    return f'<{modifiers}{keysym}>'
+    return keysym
 
 
-def valid_key_pattern(key_pattern):
-    # type: (str) -> bool
-    if key_pattern[0] != '<' or key_pattern[-1] != '>':
-        return False
-    *modifiers, keysym = key_pattern[1:-1].split('-')
-    valid_modifiers = set(['Control', 'Shift'])
-    # FIXME does order matter?
-    if not all(modifier in valid_modifiers for modifier in modifiers):
-        return False
-    if len(keysym) == 1:
-        return keysym.isascii() and keysym.isalpha()
+def build_event_pattern(event_type, key_button=None, modifiers=None):
+    # type: (str, str, Iterable[str]) -> str
+    """Build a Tk event pattern string.
+
+    Note: MouseWheel does not exist on Linux; instead, use Button[45].
+
+    Based on https://www.tcl-lang.org/man/tcl/TkCmd/bind.htm
+    """
+    if event_type not in _EVENT_TYPES:
+        raise ValueError(event_type)
+    if modifiers is None:
+        modifiers = set()
     else:
-        return (
-            keysym in _CHAR_KEYSYMS
-            or keysym in _CONTROL_KEYSYMS
-            or keysym in _ABSTRACT_KEYSYMS
-        )
+        modifiers = set(modifiers)
+    if event_type.startswith('Key'):
+        assert all(modifier in _KEY_MODIFIERS for modifier in modifiers), modifiers
+        key_button = char_to_keysym(key_button)
+        if len(key_button) == 1:
+            modifiers.discard('Shift')
+    elif event_type.startswith('Button'):
+        assert all(modifier in _BUTTON_MODIFIERS for modifier in modifiers), modifiers
+        if key_button:
+            assert key_button in '12345', key_button
+    elif event_type == 'Motion':
+        assert all(modifier in _MOTION_MODIFIERS for modifier in modifiers), modifiers
+        if key_button:
+            assert key_button in '12345', key_button
+    elif event_type == 'MouseWheel':
+        raise NotImplementedError()
+    else:
+        assert False
+    if key_button:
+        event_pattern = '-'.join([
+            *sorted(modifiers),
+            event_type,
+            key_button,
+        ])
+    else:
+        event_pattern = event_type
+    return f'<{event_pattern}>'
 
 
 class Canvas:
@@ -196,32 +226,15 @@ class Canvas:
 
     # interaction functions
 
-    def bind_key(self, key, callback):
+    def bind(self, event_pattern, callback):
         # type: (str, EventCallback) -> None
-        """Add a keybind."""
+        """Bind an input event to a callback."""
         if self.tk is None:
             self.create_tk()
-        assert valid_key_pattern(key), key
-        self.canvas.bind(key, callback)
-
-    def bind_mouse_click(self, button, callback):
-        # type: (str, EventCallback) -> None
-        """Bind a mouse click."""
-        if self.tk is None:
-            self.create_tk()
-        if button == 'left':
-            self.canvas.bind('<Button-1>', callback)
-        elif button == 'middle':
-            raise NotImplementedError()
-        elif button == 'right':
-            self.canvas.bind('<Button-2>', callback)
-
-    def bind_mouse_movement(self, callback):
-        # type: (EventCallback) -> None
-        """Bind mouse movement."""
-        if self.tk is None:
-            self.create_tk()
-        self.canvas.bind('<Motion>', callback)
+        self.canvas.bind(
+            event_pattern,
+            (lambda event: callback(event_pattern, event))
+        )
 
     # pipeline functions
 
