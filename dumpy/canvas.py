@@ -193,6 +193,37 @@ class Canvas:
         """Draw text."""
         pass # FIXME
 
+    # interaction functions
+
+    def bind_key(self, key, callback):
+        # type: (str, Callable[[Event[TKCanvas]], None]) -> None
+        """Add a keybind."""
+        if self.tk is None:
+            self.create_tk()
+        assert valid_key_pattern(key), key
+        self.canvas.bind(key, callback)
+
+    def bind_mouse_click(self, button, callback):
+        # type: (str, Callable[[Event[TKCanvas]], None]) -> None
+        """Bind a mouse click."""
+        if self.tk is None:
+            self.create_tk()
+        if button == 'left':
+            self.canvas.bind('<Button-1>', callback)
+        elif button == 'middle':
+            raise NotImplementedError()
+        elif button == 'right':
+            self.canvas.bind('<Button-2>', callback)
+
+    def bind_mouse_movement(self, callback):
+        # type: (Callable[[Event[TKCanvas]], None]) -> None
+        """Bind mouse movement."""
+        if self.tk is None:
+            self.create_tk()
+        self.canvas.bind('<Motion>', callback)
+
+    # pipeline functions
+
     def create_tk(self):
         # type: () -> None
         """Create the Tk window."""
@@ -254,32 +285,3 @@ class Canvas:
         self.canvas.focus_set()
         self.tk.after(msecs, self._create_update_callback(update_fn, msecs))
         self.canvas.mainloop()
-
-    # interaction functions
-
-    def bind_key(self, key, callback):
-        # type: (str, Callable[[Event[TKCanvas]], None]) -> None
-        """Add a keybind."""
-        if self.tk is None:
-            self.create_tk()
-        assert valid_key_pattern(key), key
-        self.canvas.bind(key, callback)
-
-    def bind_mouse_click(self, button, callback):
-        # type: (str, Callable[[Event[TKCanvas]], None]) -> None
-        """Bind a mouse click."""
-        if self.tk is None:
-            self.create_tk()
-        if button == 'left':
-            self.canvas.bind('<Button-1>', callback)
-        elif button == 'middle':
-            raise NotImplementedError()
-        elif button == 'right':
-            self.canvas.bind('<Button-2>', callback)
-
-    def bind_mouse_movement(self, callback):
-        # type: (Callable[[Event[TKCanvas]], None]) -> None
-        """Bind mouse movement."""
-        if self.tk is None:
-            self.create_tk()
-        self.canvas.bind('<Motion>', callback)
