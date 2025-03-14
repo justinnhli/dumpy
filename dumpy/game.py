@@ -29,10 +29,10 @@ class Game:
         """Add an object to the scene."""
         self.scene.add(game_object)
 
-    def bind_key(self, key, callback):
+    def bind(self, event_pattern, callback):
         # type: (str, Callable[[str], None]) -> None
         """Add a keybind."""
-        self.keybinds[key] = callback
+        self.keybinds[event_pattern] = callback
 
     def on_collision(self, group1, group2, callback):
         # type: (str, str, Callable[[GameObject, GameObject], None]) -> None
@@ -56,16 +56,21 @@ class Game:
         # update timer
         self.prev_time = curr_time
 
-    def dispatch_input(self, event):
+    def dispatch_input(self, event_pattern, event):
         # type: (Event) -> None
-        """Deal with input."""
-        self.keybinds[f'<{event.keysym}>'](event.keysym)
+        """Deal with input.
+        
+        Tk Events do not store the name of modifiers; instead, it's an int-based flag.
+        See the Event class in https://github.com/python/cpython/blob/main/Lib/tkinter/__init__.py
+        Instead of copying that code, we "parse" the repr(), which might be more stable.
+        """
+        self.keybinds[event_pattern](event.keysym)
 
     def start(self):
         # type: () -> None
         """Start the game."""
         for key in self.keybinds:
-            self.canvas.bind_key(key, self.dispatch_input)
+            self.canvas.bind(key, self.dispatch_input)
         self.prev_time = Game.get_time()
         self.canvas.start(self.dispatch_tick, 40)
 
