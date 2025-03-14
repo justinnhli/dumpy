@@ -1,6 +1,6 @@
 """A canvas built in tk and Pillow."""
 
-from tkinter import CENTER, Tk, Canvas as TKCanvas, Event, NW
+from tkinter import CENTER, Tk, Canvas as TKCanvas, Event as TkEvent, NW
 from typing import Callable, Sequence
 
 from PIL.Image import Image, new as new_image
@@ -59,6 +59,7 @@ _ABSTRACT_KEYSYMS = set([
 
 
 FloatCoord = tuple[float, float]
+EventCallback = Callable[[str, TkEvent], None]
 
 
 def build_key_pattern(char_or_keysym, shift=False, control=False):
@@ -196,7 +197,7 @@ class Canvas:
     # interaction functions
 
     def bind_key(self, key, callback):
-        # type: (str, Callable[[Event[TKCanvas]], None]) -> None
+        # type: (str, EventCallback) -> None
         """Add a keybind."""
         if self.tk is None:
             self.create_tk()
@@ -204,7 +205,7 @@ class Canvas:
         self.canvas.bind(key, callback)
 
     def bind_mouse_click(self, button, callback):
-        # type: (str, Callable[[Event[TKCanvas]], None]) -> None
+        # type: (str, EventCallback) -> None
         """Bind a mouse click."""
         if self.tk is None:
             self.create_tk()
@@ -216,7 +217,7 @@ class Canvas:
             self.canvas.bind('<Button-2>', callback)
 
     def bind_mouse_movement(self, callback):
-        # type: (Callable[[Event[TKCanvas]], None]) -> None
+        # type: (EventCallback) -> None
         """Bind mouse movement."""
         if self.tk is None:
             self.create_tk()
