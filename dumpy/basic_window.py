@@ -6,7 +6,7 @@ from .color import Color
 from .simplex import PointsMatrix
 from .game import Game
 from .game_object import GameObject
-from .canvas import build_key_pattern
+from .canvas import build_event_pattern
 
 
 class DummyGameObject(GameObject):
@@ -27,7 +27,10 @@ class BasicWindow(Game):
         # type: (int, int) -> None
         super().__init__(width, height)
         for char in ['w', 's', 'a', 'd', 'e', 'q', ' ', 'r', 'f']:
-            self.bind_key(build_key_pattern(char), self.key_callback)
+            self.bind(
+                build_event_pattern('KeyPress', char),
+                callback=self.key_callback,
+            )
 
     def add_geometry(self, polygon, fill_color=None, line_color=None):
         # type: (PointsMatrix, Color, Color) -> None
