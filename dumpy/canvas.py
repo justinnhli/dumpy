@@ -1,7 +1,8 @@
 """A canvas built in tk and Pillow."""
 
+from collections.abc import Iterable, Sequence
 from tkinter import CENTER, Tk, Canvas as TKCanvas, Event as TkEvent, NW
-from typing import Callable, Iterable, Sequence
+from typing import Callable
 
 from PIL.Image import Image, new as new_image
 from PIL.ImageDraw import Draw

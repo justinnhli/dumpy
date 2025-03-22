@@ -1,10 +1,10 @@
 """Utility data structures."""
 
+from collections.abc import Collection, Iterable, Mapping, Iterator, MutableSet, Hashable, KeysView, ValuesView, ItemsView
 from typing import Any, Optional, Union
-from typing import Callable, Collection, Iterable, Mapping, Iterator
+from typing import Callable
 from typing import TypeVar, Generic
 from typing import cast
-from collections.abc import MutableSet, Hashable, KeysView, ValuesView, ItemsView
 
 from .utilitypes import ComparableT
 
