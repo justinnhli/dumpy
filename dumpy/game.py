@@ -1,11 +1,10 @@
 """The abstract Game class."""
 
 from time import monotonic_ns as get_nsec_time
-from tkinter import Event
 from typing import Callable
 
 from .camera import Camera
-from .canvas import Canvas
+from .canvas import Canvas, Input, EventCallback
 from .game_object import GameObject
 from .scene import Scene
 
@@ -20,7 +19,7 @@ class Game:
         self.canvas = Canvas(width, height)
         self.camera = Camera(self.canvas)
         # settings
-        self.keybinds = {} # type: dict[str, Callable[[str], None]]
+        self.keybinds = {} # type: dict[Input, EventCallback]
         # state
         self.prev_time = None # type: int
 
@@ -29,10 +28,10 @@ class Game:
         """Add an object to the scene."""
         self.scene.add(game_object)
 
-    def bind(self, event_pattern, callback):
-        # type: (str, Callable[[str], None]) -> None
+    def bind(self, input_event, callback):
+        # type: (Input, EventCallback) -> None
         """Add a keybind."""
-        self.keybinds[event_pattern] = callback
+        self.keybinds[input_event] = callback
 
     def on_collision(self, group1, group2, callback):
         # type: (str, str, Callable[[GameObject, GameObject], None]) -> None
@@ -56,21 +55,11 @@ class Game:
         # update timer
         self.prev_time = curr_time
 
-    def dispatch_input(self, event_pattern, event):
-        # type: (Event) -> None
-        """Deal with input.
-        
-        Tk Events do not store the name of modifiers; instead, it's an int-based flag.
-        See the Event class in https://github.com/python/cpython/blob/main/Lib/tkinter/__init__.py
-        Instead of copying that code, we "parse" the repr(), which might be more stable.
-        """
-        self.keybinds[event_pattern](event.keysym)
-
     def start(self):
         # type: () -> None
         """Start the game."""
-        for key in self.keybinds:
-            self.canvas.bind(key, self.dispatch_input)
+        for input_event, callback in self.keybinds.items():
+            self.canvas.bind(input_event, callback)
         self.prev_time = Game.get_time()
         self.canvas.start(self.dispatch_tick, 40)
 
