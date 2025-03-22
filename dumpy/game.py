@@ -14,6 +14,7 @@ class Game:
 
     def __init__(self, width, height):
         # type: (int, int) -> None
+        """Initialize the Game."""
         # components
         self.scene = Scene()
         self.canvas = Canvas(width, height)
