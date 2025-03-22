@@ -4,9 +4,9 @@ from math import sin, cos
 
 from .canvas import Input
 from .color import Color
-from .simplex import PointsMatrix, Point2D
 from .game import Game
 from .game_object import GameObject
+from .simplex import PointsMatrix, Point2D
 
 
 class DummyGameObject(GameObject):
@@ -14,6 +14,7 @@ class DummyGameObject(GameObject):
 
     def __init__(self, polygon, fill_color=None, line_color=None):
         # type: (PointsMatrix, Color, Color) -> None
+        """Initialize the DummyGameObject."""
         super().__init__()
         self.points_matrix = polygon
         self.fill_color = fill_color
@@ -25,6 +26,7 @@ class BasicWindow(Game):
 
     def __init__(self, width, height):
         # type: (int, int) -> None
+        """Initialize the BasicWindow."""
         super().__init__(width, height)
         for char in ['w', 's', 'a', 'd', 'e', 'q', ' ', 'r', 'f']:
             self.bind(Input(event_type='KeyPress', key_button=char), self.key_callback)
