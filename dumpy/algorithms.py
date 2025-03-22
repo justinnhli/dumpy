@@ -444,7 +444,7 @@ def monotone_triangulation(points):
     Since monotone partitioning is normally the first step in triangulation, it
     is does not significantly deviate from using a sorted binary search tree
     to maintain where split point should connect to. Triangularization, however,
-    must deal with  partition boundaries being added at the same time. The main
+    must deal with partition boundaries being added at the same time. The main
     problem is when two merge points should be connected as part of the
     partitioning process, as triangles should be formed with both the middle
     chain and the chain on the other side. To accommodate this, before a point
