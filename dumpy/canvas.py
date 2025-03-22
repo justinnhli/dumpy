@@ -1,14 +1,18 @@
 """A canvas built in tk and Pillow."""
 
-from collections.abc import Iterable, Sequence
-from tkinter import CENTER, Tk, Canvas as TKCanvas, Event as TkEvent, NW
-from typing import Callable
+from collections.abc import Collection, Sequence
+from functools import cached_property
+from tkinter import CENTER, Tk, Canvas as TKCanvas, NW
+from typing import Any, Callable
 
 from PIL.Image import Image, new as new_image
 from PIL.ImageDraw import Draw
 from PIL.ImageTk import PhotoImage
 
 from .color import Color
+from .metaprogramming import cached_class
+from .root_class import RootClass
+from .simplex import Point2D
 
 _CHAR_KEYSYM_MAP = {
     ' ': 'space',
@@ -72,66 +76,104 @@ _EVENT_TYPES = set([
 
 
 FloatCoord = tuple[float, float]
-EventCallback = Callable[[str, TkEvent], None]
 
 
-def char_to_keysym(char_or_keysym):
-    # type: (str) -> str
-    """Determine the keysym for the character."""
-    if len(char_or_keysym) == 1:
-        if char_or_keysym in _CHAR_KEYSYM_MAP:
-            keysym = _CHAR_KEYSYM_MAP[char_or_keysym]
-        elif char_or_keysym.isascii() and char_or_keysym.isalpha():
+@cached_class
+class Input(RootClass):
+    """A class to represent keyboard and mouse input."""
+
+    def __init__(self, event_type, key_button=None, modifiers=None):
+        # type: (str, str, Collection[str]|str) -> None
+        """Initialize the Input.
+
+        Note: MouseWheel does not exist on Linux; instead, use Button4 or Button5.
+
+        The event pattern is based on https://www.tcl-lang.org/man/tcl/TkCmd/bind.htm
+        """
+        super().__init__()
+        if modifiers is None:
+            modifiers = frozenset()
+        elif isinstance(modifiers, str):
+            modifiers = frozenset([modifiers])
+        else:
+            modifiers = frozenset(modifiers)
+        Input._validate(event_type, key_button, modifiers)
+        self.event_type = event_type
+        self.key_button = key_button
+        self.modifiers = modifiers
+
+    @cached_property
+    def event_pattern(self):
+        # type: () -> str
+        """Build a Tk event pattern string.
+
+        Note: MouseWheel does not exist on Linux; instead, use Button[45].
+
+        Based on https://www.tcl-lang.org/man/tcl/TkCmd/bind.htm
+        """
+        key_button = self.key_button
+        if self.event_type.startswith('Key'):
+            key_button = Input._char_to_keysym(key_button)
+        if key_button:
+            event_pattern = '-'.join([
+                *sorted(self.modifiers),
+                self.event_type,
+                key_button,
+            ])
+        else:
+            event_pattern = self.event_type
+        return f'<{event_pattern}>'
+
+    def calculate_hash(self):
+        # type: () -> int
+        return hash((self.event_type, self.key_button, self.modifiers))
+
+    @cached_property
+    def init_args(self):
+        # type: () -> tuple[Any, ...]
+        return self.event_type, self.key_button, self.modifiers
+
+    @staticmethod
+    def _validate(event_type, key_button, modifiers):
+        # type: (str, str, Collection[str]) -> None
+        if event_type not in _EVENT_TYPES:
+            raise ValueError(event_type)
+        if event_type.startswith('Key'):
+            assert all(modifier in _KEY_MODIFIERS for modifier in modifiers), modifiers
+            if len(key_button) == 1 and key_button != ' ':
+                assert 'Shift' not in modifiers
+        elif event_type.startswith('Button'):
+            assert all(modifier in _BUTTON_MODIFIERS for modifier in modifiers), modifiers
+            if key_button:
+                assert key_button in '12345', key_button
+        elif event_type == 'Motion':
+            assert all(modifier in _MOTION_MODIFIERS for modifier in modifiers), modifiers
+            if key_button:
+                assert key_button in '12345', key_button
+        elif event_type == 'MouseWheel':
+            raise NotImplementedError()
+        else:
+            assert False
+
+    @staticmethod
+    def _char_to_keysym(char_or_keysym):
+        # type: (str) -> str
+        """Determine the keysym for the character."""
+        if len(char_or_keysym) == 1:
+            if char_or_keysym in _CHAR_KEYSYM_MAP:
+                keysym = _CHAR_KEYSYM_MAP[char_or_keysym]
+            elif char_or_keysym.isascii() and char_or_keysym.isalpha():
+                keysym = char_or_keysym
+            else:
+                raise ValueError(f'unrecognized character: "{char_or_keysym}"')
+        elif char_or_keysym in _CONTROL_KEYSYMS:
             keysym = char_or_keysym
         else:
-            raise ValueError(f'unrecognized character: "{char_or_keysym}"')
-    elif char_or_keysym in _CONTROL_KEYSYMS:
-        keysym = char_or_keysym
-    else:
-        raise ValueError(f'unrecognized keysym: "{char_or_keysym}"')
-    return keysym
+            raise ValueError(f'unrecognized keysym: "{char_or_keysym}"')
+        return keysym
 
 
-def build_event_pattern(event_type, key_button=None, modifiers=None):
-    # type: (str, str, Iterable[str]) -> str
-    """Build a Tk event pattern string.
-
-    Note: MouseWheel does not exist on Linux; instead, use Button[45].
-
-    Based on https://www.tcl-lang.org/man/tcl/TkCmd/bind.htm
-    """
-    if event_type not in _EVENT_TYPES:
-        raise ValueError(event_type)
-    if modifiers is None:
-        modifiers = set()
-    else:
-        modifiers = set(modifiers)
-    if event_type.startswith('Key'):
-        assert all(modifier in _KEY_MODIFIERS for modifier in modifiers), modifiers
-        key_button = char_to_keysym(key_button)
-        if len(key_button) == 1:
-            modifiers.discard('Shift')
-    elif event_type.startswith('Button'):
-        assert all(modifier in _BUTTON_MODIFIERS for modifier in modifiers), modifiers
-        if key_button:
-            assert key_button in '12345', key_button
-    elif event_type == 'Motion':
-        assert all(modifier in _MOTION_MODIFIERS for modifier in modifiers), modifiers
-        if key_button:
-            assert key_button in '12345', key_button
-    elif event_type == 'MouseWheel':
-        raise NotImplementedError()
-    else:
-        assert False
-    if key_button:
-        event_pattern = '-'.join([
-            *sorted(modifiers),
-            event_type,
-            key_button,
-        ])
-    else:
-        event_pattern = event_type
-    return f'<{event_pattern}>'
+EventCallback = Callable[[Input, Point2D], None]
 
 
 class Canvas:
@@ -227,14 +269,14 @@ class Canvas:
 
     # interaction functions
 
-    def bind(self, event_pattern, callback):
-        # type: (str, EventCallback) -> None
-        """Bind an input event to a callback."""
+    def bind(self, input_event, callback):
+        # type: (Input, EventCallback) -> None
+        """Bind a callback to an event."""
         if self.tk is None:
             self.create_tk()
         self.canvas.bind(
-            event_pattern,
-            (lambda event: callback(event_pattern, event))
+            input_event.event_pattern,
+            (lambda event: callback(input_event, Point2D(event.x, event.y)))
         )
 
     # pipeline functions
