@@ -2,11 +2,11 @@
 
 from math import sin, cos
 
+from .canvas import Input
 from .color import Color
-from .simplex import PointsMatrix
+from .simplex import PointsMatrix, Point2D
 from .game import Game
 from .game_object import GameObject
-from .canvas import build_event_pattern
 
 
 class DummyGameObject(GameObject):
@@ -27,10 +27,7 @@ class BasicWindow(Game):
         # type: (int, int) -> None
         super().__init__(width, height)
         for char in ['w', 's', 'a', 'd', 'e', 'q', ' ', 'r', 'f']:
-            self.bind(
-                build_event_pattern('KeyPress', char),
-                callback=self.key_callback,
-            )
+            self.bind(Input(event_type='KeyPress', key_button=char), self.key_callback)
 
     def add_geometry(self, polygon, fill_color=None, line_color=None):
         # type: (PointsMatrix, Color, Color) -> None
@@ -41,27 +38,27 @@ class BasicWindow(Game):
             line_color=line_color,
         ))
 
-    def key_callback(self, keysym):
-        # type: (str) -> None
+    def key_callback(self, input_event, mouse_pos):
+        # type: (Input, Point2D) -> None
         """Deal with key presses."""
         translation = 25 / self.camera.zoom
-        if keysym == 'w':
+        if input_event.key_button == 'w':
             self.camera.move_by(translation * sin(-self.camera.radians), translation * cos(-self.camera.radians))
-        elif keysym == 's':
+        elif input_event.key_button == 's':
             self.camera.move_by(-translation * sin(-self.camera.radians), -translation * cos(-self.camera.radians))
-        elif keysym == 'a':
+        elif input_event.key_button == 'a':
             self.camera.move_by(-translation * cos(self.camera.radians), -translation * sin(self.camera.radians))
-        elif keysym == 'd':
+        elif input_event.key_button == 'd':
             self.camera.move_by(translation * cos(self.camera.radians), translation * sin(self.camera.radians))
-        elif keysym == 'q':
+        elif input_event.key_button == 'q':
             self.camera.rotate_by(0.125)
-        elif keysym == 'e':
+        elif input_event.key_button == 'e':
             self.camera.rotate_by(-0.125)
-        elif keysym == 'space':
+        elif input_event.key_button == ' ':
             self.camera.move_to(0, 0)
             self.camera.rotate_to(0)
             self.camera.zoom_level = 0
-        elif keysym == 'r':
+        elif input_event.key_button == 'r':
             self.camera.zoom_level += 1
-        elif keysym == 'f':
+        elif input_event.key_button == 'f':
             self.camera.zoom_level -= 1
