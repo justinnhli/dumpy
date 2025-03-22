@@ -596,7 +596,7 @@ class SortedSet(MutableSet[KT]):
 
     def __bool__(self):
         # type: () -> bool
-        return self.size > 0
+        return len(self.tree) > 0
 
     def __contains__(self, key):
         # type: (Any) -> bool
