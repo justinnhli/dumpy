@@ -201,6 +201,7 @@ class _AVLCursor(Generic[KT, VT]):
 
     @value.setter
     def value(self, value):
+        # type: (VT) -> None
         self.node.value = value
 
     @property
