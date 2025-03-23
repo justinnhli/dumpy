@@ -48,7 +48,10 @@ class Game:
             elapsed_time = 0
         else:
             elapsed_time = curr_time - self.prev_time
-        # FIXME update all physics objects
+        # update all physics objects
+        # FIXME this should be integrated into collision detection, since only objects that move could have new collisions
+        for obj in self.scene.objects:
+            obj.update()
         # draw all objects
         for game_object in self.scene.get_in_view(self.camera):
             self.camera.draw_points_matrix(
