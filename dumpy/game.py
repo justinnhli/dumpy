@@ -52,7 +52,7 @@ class Game:
         # draw all objects
         for game_object in self.scene.get_in_view(self.camera):
             self.camera.draw_points_matrix(
-                game_object.points_matrix,
+                game_object.transform @ game_object.points_matrix,
                 fill_color=game_object.fill_color,
                 line_color=game_object.line_color,
             )
