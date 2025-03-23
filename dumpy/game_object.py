@@ -12,6 +12,7 @@ class GameObject:
 
     def __init__(self): # pylint: disable = unused-argument
         # type: () -> None
+        """Initialize the GameObject."""
         self.points_matrix = None # type: PointsMatrix
         self.line_color = Color.from_hex('#000000')
         self.fill_color = None
@@ -65,6 +66,7 @@ class PhysicsObject(GameObject):
 
     def __init__(self):
         # type: () -> None
+        """Initialize the PhysicsObject."""
         super().__init__()
         self.velocity = Vector2D()
         self.angular_velocity = 0
@@ -73,6 +75,7 @@ class PhysicsObject(GameObject):
 
     def update(self):
         # type: () -> None
+        """Update the velocity and the position."""
         self.velocity += self.acceleration
         self.angular_velocity += self.angular_acceleration
         self.position += self.velocity
