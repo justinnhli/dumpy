@@ -14,7 +14,7 @@ def test_canvas_pixel():
     canvas = Canvas(3, 3, 'test')
     camera = Camera(canvas)
     camera.draw_points_matrix(Point2D(0, 0))
-    check_image(canvas.image, 'canvas_pixel_test.ppm')
+    check_image(canvas.image, 'canvas__pixel.ppm')
 
 
 def test_canvas_rect():
@@ -23,4 +23,4 @@ def test_canvas_rect():
     canvas = Canvas(5, 5, 'test')
     camera = Camera(canvas)
     camera.draw_points_matrix(Polygon.rectangle(2, 2))
-    check_image(canvas.image, 'canvas_rect_outline_test.ppm')
+    check_image(canvas.image, 'canvas__rect_outline.ppm')

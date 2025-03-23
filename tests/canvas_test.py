@@ -13,7 +13,7 @@ def test_canvas_pixel():
     """Test drawing a pixel."""
     canvas = Canvas(3, 3, 'test')
     canvas.draw_pixel((1, 1))
-    check_image(canvas.image, 'canvas_pixel_test.ppm')
+    check_image(canvas.image, 'canvas__pixel.ppm')
 
 
 def test_canvas_line():
@@ -62,7 +62,7 @@ def test_canvas_rect():
         (3, 3),
         fill_color=Color.from_hex('#000000'),
     )
-    check_image(canvas.image, 'canvas_rect_test.ppm')
+    check_image(canvas.image, 'canvas__rect.ppm')
 
 
 def test_canvas_rect_outline():
@@ -74,11 +74,12 @@ def test_canvas_rect_outline():
         (3, 3),
         line_color=Color.from_hex('#000000'),
     )
-    check_image(canvas.image, 'canvas_rect_outline_test.ppm')
+    check_image(canvas.image, 'canvas__rect_outline.ppm')
 
 
 def test_canvas_display():
     # type: () -> None
+    """Test an actual displayed canvas."""
     canvas = Canvas(3, 3, 'test')
     canvas.draw_pixel((1, 0))
     canvas.draw_pixel((2, 1))
@@ -86,4 +87,4 @@ def test_canvas_display():
     canvas.draw_pixel((1, 2))
     canvas.draw_pixel((2, 2))
     image = grab_screen(canvas)
-    check_image(image, 'canvas_display_test.ppm')
+    check_image(image, 'canvas__display.ppm')
