@@ -60,5 +60,5 @@ def check_image(image, filename):
     pixels = image.getdata()
     for x in range(width):
         for y in range(height):
-            index = x * width + y
+            index = y * width + x
             assert pixels[index] == ppm_pixels[index]
