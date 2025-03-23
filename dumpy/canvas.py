@@ -272,8 +272,7 @@ class Canvas:
     def bind(self, input_event, callback):
         # type: (Input, EventCallback) -> None
         """Bind a callback to an event."""
-        if self.tk is None:
-            self.create_tk()
+        self.create_tk()
         self.canvas.bind(
             input_event.event_pattern,
             (lambda event: callback(input_event, Point2D(event.x, event.y)))
@@ -286,6 +285,8 @@ class Canvas:
         """Create the Tk window."""
         # gets around weird casing in title
         # see https://bugs.python.org/issue13553
+        if self.tk is not None:
+            return
         self.tk = Tk(className=('\u200B' + self.title)) # pylint: disable = superfluous-parens
         self.tk.minsize(self.width, self.height)
         self.canvas = TKCanvas(
@@ -314,8 +315,7 @@ class Canvas:
     def display_page(self):
         # type: () -> None
         """Draw the page to the canvas."""
-        if self.tk is None:
-            self.create_tk()
+        self.create_tk()
         self.image_tk = PhotoImage(self.image, master=self.tk)
         self.canvas.create_image(
             1, 1,
@@ -339,6 +339,7 @@ class Canvas:
     def start(self, update_fn, msecs):
         # type: (Callable[[], None], int) -> None
         """Display the canvas."""
+        self.create_tk()
         self.canvas.focus_set()
         self.tk.after(msecs, self._create_update_callback(update_fn, msecs))
         self.canvas.mainloop()
