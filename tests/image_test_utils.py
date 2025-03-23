@@ -62,3 +62,22 @@ def check_image(image, filename):
         for y in range(height):
             index = y * width + x
             assert pixels[index] == ppm_pixels[index]
+
+
+def save_image(image, filename):
+    # type: (Canvas, str) -> None
+    """Save an image to file."""
+    ppm_path = Path(__file__).parent / 'images' / filename
+    pixels = image.getdata()
+    with ppm_path.open('w') as fd:
+        fd.write('P3\n')
+        fd.write(f'{image.width} {image.height}\n')
+        fd.write('255\n')
+        for r in range(400):
+            row = []
+            for c in range(600):
+                index = r * image.width + c
+                print(r, c, index)
+                row.append(' '.join(str(n) for n in pixels[index]))
+            fd.write('  '.join(row))
+            fd.write('\n')
