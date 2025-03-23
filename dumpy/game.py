@@ -1,12 +1,11 @@
 """The abstract Game class."""
 
 from time import monotonic_ns as get_nsec_time
-from typing import Callable
 
 from .camera import Camera
 from .canvas import Canvas, Input, EventCallback
 from .game_object import GameObject
-from .scene import Scene
+from .scene import Scene, CollisionCallback
 
 
 class Game:
@@ -35,9 +34,9 @@ class Game:
         self.keybinds[input_event] = callback
 
     def on_collision(self, group1, group2, callback):
-        # type: (str, str, Callable[[GameObject, GameObject], None]) -> None
+        # type: (str, str, CollisionCallback) -> None
         """Add a collision handler."""
-        pass # FIXME
+        self.scene.register_collision(group1, group2, callback)
 
     def dispatch_tick(self):
         # type: () -> None
@@ -52,6 +51,8 @@ class Game:
         # FIXME this should be integrated into collision detection, since only objects that move could have new collisions
         for obj in self.scene.objects:
             obj.update()
+        # deal with collisions
+        self.scene.trigger_collisions()
         # draw all objects
         for game_object in self.scene.get_in_view(self.camera):
             self.camera.draw_points_matrix(
