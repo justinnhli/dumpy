@@ -86,4 +86,4 @@ def test_canvas_display():
     canvas.draw_pixel((1, 2))
     canvas.draw_pixel((2, 2))
     image = grab_screen(canvas)
-    check_image(canvas.image, 'canvas_display_test.ppm')
+    check_image(image, 'canvas_display_test.ppm')
