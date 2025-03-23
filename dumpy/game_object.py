@@ -18,6 +18,10 @@ class GameObject:
         self.position = Point2D()
         self.theta = 0 # type: float
 
+    def __str__(self):
+        # type: () -> str
+        return f'{type(self).__name__}({self.position})'
+
     @property
     def radians(self):
         # type: () -> float
