@@ -5,7 +5,7 @@ from dumpy.canvas import Canvas
 from dumpy.polygon import Polygon
 from dumpy.simplex import Point2D
 
-from canvas_test import check_image
+from image_test_utils import check_image
 
 
 def test_canvas_pixel():
