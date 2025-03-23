@@ -9,7 +9,7 @@ class Scene:
     def __init__(self):
         # type: () -> None
         """Initialize the Scene."""
-        self.objects = []
+        self.objects = [] # type: list[GameObject]
 
     def add(self, game_object):
         # type: (GameObject) -> None
