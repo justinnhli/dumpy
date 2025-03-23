@@ -12,6 +12,7 @@ CollisionCallback = Callable[[], None] # FIXME
 
 
 class Scene:
+    """A scene of game objects."""
 
     def __init__(self):
         # type: () -> None
