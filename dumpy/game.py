@@ -44,7 +44,10 @@ class Game:
         """Deal with time passing."""
         # calculate elapsed time since last tick
         curr_time = Game.get_time()
-        elapsed_time = curr_time - self.prev_time
+        if self.prev_time is None:
+            elapsed_time = 0
+        else:
+            elapsed_time = curr_time - self.prev_time
         # FIXME update all physics objects
         # draw all objects
         for game_object in self.scene.get_in_view(self.camera):
