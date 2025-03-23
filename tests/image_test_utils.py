@@ -53,7 +53,7 @@ def grab_screen(canvas):
 def check_image(image, filename):
     # type: (Image, str) -> None
     """Check that a canvas matches the file."""
-    ppm_path = Path(__file__).parent / 'canvas_test_images' / filename
+    ppm_path = Path(__file__).parent / 'images' / filename
     width, height, ppm_pixels = read_ppm(ppm_path)
     assert image.width == width
     assert image.height == height
