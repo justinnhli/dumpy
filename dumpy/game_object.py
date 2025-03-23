@@ -13,8 +13,8 @@ class GameObject:
     def __init__(self): # pylint: disable = unused-argument
         # type: () -> None
         self.points_matrix = None # type: PointsMatrix
-        self.fill_color = Color.from_hex('#FFFFFF')
-        self.line_color = Color.from_hex('#FFFFFF')
+        self.line_color = Color.from_hex('#000000')
+        self.fill_color = None
         self.position = Point2D()
         self.theta = 0 # type: float
 
