@@ -82,6 +82,10 @@ def test_segment():
     segment2 = Segment(Point2D(2, 3), Point2D(4, 5))
     assert segment1.is_colinear(segment2) == segment2.is_colinear(segment1) == False
     assert segment1.is_overlapping(segment2) == segment2.is_overlapping(segment1) == False
+    # bug 2025-03-26
+    segment1 = Segment(Point2D(81, 17), Point2D(56, 23))
+    segment2 = Segment(Point2D(68, 9), Point2D(43, 67))
+    assert round(segment1.intersect(segment2), 3) == Point2D(62.654, 21.403)
 
 
 def test_triangle():

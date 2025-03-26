@@ -247,13 +247,13 @@ class Segment(PointsMatrix):
     def min_x(self):
         # type: () -> float
         """The smaller x-coordinate."""
-        return self.point1.x
+        return min(self.point1.x, self.point2.x)
 
     @cached_property
     def max_x(self):
         # type: () -> float
         """The larger x-coordinate."""
-        return self.point2.x
+        return max(self.point1.x, self.point2.x)
 
     @cached_property
     def min_y(self):
