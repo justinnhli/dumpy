@@ -22,6 +22,14 @@ class PointsMatrix(RootClass):
         # type: (int) -> Self
         return type(self).from_matrix(round(self.matrix, ndigits))
 
+    def __floor__(self):
+        # type: (int) -> Self
+        return type(self).from_matrix(self.matrix.__floor__())
+
+    def __ceil__(self):
+        # type: (int) -> Self
+        return type(self).from_matrix(self.matrix.__ceil__())
+
     def __rmatmul__(self, other):
         # type: (Transform) -> Self
         assert isinstance(other, Transform)
