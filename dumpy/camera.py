@@ -72,7 +72,7 @@ class Camera(GameObject):
         elif matrix.height == 2:
             self.canvas.draw_line(
                 (matrix[0][0], matrix[0][1]),
-                (matrix[1][0], matrix[2][1]),
+                (matrix[1][0], matrix[1][1]),
                 line_color=line_color,
             )
         else:
