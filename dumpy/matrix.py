@@ -3,7 +3,7 @@
 # pylint: disable = too-many-lines
 
 from functools import lru_cache as cache, cached_property
-from math import sqrt, sin, cos
+from math import floor, ceil, sqrt, sin, cos
 from typing import Any
 
 from .metaprogramming import cached_class
@@ -148,6 +148,20 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
         # type: (int) -> Matrix
         return Matrix(tuple(
             tuple(round(val, ndigits) for val in row)
+            for row in self.rows
+        ))
+
+    def __floor__(self):
+        # type: () -> Matrix
+        return Matrix(tuple(
+            tuple(floor(val) for val in row)
+            for row in self.rows
+        ))
+
+    def __ceil__(self):
+        # type: () -> Matrix
+        return Matrix(tuple(
+            tuple(ceil(val) for val in row)
             for row in self.rows
         ))
 
