@@ -377,22 +377,36 @@ class Segment(PointsMatrix):
         if 0 not in (o1, o2, o3, o4):
             if self.is_parallel(other):
                 return None
-            vector1 = self.point2 - self.point1
-            vector2 = other.point2 - other.point1
-            perpendicular1 = Point2D(-vector2.y, vector2.x)
-            proportion1 = (
-                ((other.point1 - self.point1).matrix @ perpendicular1.matrix.transpose).rows[0][0]
-                / (vector1.matrix @ perpendicular1.matrix.transpose).rows[0][0]
+            # calculate y=mx+b for both segments to solve for the intersection
+            # avoid Segment.slope for better numeric stability
+            diff1x = self.point2.x - self.point1.x
+            diff1y = self.point2.y - self.point1.y
+            diff2x = other.point2.x - other.point1.x
+            diff2y = other.point2.y - other.point1.y
+            x = (
+                (
+                    (other.point1.y - self.point1.y) * (diff1x * diff2x)
+                    + (self.point1.x * diff1y * diff2x - other.point1.x * diff1x * diff2y)
+                )
+                / (diff1y * diff2x - diff2y * diff1x)
             )
-            perpendicular2 = Point2D(-vector1.y, vector1.x)
-            proportion2 = (
-                    ((self.point1 - other.point1).matrix @ perpendicular2.matrix.transpose).rows[0][0]
-                    / (vector2.matrix @ perpendicular2.matrix.transpose).rows[0][0]
-            )
-            if 0 <= proportion1 <= 1 and 0 <= proportion2 <= 1:
-                if include_end or (proportion1 not in (0, 1) and proportion2 not in (0, 1)):
-                    return self.point1 + vector1 * proportion1
-            return None
+            if not (self.min_x <= x <= self.max_x and other.min_x <= x <= other.max_x):
+                return None
+            # preferentially select the line to calculate the intersection from
+            if diff1y == 0:
+                result = self.point_at(x)
+            elif diff2y == 0:
+                result = other.point_at(x)
+            elif diff1x != 0:
+                result = self.point_at(x)
+            else:
+                result = other.point_at(x)
+            if not (self.min_y <= result.y <= self.max_y and other.min_y <= result.y <= other.max_y):
+                return None
+            if not include_end and result in (self.point1, self.point2, other.point1, other.point2):
+                return None
+            else:
+                return result
         if not include_end:
             return None
         if o1 == 0 and other.contains(self.point1, include_end=True):
