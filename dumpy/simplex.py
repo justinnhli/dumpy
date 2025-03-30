@@ -136,9 +136,9 @@ class Tuple2D(PointsMatrix):
     def from_matrix(matrix):
         # type: (Matrix) -> Tuple2D
         return Tuple2D(
-            matrix.rows[0][0],
-            matrix.rows[0][1],
-            matrix.rows[0][3],
+            matrix.rows[0][0], # x
+            matrix.rows[0][1], # y
+            matrix.rows[0][3], # w
         )
 
 
