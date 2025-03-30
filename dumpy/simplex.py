@@ -292,7 +292,9 @@ class Segment(PointsMatrix):
     def is_parallel(self, other):
         # type: (Segment) -> bool
         """Return whether the other segment is parallel."""
-        return self.slope == other.slope
+        crossmul1 = (self.point2.x - self.point1.x) * (other.point2.y - other.point1.y)
+        crossmul2 = (other.point2.x - other.point1.x) * (self.point2.y - self.point1.y)
+        return crossmul1 == crossmul2
 
     def is_colinear(self, other):
         # type: (Segment) -> bool
