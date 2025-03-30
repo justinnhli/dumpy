@@ -338,6 +338,23 @@ class Segment(PointsMatrix):
                 and (point.y > min(self.point1.y, self.point2.y))
             )
 
+    def point_at(self, x):
+        # type: (float) -> Point2D
+        """Find the point at x."""
+        assert self.min_x != self.max_x
+        assert self.min_x <= x <= self.max_x, (self.min_x, x, self.max_x)
+        if x == self.min_x:
+            return self.min
+        elif x == self.max_x:
+            return self.max
+        else:
+            numerator = self.point2.y - self.point1.y
+            denominator = self.point2.x - self.point1.x
+            return Point2D(
+                x,
+                self.point1.y + (x - self.point1.x) * numerator / denominator,
+            )
+
     def intersect(self, other, include_end=True):
         # type: (Segment, bool) -> Optional[Point2D]
         """Find the intersection with another segment, if any."""
