@@ -76,7 +76,7 @@ def test_sorteddict():
     sorted_dict.clear()
     assert len(sorted_dict) == 0
     assert list(sorted_dict) == []
-    # bug discovered 2020-06-05
+    # 2020-06-05
     sorted_dict = SortedDict()
     for i in [5, 2, 9, 1, 4, 7, 11, 0, 3, 6, 8, 10, 12]:
         sorted_dict[i] = str(i)
