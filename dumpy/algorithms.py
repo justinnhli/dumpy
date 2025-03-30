@@ -76,8 +76,7 @@ class _SegmentWrapper:
             if self._y is None:
                 self._y = self.segment.min_y
         else:
-            dx = self._x - self.segment.point1.x
-            self._y = self.segment.point1.y + dx * self.segment.slope
+            self._y = self.segment.point_at(self._x).y
 
 
 def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable = too-many-statements
