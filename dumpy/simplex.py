@@ -202,6 +202,7 @@ class Segment(PointsMatrix):
 
     def __init__(self, point1, point2):
         # type: (Point2D, Point2D) -> None
+        assert point1 != point2
         super().__init__(Matrix((
             (point1.x, point1.y, 0, 1),
             (point2.x, point2.y, 0, 1),
@@ -299,14 +300,20 @@ class Segment(PointsMatrix):
     def is_colinear(self, other):
         # type: (Segment) -> bool
         """Return whether the other segment is colinear."""
-        return Segment(self.point1, other.point1).slope == self.slope == other.slope
+        if not self.is_parallel(other):
+            return False
+        if self.point1 == other.point1:
+            third_segment = Segment(self.point1, other.point2)
+        else:
+            third_segment = Segment(self.point1, other.point1)
+        return self.is_parallel(third_segment)
 
     def is_kissing(self, other):
         # type: (Segment) -> bool
         """Return whether the other segment intersects at an endpoint."""
         return (
             self.point1 in (other.point1, other.point2)
-            or self.point2 in (other.point2, other.point2)
+            or self.point2 in (other.point1, other.point2)
         )
 
     def is_overlapping(self, other):
@@ -327,17 +334,18 @@ class Segment(PointsMatrix):
         """Return True if the point is on the segment."""
         if include_end:
             return (
-                (point.x <= max(self.point1.x, self.point2.x))
-                and (point.x >= min(self.point1.x, self.point2.x))
-                and (point.y <= max(self.point1.y, self.point2.y))
-                and (point.y >= min(self.point1.y, self.point2.y))
+                self.min_x <= point.x <= self.max_x
+                and self.min_y <= point.y <= self.max_y
             )
         else:
             return (
-                (point.x < max(self.point1.x, self.point2.x))
-                and (point.x > min(self.point1.x, self.point2.x))
-                and (point.y < max(self.point1.y, self.point2.y))
-                and (point.y > min(self.point1.y, self.point2.y))
+                (
+                    self.point1.x == self.point2.x
+                    or self.min_x < point.x < self.max_x
+                ) and (
+                    self.point1.y == self.point2.y
+                    or self.min_y < point.y < self.max_y
+                )
             )
 
     def point_at(self, x):
@@ -379,6 +387,8 @@ class Segment(PointsMatrix):
         if 0 not in (o1, o2, o3, o4):
             if self.is_parallel(other):
                 return None
+            if self > other:
+                return other.intersect(self)
             # calculate y=mx+b for both segments to solve for the intersection
             # avoid Segment.slope for better numeric stability
             diff1x = self.point2.x - self.point1.x
