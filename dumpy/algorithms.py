@@ -188,16 +188,15 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
             intersect_key = (segment2, segment1)
         if intersect_key not in intersect_cache:
             intersect = segment1.intersect(segment2, include_end=True)
-            intersect_cache[intersect_key] = intersect
             if intersect:
                 intersect = round(intersect, ndigits=ndigits)
-                intersect_cache[intersect_key] = intersect
                 segment_intersect_map[segment1][intersect] = (
                     intersect not in (segment1.point1, segment1.point2)
                 )
                 segment_intersect_map[segment2][intersect] = (
                     intersect not in (segment2.point1, segment2.point2)
                 )
+            intersect_cache[intersect_key] = intersect
         return intersect_cache[intersect_key]
 
     def get_tree_neighbors(segment):
