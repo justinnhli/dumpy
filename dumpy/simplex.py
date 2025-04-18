@@ -135,6 +135,16 @@ class Tuple2D(PointsMatrix):
         """Return the dot product."""
         return self.matrix.dot(other.matrix)
 
+    def to_point(self):
+        # type: () -> Point2D
+        """Convert to a Point2D."""
+        return Point2D(self.x, self.y)
+
+    def to_vector(self):
+        # type: () -> Vector2D
+        """Convert to a Vector2D."""
+        return Vector2D(self.x, self.y)
+
 
 @cached_class
 class Point2D(Tuple2D):
