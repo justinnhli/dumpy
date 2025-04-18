@@ -1,7 +1,7 @@
 """2D geometry primitives."""
 
 from functools import cached_property
-from math import atan2
+from math import sqrt, atan2
 from typing import Any, Union, Optional, Self
 
 from .matrix import Matrix
@@ -163,6 +163,10 @@ class Point2D(Tuple2D):
         # type: (Vector2D) -> Point2D
         assert isinstance(other, Tuple2D)
         return Point2D(self.x + other.x, self.y + other.y)
+
+    def distance(self, other):
+        # type: (Point2D) -> float
+        return sqrt(self.squared_distance(other))
 
     def squared_distance(self, other):
         # type: (Point2D) -> float
