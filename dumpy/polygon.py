@@ -7,7 +7,7 @@ from typing import Any
 from .algorithms import monotone_triangulation
 from .matrix import Matrix
 from .metaprogramming import cached_class
-from .simplex import PointsMatrix, Point2D, Segment
+from .simplex import PointsMatrix, Point2D, Vector2D, Segment
 
 
 @cached_class
@@ -61,10 +61,10 @@ class Polygon(PointsMatrix):
         # type: () -> Point2D
         """Calculate the centroid of the polygon."""
         total_area = 0 # type: float
-        centroid = Point2D()
+        centroid = Vector2D()
         for triangle in self.triangles:
             total_area += triangle.area
-            centroid += triangle.area * triangle.centroid
+            centroid += triangle.area * triangle.centroid.to_vector()
         result = centroid / total_area
         return Point2D(result.x, result.y)
 
