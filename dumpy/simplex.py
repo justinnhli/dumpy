@@ -164,6 +164,12 @@ class Point2D(Tuple2D):
         assert isinstance(other, Tuple2D)
         return Point2D(self.x + other.x, self.y + other.y)
 
+    def squared_distance(self, other):
+        # type: (Point2D) -> float
+        dx = self.x - other.x
+        dy = self.y - other.y
+        return dx * dx + dy * dy
+
     @staticmethod
     def from_matrix(matrix):
         # type: (Matrix) -> Point2D
