@@ -18,6 +18,7 @@ class GameObject:
         self.fill_color = None
         self.position = Point2D()
         self.theta = 0 # type: float
+        self.collision_groups = set() # type: set[str]
 
     def __hash__(self):
         # type: () -> int
