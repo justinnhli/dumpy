@@ -39,11 +39,6 @@ class PointsMatrix(RootClass):
         # type: () -> int
         return hash(self.matrix)
 
-    @cached_property
-    def init_args(self):
-        # type: () -> tuple[Any, ...]
-        return (self.matrix,)
-
     @property
     def points(self):
         # type: () -> tuple[Point2D, ...]
@@ -90,12 +85,6 @@ class Tuple2D(PointsMatrix):
     def __init__(self, x, y, w):
         # type: (float, float, int) -> None
         super().__init__(Matrix(((x, y, 0, w),)))
-
-    @cached_property
-    def init_args(self):
-        # type: () -> tuple[Any, ...]
-        """Return the initialization arguments."""
-        return self.x, self.y, self.w
 
     @cached_property
     def x(self):
@@ -145,15 +134,6 @@ class Tuple2D(PointsMatrix):
         # type: (Point2D | Vector2D) -> float
         """Return the dot product."""
         return self.matrix.dot(other.matrix)
-
-    @staticmethod
-    def from_matrix(matrix):
-        # type: (Matrix) -> Tuple2D
-        return Tuple2D(
-            matrix.rows[0][0], # x
-            matrix.rows[0][1], # y
-            matrix.rows[0][3], # w
-        )
 
 
 @cached_class
