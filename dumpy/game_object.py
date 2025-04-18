@@ -19,6 +19,10 @@ class GameObject:
         self.position = Point2D()
         self.theta = 0 # type: float
 
+    def __hash__(self):
+        # type: () -> int
+        return id(self)
+
     def __str__(self):
         # type: () -> str
         return f'{type(self).__name__}({self.position})'
