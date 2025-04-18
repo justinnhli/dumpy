@@ -14,9 +14,9 @@ class GameObject:
         # type: () -> None
         """Initialize the GameObject."""
         self.points_matrix = None # type: PointsMatrix
-        self.radius = 0
-        self.line_color = Color.from_hex('#000000')
-        self.fill_color = None
+        self.radius = 0 # type: float
+        self.line_color = None # type: Color
+        self.fill_color = None # type: Color
         self.position = Point2D()
         self.theta = 0 # type: float
         self.collision_groups = set() # type: set[str]
