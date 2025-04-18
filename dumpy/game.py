@@ -25,10 +25,10 @@ class Game:
         # state
         self.prev_time = None # type: int
 
-    def add_object(self, game_object, *groups):
-        # type: (GameObject, *str) -> None
+    def add_object(self, game_object):
+        # type: (GameObject) -> None
         """Add an object to the scene."""
-        self.scene.add(game_object, *groups)
+        self.scene.add(game_object)
 
     def bind(self, input_event, callback):
         # type: (Input, EventCallback) -> None
