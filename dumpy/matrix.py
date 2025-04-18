@@ -199,7 +199,17 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
 
     def __truediv__(self, other):
         # type: (float) -> Matrix
-        return self * (1 / other)
+        return Matrix(tuple(
+            tuple(val / other for val in row)
+            for row in self.rows
+        ))
+
+    def __floordiv__(self, other):
+        # type: (float) -> Matrix
+        return Matrix(tuple(
+            tuple(val // other for val in row)
+            for row in self.rows
+        ))
 
     def __matmul__(self, other):
         # type: (Matrix) -> Matrix
