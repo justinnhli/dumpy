@@ -64,6 +64,11 @@ class GameObject:
         """Update the object."""
         pass
 
+    def is_colliding(self, other):
+        # type: (GameObject) -> bool
+        """Determine if this object is colliding with another object."""
+        pass # FIXME
+
 
 class PhysicsObject(GameObject):
     """A game object with kinematics."""
