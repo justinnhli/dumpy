@@ -115,16 +115,20 @@ class Tuple2D(PointsMatrix):
         return Vector2D(self.x - other.x, self.y - other.y)
 
     def __mul__(self, other):
-        # type: (Union[int, float]) -> Self
+        # type: (float) -> Self
         return type(self).from_matrix(other * self.matrix)
 
     def __rmul__(self, other):
-        # type: (Union[int, float]) -> Self
+        # type: (float) -> Self
         return type(self).from_matrix(other * self.matrix)
 
     def __truediv__(self, other):
         # type: (float) -> Self
-        return type(self).from_matrix((1 / other) * self.matrix)
+        return type(self).from_matrix(self.matrix / other)
+
+    def __floordiv__(self, other):
+        # type: (float) -> Self
+        return type(self).from_matrix(self.matrix // other)
 
     def dot(self, other):
         # type: (Any) -> float
