@@ -2,7 +2,7 @@
 
 from functools import cached_property
 from math import sqrt, atan2
-from typing import Any, Union, Optional, Self
+from typing import TypeVar, Self, Any, Optional
 
 from .matrix import Matrix
 from .metaprogramming import cached_class
@@ -121,7 +121,7 @@ class Tuple2D(PointsMatrix):
         raise NotImplementedError()
 
     def __sub__(self, other):
-        # type: (Tuple2D) -> Vector2D
+        # type: (Point2D | Vector2D) -> Vector2D
         assert isinstance(other, type(self))
         return Vector2D(self.x - other.x, self.y - other.y)
 
@@ -142,9 +142,8 @@ class Tuple2D(PointsMatrix):
         return type(self).from_matrix(self.matrix // other)
 
     def dot(self, other):
-        # type: (Any) -> float
+        # type: (Point2D | Vector2D) -> float
         """Return the dot product."""
-        assert isinstance(other, Tuple2D)
         return self.matrix.dot(other.matrix)
 
     @staticmethod
@@ -177,7 +176,6 @@ class Point2D(Tuple2D):
 
     def __add__(self, other):
         # type: (Vector2D) -> Point2D
-        assert isinstance(other, Tuple2D)
         return Point2D(self.x + other.x, self.y + other.y)
 
     def distance(self, other):
@@ -205,6 +203,8 @@ class Point2D(Tuple2D):
 class Vector2D(Tuple2D):
     """A 2D Vector."""
 
+    RT = TypeVar('RT', Point2D, 'Vector2D')
+
     def __init__(self, x=0, y=0):
         # type: (float, float) -> None
         super().__init__(x, y, 0)
@@ -220,8 +220,7 @@ class Vector2D(Tuple2D):
         return (Point2D(self.x, self.y),)
 
     def __add__(self, other):
-        # type: (Tuple2D) -> Tuple2D
-        assert isinstance(other, Tuple2D)
+        # type: (Vector2D.RT) -> Vector2D.RT
         return type(other)(self.x + other.x, self.y + other.y)
 
     @staticmethod
