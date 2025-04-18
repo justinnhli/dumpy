@@ -121,6 +121,7 @@ class HierarchicalHashGrid:
     @cached_property
     def exponent_grids(self):
         # type: () -> list[tuple[int, HashGrid]]
+        """Build a list of grids and their exponents."""
         return list(zip(
             range(self.min_exponent, self.max_exponent + 1),
             self.grids[self.min_exponent:],
