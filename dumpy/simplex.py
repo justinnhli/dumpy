@@ -77,9 +77,9 @@ class PointsMatrix(RootClass):
             for row in self.matrix.rows
         )))
 
-    @staticmethod
-    def from_matrix(matrix):
-        # type: (Matrix) -> PointsMatrix
+    @classmethod
+    def from_matrix(cls, matrix):
+        # type: (Matrix) -> Self
         """Create the class from a matrix."""
         raise NotImplementedError()
 
