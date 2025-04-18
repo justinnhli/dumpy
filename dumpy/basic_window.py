@@ -44,7 +44,7 @@ class BasicWindow(Game):
             line_color=line_color,
         ))
 
-    def key_callback(self, input_event, mouse_pos):
+    def key_callback(self, input_event, _):
         # type: (Input, Point2D) -> None
         """Deal with key presses."""
         translation = 25 / self.camera.zoom
