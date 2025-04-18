@@ -6,7 +6,7 @@ from typing import Callable
 from .camera import Camera
 from .canvas import Canvas, Input, EventCallback
 from .game_object import GameObject
-from .scene import Scene
+from .scene import HierarchicalHashGrid
 
 
 CollisionCallback = Callable[[GameObject, GameObject], None]
@@ -24,7 +24,7 @@ class Game:
         self.canvas = Canvas(window_width, window_height)
         self.camera = Camera(self.canvas)
         # objects
-        self.scene = Scene()
+        self.scene = HierarchicalHashGrid()
         self.collision_callbacks = {} # type: dict[tuple[str, str], CollisionCallback]
         # settings
         self.keybinds = {} # type: dict[Input, EventCallback]
