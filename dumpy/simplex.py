@@ -44,6 +44,12 @@ class PointsMatrix(RootClass):
         # type: () -> tuple[Any, ...]
         return (self.matrix,)
 
+    @property
+    def points(self):
+        # type: () -> tuple[Point2D, ...]
+        """Return the points of the PointsMatrix."""
+        raise NotImplementedError()
+
     @cached_property
     def x_reflection(self):
         # type: () -> Self
@@ -109,6 +115,11 @@ class Tuple2D(PointsMatrix):
         """Return the w component of the tuple."""
         return self.matrix.w
 
+    @property
+    def points(self):
+        # type: () -> tuple[Point2D, ...]
+        raise NotImplementedError()
+
     def __sub__(self, other):
         # type: (Tuple2D) -> Vector2D
         assert isinstance(other, type(self))
@@ -159,6 +170,11 @@ class Point2D(Tuple2D):
         # type: () -> tuple[Any, ...]
         return self.x, self.y
 
+    @cached_property
+    def points(self):
+        # type: () -> tuple[Point2D, ...]
+        return (self,)
+
     def __add__(self, other):
         # type: (Vector2D) -> Point2D
         assert isinstance(other, Tuple2D)
@@ -197,6 +213,11 @@ class Vector2D(Tuple2D):
     def init_args(self):
         # type: () -> tuple[Any, ...]
         return self.x, self.y
+
+    @cached_property
+    def points(self):
+        # type: () -> tuple[Point2D, ...]
+        return (Point2D(self.x, self.y),)
 
     def __add__(self, other):
         # type: (Tuple2D) -> Tuple2D
