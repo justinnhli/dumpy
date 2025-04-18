@@ -166,10 +166,12 @@ class Point2D(Tuple2D):
 
     def distance(self, other):
         # type: (Point2D) -> float
+        """Calculate the distance to another point."""
         return sqrt(self.squared_distance(other))
 
     def squared_distance(self, other):
         # type: (Point2D) -> float
+        """Calculate the squared distance to another point."""
         dx = self.x - other.x
         dy = self.y - other.y
         return dx * dx + dy * dy
