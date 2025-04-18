@@ -19,6 +19,10 @@ class DummyGameObject(GameObject):
         self.points_matrix = polygon
         self.fill_color = fill_color
         self.line_color = line_color
+        self.radius = max(
+            point.distance(self.position)
+            for point in polygon.points
+        )
 
 
 class BasicWindow(Game):
