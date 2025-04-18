@@ -1,11 +1,15 @@
 """The abstract Game class."""
 
 from time import monotonic_ns as get_nsec_time
+from typing import Callable
 
 from .camera import Camera
 from .canvas import Canvas, Input, EventCallback
 from .game_object import GameObject
-from .scene import Scene, CollisionCallback
+from .scene import Scene
+
+
+CollisionCallback = Callable[[GameObject, GameObject], None]
 
 
 class Game:
@@ -17,9 +21,11 @@ class Game:
         self.window_width = window_width
         self.window_height = window_height
         # components
-        self.scene = Scene()
         self.canvas = Canvas(window_width, window_height)
         self.camera = Camera(self.canvas)
+        # objects
+        self.scene = Scene()
+        self.collision_callbacks = {} # type: dict[tuple[str, str], CollisionCallback]
         # settings
         self.keybinds = {} # type: dict[Input, EventCallback]
         # state
@@ -38,7 +44,7 @@ class Game:
     def on_collision(self, group1, group2, callback):
         # type: (str, str, CollisionCallback) -> None
         """Add a collision handler."""
-        self.scene.register_collision(group1, group2, callback)
+        self.collision_callbacks[(group1, group2)] = callback
 
     def dispatch_tick(self):
         # type: () -> None
@@ -54,7 +60,8 @@ class Game:
         for obj in self.scene.objects:
             obj.update()
         # deal with collisions
-        self.scene.trigger_collisions()
+        for obj1, obj2, group_pair in self.scene.collisions:
+            self.collision_callbacks[group_pair](obj1, obj2)
         # draw all objects
         for game_object in self.scene.get_in_view(self.camera):
             self.camera.draw_points_matrix(
@@ -68,6 +75,7 @@ class Game:
     def start(self):
         # type: () -> None
         """Start the game."""
+        self.scene.set_collision_group_pairs(self.collision_callbacks.keys())
         for input_event, callback in self.keybinds.items():
             self.canvas.bind(input_event, callback)
         self.prev_time = Game.get_time()
