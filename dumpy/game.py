@@ -11,12 +11,14 @@ from .scene import Scene, CollisionCallback
 class Game:
     """A game."""
 
-    def __init__(self, width, height):
+    def __init__(self, window_width, window_height):
         # type: (int, int) -> None
         """Initialize the Game."""
+        self.window_width = window_width
+        self.window_height = window_height
         # components
         self.scene = Scene()
-        self.canvas = Canvas(width, height)
+        self.canvas = Canvas(window_width, window_height)
         self.camera = Camera(self.canvas)
         # settings
         self.keybinds = {} # type: dict[Input, EventCallback]
