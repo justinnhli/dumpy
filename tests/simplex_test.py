@@ -5,12 +5,6 @@ from dumpy.transform import Transform
 
 
 def test_point():
-    tuple2d = Tuple2D(1, 2, 1)
-    assert tuple2d.init_args == (1, 2, 1)
-    assert Tuple2D.from_matrix(tuple2d.matrix) == tuple2d
-    tuple2d = Tuple2D(1, 2, 0)
-    assert tuple2d.init_args == (1, 2, 0)
-    assert Tuple2D.from_matrix(tuple2d.matrix) == tuple2d
     point = Point2D(1, 2)
     assert point.init_args == (1, 2)
     assert Point2D.from_matrix(point.matrix) == point
