@@ -70,13 +70,22 @@ class Game:
         # update timer
         self.prev_msec = curr_msec
 
+    def prestart(self):
+        # type: () -> None
+        """Prepare the game to start.
+
+        This function does all non-UI things needed to start the game; iti s in
+        a separate function to facilitate testing.
+        """
+        self.prev_msec = Game.get_msec()
+        self.scene.set_collision_group_pairs(self.collision_callbacks.keys())
+
     def start(self):
         # type: () -> None
         """Start the game."""
-        self.scene.set_collision_group_pairs(self.collision_callbacks.keys())
         for input_event, callback in self.keybinds.items():
             self.canvas.bind(input_event, callback)
-        self.prev_msec = Game.get_msec()
+        self.prestart()
         self.canvas.start(self.dispatch_tick, 40)
 
     @staticmethod
