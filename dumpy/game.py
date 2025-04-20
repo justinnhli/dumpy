@@ -46,12 +46,13 @@ class Game:
         """Add a collision handler."""
         self.collision_callbacks[(group1, group2)] = callback
 
-    def dispatch_tick(self):
-        # type: () -> None
+    def dispatch_tick(self, elapsed_msec=None):
+        # type: (int) -> None
         """Deal with time passing."""
         # calculate elapsed time since last tick
         curr_msec = Game.get_msec()
-        elapsed_msec = curr_msec - self.prev_msec
+        if not elapsed_msec:
+            elapsed_msec = curr_msec - self.prev_msec
         # update all physics objects
         for obj in self.scene.objects:
             obj.update()
