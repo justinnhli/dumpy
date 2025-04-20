@@ -54,6 +54,7 @@ def test_rectangle():
     # create and display the window
     window = BasicWindow(5, 5)
     window.add_geometry(Polygon.rectangle(2, 2))
+    window.prestart()
     window.dispatch_tick()
     check_image(window.canvas.image, 'basic_window__rectangle.ppm')
 
@@ -68,6 +69,7 @@ def test_einstein():
     window.add_geometry(up_hexagon)
     window.add_geometry(einstein, line_color=Color(0, 1, 1))
     window.camera.move_to(einstein.centroid.x, einstein.centroid.y)
+    window.prestart()
     window.dispatch_tick()
     check_image(window.canvas.image, 'basic_window__einstein.ppm')
 
@@ -83,6 +85,7 @@ def test_up():
             Input('KeyPress', key_button='w'),
             Point2D(),
         )
+    window.prestart()
     window.dispatch_tick()
     check_image(window.canvas.image, 'basic_window__up.ppm')
 
@@ -98,6 +101,7 @@ def test_down():
             Input('KeyPress', key_button='s'),
             Point2D(),
         )
+    window.prestart()
     window.dispatch_tick()
     check_image(window.canvas.image, 'basic_window__down.ppm')
 
@@ -113,6 +117,7 @@ def test_left():
             Input('KeyPress', key_button='a'),
             Point2D(),
         )
+    window.prestart()
     window.dispatch_tick()
     check_image(window.canvas.image, 'basic_window__left.ppm')
 
@@ -128,6 +133,7 @@ def test_right():
             Input('KeyPress', key_button='d'),
             Point2D(),
         )
+    window.prestart()
     window.dispatch_tick()
     check_image(window.canvas.image, 'basic_window__right.ppm')
 
@@ -143,6 +149,7 @@ def test_clockwise():
             Input('KeyPress', key_button='e'),
             Point2D(),
         )
+    window.prestart()
     window.dispatch_tick()
     check_image(window.canvas.image, 'basic_window__clockwise.ppm')
 
@@ -158,6 +165,7 @@ def test_counter_clockwise():
             Input('KeyPress', key_button='q'),
             Point2D(),
         )
+    window.prestart()
     window.dispatch_tick()
     check_image(window.canvas.image, 'basic_window__counter_clockwise.ppm')
 
@@ -173,6 +181,7 @@ def test_zoom_in():
             Input('KeyPress', key_button='r'),
             Point2D(),
         )
+    window.prestart()
     window.dispatch_tick()
     check_image(window.canvas.image, 'basic_window__in.ppm')
 
@@ -188,5 +197,6 @@ def test_zoom_out():
             Input('KeyPress', key_button='f'),
             Point2D(),
         )
+    window.prestart()
     window.dispatch_tick()
     check_image(window.canvas.image, 'basic_window__out.ppm')
