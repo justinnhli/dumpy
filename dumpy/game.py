@@ -51,7 +51,7 @@ class Game:
         """Deal with time passing."""
         # calculate elapsed time since last tick
         curr_msec = Game.get_msec()
-        if not elapsed_msec:
+        if elapsed_msec is None:
             elapsed_msec = curr_msec - self.prev_msec
         # update all physics objects
         for obj in self.scene.objects:
