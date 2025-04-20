@@ -1,6 +1,6 @@
 """The abstract Game class."""
 
-from time import monotonic_ns as get_nsec_time
+from time import monotonic_ns as get_nsec_msec
 from typing import Callable
 
 from .camera import Camera
@@ -29,7 +29,7 @@ class Game:
         # settings
         self.keybinds = {} # type: dict[Input, EventCallback]
         # state
-        self.prev_time = None # type: int
+        self.prev_msec = None # type: int
 
     def add_object(self, game_object):
         # type: (GameObject) -> None
@@ -50,11 +50,11 @@ class Game:
         # type: () -> None
         """Deal with time passing."""
         # calculate elapsed time since last tick
-        curr_time = Game.get_time()
-        if self.prev_time is None:
-            elapsed_time = 0
+        curr_msec = Game.get_msec()
+        if self.prev_msec is None:
+            elapsed_msec = 0
         else:
-            elapsed_time = curr_time - self.prev_time
+            elapsed_msec = curr_msec - self.prev_msec
         # update all physics objects
         for obj in self.scene.objects:
             obj.update()
@@ -71,7 +71,7 @@ class Game:
                 line_color=game_object.line_color,
             )
         # update timer
-        self.prev_time = curr_time
+        self.prev_msec = curr_msec
 
     def start(self):
         # type: () -> None
@@ -79,11 +79,11 @@ class Game:
         self.scene.set_collision_group_pairs(self.collision_callbacks.keys())
         for input_event, callback in self.keybinds.items():
             self.canvas.bind(input_event, callback)
-        self.prev_time = Game.get_time()
+        self.prev_msec = Game.get_msec()
         self.canvas.start(self.dispatch_tick, 40)
 
     @staticmethod
-    def get_time():
+    def get_msec():
         # type: () -> int
         """Return a millisecond-level time."""
-        return get_nsec_time() // 1000
+        return get_nsec_msec() // 1000
