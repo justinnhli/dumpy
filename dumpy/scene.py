@@ -142,13 +142,11 @@ class HierarchicalHashGrid:
         # type: () -> Iterator[tuple[GameObject, GameObject, tuple[str, str]]]
         """Yield all collisions of registered group pairs."""
         for obj1, obj2 in self.all_collisions:
-            for group1, group2 in product(obj1.collision_groups, obj2.collision_groups):
-                key = (group1, group2)
-                if key in self.collision_group_pairs:
-                    yield obj1, obj2, key
-                key = (group2, group1)
-                if key in self.collision_group_pairs:
-                    yield obj2, obj1, key
+            for group1, group2 in self.collision_group_pairs:
+                if group1 in obj1.collision_groups and group2 in obj2.collision_groups:
+                    yield obj1, obj2, (group1, group2)
+                if group1 in obj2.collision_groups and group2 in obj1.collision_groups:
+                    yield obj2, obj1, (group1, group2)
 
     def add(self, game_object):
         # type: (GameObject) -> None
