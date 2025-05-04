@@ -199,6 +199,9 @@ class Vector2D(Tuple2D):
         # type: (float, float) -> None
         super().__init__(x, y, 0)
 
+    def __neg__(self):
+        return Vector2D.from_matrix(-self.matrix)
+
     @cached_property
     def init_args(self):
         # type: () -> tuple[Any, ...]
@@ -208,6 +211,18 @@ class Vector2D(Tuple2D):
     def points(self):
         # type: () -> tuple[Point2D, ...]
         return (Point2D(self.x, self.y),)
+
+    @cached_property
+    def magnitude(self):
+        # type: () -> float
+        """The magnitude of the vector."""
+        return sqrt(self.x * self.x + self.y * self.y)
+
+    @cached_property
+    def normalized(self):
+        # type: () -> Vector2D
+        """The normalized vector."""
+        return self / self.magnitude
 
     def __add__(self, other):
         # type: (Vector2D.RT) -> Vector2D.RT
@@ -309,6 +324,24 @@ class Segment(PointsMatrix):
             return float('Inf')
         else:
             return (self.point2.y - self.point1.y) / denominator
+
+    @cached_property
+    def length(self):
+        # type: () -> float
+        """The length of the segment."""
+        return self.point2.distance(self.point1)
+
+    @cached_property
+    def normal(self):
+        # type: () -> Vector2D
+        """A normal unit vector to the segment.
+
+        The normal vector will point into the positive rotation direction.
+        """
+        return Vector2D(
+            -(self.point2.y - self.point1.y),
+            (self.point2.x - self.point1.x),
+        ).normalized
 
     @cached_property
     def init_args(self):
