@@ -66,6 +66,11 @@ class GameObject:
         """Update the object."""
         pass
 
+    def squared_distance(self, other):
+        # type: (GameObject) -> float
+        """Calculate the squared distance to another object."""
+        return self.position.squared_distance(other.position)
+
     def is_colliding(self, other):
         # type: (GameObject) -> bool
         """Determine if this object is colliding with another object."""
