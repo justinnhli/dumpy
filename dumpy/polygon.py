@@ -65,8 +65,7 @@ class Polygon(PointsMatrix):
         for triangle in self.triangles:
             total_area += triangle.area
             centroid += triangle.area * triangle.centroid.to_vector()
-        result = centroid / total_area
-        return Point2D(result.x, result.y)
+        return (centroid / total_area).to_point()
 
     def union(self, *polygons):
         # type: (*Polygon) -> Polygon
