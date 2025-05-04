@@ -73,8 +73,63 @@ class GameObject:
 
     def is_colliding(self, other):
         # type: (GameObject) -> bool
-        """Determine if this object is colliding with another object."""
-        pass # FIXME
+        """Determine if two objects are colliding.
+
+        This uses the hyperplane separation/separating axis theorem, which
+        states that if two convex objects are disjoint, there must be a line
+        onto which the objects' projections are disjoint. Since the theorem
+        only applies to convex objects, this implementation compares all pairs
+        of triangles between the two polygons; if all pairs of triangles are
+        separable, the polygons must also be disjoint.
+
+        Additionally, the vector between the two centroids is tried first as a
+        potential shortcut.
+        """
+        # try the vector between centroids first
+        points_matrix1 = self.transform @ self.points_matrix
+        points_matrix2 = other.transform @ other.points_matrix
+        vector = points_matrix1.centroid - points_matrix2.centroid
+        if GameObject.separated_on_axis(points_matrix1, points_matrix2, vector):
+            return False
+        # revert to the standard approach of trying all segment normals
+        checked = set()
+        for points_matrix in (points_matrix1, points_matrix2):
+            for segment in points_matrix.segments:
+                normal = segment.normal
+                if normal in checked:
+                    continue
+                if GameObject.separated_on_axis(points_matrix1, points_matrix2, normal):
+                    return False
+        return True
+
+    @staticmethod
+    def separated_on_axis(points_matrix1, points_matrix2, vector):
+        # type: (PointsMatrix, PointsMatrix, Vector2D) -> bool
+        """Check if an axis separates two points matrices.
+
+        This function does not use Triangle.is_colliding() to take advantage of caching.
+        """
+        denominator = (vector.x * vector.x + vector.y * vector.y) ** (1/2)
+        cache = {}
+        for convex1 in points_matrix1.triangles:
+            projected1 = []
+            for point in convex1.points:
+                if point not in cache:
+                    cache[point] = (vector.x * point.x + vector.y * point.y) / denominator
+                projected1.append(cache[point])
+            min1 = min(projected1)
+            max1 = max(projected1)
+            for convex2 in points_matrix2.triangles:
+                projected2 = []
+                for point in convex2.points:
+                    if point not in cache:
+                        cache[point] = (vector.x * point.x + vector.y * point.y) / denominator
+                    projected2.append(cache[point])
+                min2 = min(projected2)
+                max2 = max(projected2)
+                if min1 <= max2 and min2 <= max1:
+                    return False
+        return True
 
 
 class PhysicsObject(GameObject):
