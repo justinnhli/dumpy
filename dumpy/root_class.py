@@ -20,8 +20,7 @@ class RootClass:
 
     def __eq__(self, other):
         # type: (Any) -> bool
-        assert isinstance(other, type(self))
-        return self.init_args == other.init_args
+        return isinstance(other, type(self)) and self.init_args == other.init_args
 
     def __lt__(self, other):
         # type: (Any) -> bool
