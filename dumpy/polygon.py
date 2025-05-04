@@ -23,8 +23,6 @@ class Polygon(PointsMatrix):
             (point.x, point.y, 0, 1)
             for point in points
         )))
-        # partition
-        self.triangles = monotone_triangulation(points)
 
     @cached_property
     def init_args(self):
@@ -49,6 +47,12 @@ class Polygon(PointsMatrix):
             Segment(point1, point2)
             for point1, point2 in zip(points[:-1], points[1:])
         )
+
+    @cached_property
+    def triangles(self):
+        # type: () -> tuple[Triangle, ...]
+        """Return the triangles of the polygon."""
+        return monotone_triangulation(self.points)
 
     @cached_property
     def area(self):
