@@ -49,15 +49,17 @@ class PointsMatrix(RootClass):
     def from_matrix(cls, matrix):
         # type: (Matrix) -> Self
         """Create the class from a matrix."""
-        raise NotImplementedError()
+        return cls(matrix=matrix)
 
 
 class Tuple2D(PointsMatrix):
     """Abstract class for 2D points and vectors."""
 
-    def __init__(self, x, y, w):
-        # type: (float, float, int) -> None
-        super().__init__(Matrix(((x,), (y,), (0,), (w,))))
+    def __init__(self, x=0, y=0, w=0, matrix=None):
+        # type: (float, float, int, Matrix) -> None
+        if matrix is None:
+            matrix = Matrix(((x,), (y,), (0,), (w,)))
+        super().__init__(matrix)
 
     @cached_property
     def x(self):
@@ -118,9 +120,9 @@ class Tuple2D(PointsMatrix):
 class Point2D(Tuple2D):
     """A 2D point."""
 
-    def __init__(self, x=0, y=0):
-        # type: (float, float) -> None
-        super().__init__(x, y, 1)
+    def __init__(self, x=0, y=0, matrix=None):
+        # type: (float, float, Matrix) -> None
+        super().__init__(x, y, 1, matrix)
 
     @cached_property
     def init_args(self):
@@ -143,14 +145,6 @@ class Point2D(Tuple2D):
         dy = self.y - other.y
         return dx * dx + dy * dy
 
-    @staticmethod
-    def from_matrix(matrix):
-        # type: (Matrix) -> Point2D
-        return Point2D(
-            matrix.rows[0][0],
-            matrix.rows[1][0],
-        )
-
 
 @cached_class
 class Vector2D(Tuple2D):
@@ -158,9 +152,9 @@ class Vector2D(Tuple2D):
 
     RT = TypeVar('RT', Point2D, 'Vector2D')
 
-    def __init__(self, x=0, y=0):
-        # type: (float, float) -> None
-        super().__init__(x, y, 0)
+    def __init__(self, x=0, y=0, matrix=None):
+        # type: (float, float, Matrix) -> None
+        super().__init__(x, y, 0, matrix)
 
     def __neg__(self):
         return Vector2D.from_matrix(-self.matrix)
@@ -186,28 +180,22 @@ class Vector2D(Tuple2D):
         # type: (Vector2D.RT) -> Vector2D.RT
         return type(other)(self.x + other.x, self.y + other.y)
 
-    @staticmethod
-    def from_matrix(matrix):
-        # type: (Matrix) -> Vector2D
-        return Vector2D(
-            matrix.rows[0][0],
-            matrix.rows[1][0],
-        )
-
 
 @cached_class
 class Segment(PointsMatrix):
     """A line segment."""
 
-    def __init__(self, point1, point2):
-        # type: (Point2D, Point2D) -> None
-        assert point1 != point2
-        super().__init__(Matrix((
-            (point1.x, point2.x),
-            (point1.y, point2.y),
-            (0, 0),
-            (1, 1),
-        )))
+    def __init__(self, point1=None, point2=None, matrix=None):
+        # type: (Point2D, Point2D, Matrix) -> None
+        if matrix is None:
+            assert point1 != point2
+            matrix = Matrix((
+                (point1.x, point2.x),
+                (point1.y, point2.y),
+                (0, 0),
+                (1, 1),
+            ))
+        super().__init__(matrix)
 
     @cached_property
     def point1(self):
@@ -470,30 +458,24 @@ class Segment(PointsMatrix):
         else: # co-linear
             return 0
 
-    @staticmethod
-    def from_matrix(matrix):
-        # type: (Matrix) -> Segment
-        return Segment(
-            Point2D(matrix.rows[0][0], matrix.rows[1][0]),
-            Point2D(matrix.rows[0][1], matrix.rows[1][1]),
-        )
-
 
 @cached_class
 class Triangle(PointsMatrix):
     """A triangle."""
 
-    def __init__(self, point1, point2, point3):
-        # type: (Point2D, Point2D, Point2D) -> None
-        points_list = [point1, point2, point3]
-        if Segment.orientation(point1, point2, point3) != -1:
-            raise ValueError(f'triangle is not counterclockwise: {points_list}')
-        super().__init__(Matrix((
-            (point1.x, point2.x, point3.x),
-            (point1.y, point2.y, point3.y),
-            (0, 0, 0),
-            (1, 1, 1),
-        )))
+    def __init__(self, point1=None, point2=None, point3=None, matrix=None):
+        # type: (Point2D, Point2D, Point2D, Matrix) -> None
+        if matrix is None:
+            points_list = [point1, point2, point3]
+            if Segment.orientation(point1, point2, point3) != -1:
+                raise ValueError(f'triangle is not counterclockwise: {points_list}')
+            matrix = Matrix((
+                (point1.x, point2.x, point3.x),
+                (point1.y, point2.y, point3.y),
+                (0, 0, 0),
+                (1, 1, 1),
+            ))
+        super().__init__(matrix)
 
     @cached_property
     def point1(self):
@@ -546,15 +528,6 @@ class Triangle(PointsMatrix):
     def init_args(self):
         # type: () -> tuple[Any, ...]
         return self.point1, self.point2, self.point3
-
-    @staticmethod
-    def from_matrix(matrix):
-        # type: (Matrix) -> Triangle
-        return Triangle(
-            Point2D(matrix.rows[0][0], matrix.rows[1][0]),
-            Point2D(matrix.rows[0][1], matrix.rows[1][1]),
-            Point2D(matrix.rows[0][2], matrix.rows[1][2]),
-        )
 
     @staticmethod
     def from_segments(segment1, segment2, segment3):

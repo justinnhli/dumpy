@@ -14,15 +14,17 @@ from .simplex import PointsMatrix, Point2D, Vector2D, Segment
 class Polygon(PointsMatrix):
     """A (potentially non-convex) polygon."""
 
-    def __init__(self, points):
-        # type: (tuple[Point2D, ...]) -> None
-        # rotate points so the minimum point is first
-        min_index = min(enumerate(points), key=(lambda pair: pair[1]))[0] # pylint: disable = superfluous-parens
-        points = points[min_index:] + points[:min_index]
-        super().__init__(Matrix(tuple(
-            (point.x, point.y, 0, 1)
-            for point in points
-        )).transpose)
+    def __init__(self, points=None, matrix=None):
+        # type: (Iterable[Point2D], Matrix) -> None
+        if matrix is None:
+            # rotate points so the minimum point is first
+            min_index = min(enumerate(points), key=(lambda pair: pair[1]))[0] # pylint: disable = superfluous-parens
+            points = points[min_index:] + points[:min_index]
+            matrix = Matrix(tuple(
+                (point.x, point.y, 0, 1)
+                for point in points
+            )).transpose
+        super().__init__(matrix)
 
     @cached_property
     def init_args(self):
