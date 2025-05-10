@@ -5,6 +5,8 @@ from dumpy.simplex import Point2D, Segment
 
 
 def test_polygon():
+    # type: () -> None
+    """Test Polygon."""
     rectangle = Polygon.rectangle(2, 2)
     assert rectangle.area == 4
     assert rectangle.centroid == Point2D()

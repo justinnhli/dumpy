@@ -1,7 +1,11 @@
+"""Tests for matrix.py."""
+
 from dumpy.matrix import Matrix, identity
 
 
 def test_matrix():
+    # type: () -> None
+    """Test Matrix."""
     # equality
     m1 = Matrix(((1, 2, 3, 4), (5, 6, 7, 8), (9, 8, 7, 6), (5, 4, 3, 2)))
     m2 = Matrix(((1, 2, 3, 4), (5, 6, 7, 8), (9, 8, 7, 6), (5, 4, 3, 2)))
@@ -46,7 +50,7 @@ def test_matrix():
     assert m1 @ m2 == m3
     m1 = Matrix(((1, 2, 3, 4), (2, 4, 4, 2), (8, 6, 4, 1), (0, 0, 0, 1)))
     try:
-        m1 @ Matrix(((1, 2, 3, 1),)) 
+        print(m1 @ Matrix(((1, 2, 3, 1),)))
         assert False
     except AssertionError:
         pass

@@ -7,6 +7,8 @@ from dumpy.transform import Transform
 
 
 def test_transform():
+    # type: () -> None
+    """Test Transform."""
     t1 = Transform(3, 2, 0.5, 0.25)
     t2 = Transform(1, 1, 0.5, 2)
     assert t1.x == 3

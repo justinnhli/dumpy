@@ -44,6 +44,8 @@ class GameObject:
 
     @cached_property('transform', 'points_matrix')
     def transformed_points_matrix(self):
+        # type: () -> PointsMatrix
+        """The transformed PointsMatrix."""
         return self.transform @ self.points_matrix
 
     def move_to(self, x, y):

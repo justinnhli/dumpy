@@ -1,10 +1,12 @@
 """Tests for simplex.py."""
 
-from dumpy.simplex import Tuple2D, Point2D, Vector2D, Segment, Triangle
+from dumpy.simplex import Point2D, Vector2D, Segment, Triangle
 from dumpy.transform import Transform
 
 
 def test_point():
+    # type: () -> None
+    """Test Tuple2D and children."""
     point = Point2D(1, 2)
     assert point.init_args == (1, 2)
     assert Point2D.from_matrix(point.matrix) == point
@@ -18,6 +20,8 @@ def test_point():
 
 
 def test_segment():
+    # type: () -> None
+    """Test Segment."""
     segment = Segment(Point2D(1, 2), Point2D(3, 4))
     assert segment.points == (Point2D(1, 2), Point2D(3, 4))
     assert segment.min == Point2D(1, 2)
@@ -115,6 +119,8 @@ def test_segment():
 
 
 def test_triangle():
+    # type: () -> None
+    """Test Triangle."""
     try:
         Triangle(Point2D(1, 2), Point2D(3, 4), Point2D(5, 6))
         assert False
@@ -133,11 +139,11 @@ def test_triangle():
         Segment(Point2D(3, 4), Point2D(-4, -1)),
     )
     assert str(triangle) == 'Triangle(Point2D(-4, -1), Point2D(1, -3), Point2D(3, 4))'
-    assert Triangle.from_matrix(triangle.matrix) == triangle 
+    assert Triangle.from_matrix(triangle.matrix) == triangle
     assert triangle.area == 19.5
     assert triangle.centroid == Point2D()
     assert round(
-        Transform(1, 3, 0.5, 2) 
+        Transform(1, 3, 0.5, 2)
         @ Triangle(
             Point2D(0, 2),
             Point2D(-2, -1),

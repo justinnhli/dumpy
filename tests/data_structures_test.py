@@ -6,6 +6,7 @@ from dumpy.data_structures import UnionFind, SortedDict, SortedSet, PriorityQueu
 
 
 def test_unionfind():
+    # type: () -> None
     """Test UnionFind."""
     assert not UnionFind()
     union_find = UnionFind(range(4))
@@ -21,6 +22,7 @@ def test_unionfind():
 
 
 def test_sorteddict():
+    # type: () -> None
     """Test SortedDict."""
     # pylint: disable = use-implicit-booleaness-not-comparison
     sorted_dict = SortedDict()
@@ -85,6 +87,8 @@ def test_sorteddict():
 
 
 def test_sorteddict_views():
+    # type: () -> None
+    """Test SortedDict views."""
     # adapted from Python documentation on dictionary view objects
     # https://docs.python.org/dev/library/stdtypes.html#dict-views
     dishes = SortedDict()
@@ -112,6 +116,7 @@ def test_sorteddict_views():
 
 
 def test_sortedset():
+    # type: () -> None
     """Test SortedSet."""
     size = 7
     for permutation in permutations(range(size)):
@@ -132,6 +137,8 @@ def test_sortedset():
 
 
 def test_priorityqueue():
+    # type: () -> None
+    """Test PriorityQueue."""
     queue = PriorityQueue()
     try:
         queue.peek()
