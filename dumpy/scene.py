@@ -2,7 +2,6 @@
 
 from collections import defaultdict
 from functools import cached_property
-from itertools import product
 from math import ceil, log2
 from typing import Iterator, Iterable
 

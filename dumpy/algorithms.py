@@ -420,7 +420,7 @@ class Chain:
 
 
 def monotone_triangulation(points):
-    # type: (Sequence[Point2D]) -> Sequence[Triangle]
+    # type: (Sequence[Point2D]) -> list[Triangle]
     """Triangulate a simple polygon.
 
     This is an overly-complicated implementation of monotone polygon

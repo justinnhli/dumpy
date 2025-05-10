@@ -2,12 +2,12 @@
 
 from functools import cached_property
 from math import sin, cos, pi as PI
-from typing import Any
+from typing import Any, Sequence
 
 from .algorithms import monotone_triangulation
 from .matrix import Matrix
 from .metaprogramming import cached_class
-from .simplex import PointsMatrix, Point2D, Vector2D, Segment
+from .simplex import PointsMatrix, Point2D, Vector2D, Segment, Triangle
 
 
 @cached_class
@@ -15,11 +15,11 @@ class Polygon(PointsMatrix):
     """A (potentially non-convex) polygon."""
 
     def __init__(self, points=None, matrix=None):
-        # type: (Iterable[Point2D], Matrix) -> None
+        # type: (Sequence[Point2D], Matrix) -> None
         if matrix is None:
             # rotate points so the minimum point is first
             min_index = min(enumerate(points), key=(lambda pair: pair[1]))[0] # pylint: disable = superfluous-parens
-            points = points[min_index:] + points[:min_index]
+            points = list(points[min_index:]) + list(points[:min_index])
             matrix = Matrix(tuple(
                 (point.x, point.y, 0, 1)
                 for point in points
@@ -43,7 +43,7 @@ class Polygon(PointsMatrix):
 
     @cached_property
     def triangles(self):
-        # type: () -> tuple[Triangle, ...]
+        # type: () -> list[Triangle]
         """Return the triangles of the polygon."""
         return monotone_triangulation(self.points)
 
