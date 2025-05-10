@@ -5,6 +5,7 @@ from math import pi as PI
 from .color import Color
 from .simplex import PointsMatrix, Point2D, Vector2D
 from .transform import Transform
+from .metaprogramming import cached_property
 
 
 class GameObject:
@@ -40,6 +41,10 @@ class GameObject:
         # type: () -> Transform
         """The transform defined by the position of this object."""
         return Transform(self.position.x, self.position.y, self.theta)
+
+    @cached_property('transform', 'points_matrix')
+    def transformed_points_matrix(self):
+        return self.transform @ self.points_matrix
 
     def move_to(self, x, y):
         # type: (float, float) -> None
@@ -86,8 +91,8 @@ class GameObject:
         potential shortcut.
         """
         # try the vector between centroids first
-        points_matrix1 = self.transform @ self.points_matrix
-        points_matrix2 = other.transform @ other.points_matrix
+        points_matrix1 = self.transformed_points_matrix
+        points_matrix2 = other.transformed_points_matrix
         vector = points_matrix1.centroid - points_matrix2.centroid
         if GameObject.separated_on_axis(points_matrix1, points_matrix2, vector):
             return False
