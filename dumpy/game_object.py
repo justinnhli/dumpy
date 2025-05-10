@@ -97,12 +97,13 @@ class GameObject:
         if GameObject.separated_on_axis(points_matrix1, points_matrix2, vector):
             return False
         # revert to the standard approach of trying all segment normals
-        checked = set()
+        checked = set() # type: set[Vector2D]
         for points_matrix in (points_matrix1, points_matrix2):
             for segment in points_matrix.segments:
                 normal = segment.normal
                 if normal in checked:
                     continue
+                checked.add(normal)
                 if GameObject.separated_on_axis(points_matrix1, points_matrix2, normal):
                     return False
         return True
