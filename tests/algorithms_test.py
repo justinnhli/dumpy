@@ -308,13 +308,13 @@ def test_monotone_triangulation():
         _test_triangulation(polygon)
         print(f'POLYGON {index}y')
         _test_triangulation(list(reversed([
-            point.y_reflection for point in polygon
+            Point2D.from_matrix(point.matrix.y_reflection) for point in polygon
         ])))
         print(f'POLYGON {index}x')
         _test_triangulation(list(reversed([
-            point.x_reflection for point in polygon
+            Point2D.from_matrix(point.matrix.x_reflection) for point in polygon
         ])))
         print(f'POLYGON {index}xy')
         _test_triangulation([
-            point.x_reflection.y_reflection for point in polygon
+            Point2D.from_matrix(point.matrix.x_reflection.y_reflection) for point in polygon
         ])

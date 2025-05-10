@@ -45,33 +45,6 @@ class PointsMatrix(RootClass):
         """Return the points of the PointsMatrix."""
         return tuple(Point2D(row[0], row[1]) for row in self.matrix.rows)
 
-    @cached_property
-    def x_reflection(self):
-        # type: () -> Self
-        """Reflect across the x-axis."""
-        return type(self).from_matrix(Matrix(tuple(
-            (-row[0], row[1], row[2], row[3])
-            for row in self.matrix.rows
-        )))
-
-    @cached_property
-    def y_reflection(self):
-        # type: () -> Self
-        """Reflect across the y-axis."""
-        return type(self).from_matrix(Matrix(tuple(
-            (row[0], -row[1], row[2], row[3])
-            for row in self.matrix.rows
-        )))
-
-    @cached_property
-    def z_reflection(self):
-        # type: () -> Self
-        """Reflect across the z-axis."""
-        return type(self).from_matrix(Matrix(tuple(
-            (row[0], row[1], -row[2], row[3])
-            for row in self.matrix.rows
-        )))
-
     @classmethod
     def from_matrix(cls, matrix):
         # type: (Matrix) -> Self
