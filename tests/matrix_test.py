@@ -28,17 +28,17 @@ def test_matrix():
     assert Matrix(((1, 2, 3, 4),)).transpose.y_reflection == Matrix(((1, -2, 3, 4),)).transpose
     assert Matrix(((1, 2, 3, 4),)).transpose.z_reflection == Matrix(((1, 2, -3, 4),)).transpose
     # magnitude and normalization
-    assert Matrix(((1, 0, 0, 0),)).magnitude == 1
-    assert Matrix(((0, 1, 0, 0),)).magnitude == 1
-    assert Matrix(((0, 0, 1, 0),)).magnitude == 1
-    assert Matrix(((2, 3, 6, 0),)).magnitude == 7
-    assert Matrix(((-2, -3, -6, 0),)).magnitude == 7
-    assert Matrix(((4, 0, 0, 0),)).normalized == Matrix(((1, 0, 0, 0),))
-    assert Matrix(((1, 2, 3, 0),)).normalized.magnitude == 1
+    assert Matrix(((1, 0, 0, 0),)).transpose.magnitude == 1
+    assert Matrix(((0, 1, 0, 0),)).transpose.magnitude == 1
+    assert Matrix(((0, 0, 1, 0),)).transpose.magnitude == 1
+    assert Matrix(((2, 3, 6, 0),)).transpose.magnitude == 7
+    assert Matrix(((-2, -3, -6, 0),)).transpose.magnitude == 7
+    assert Matrix(((4, 0, 0, 0),)).transpose.normalized == Matrix(((1, 0, 0, 0),)).transpose
+    assert Matrix(((1, 2, 3, 0),)).transpose.normalized.magnitude == 1
     # dot and cross product
-    assert Matrix(((1, 2, 3, 0),)).dot(Matrix(((2, 3, 4, 0),))) == 20
-    assert Matrix(((1, 2, 3, 0),)).cross(Matrix(((2, 3, 4, 0),))) == Matrix(((-1, 2, -1, 0),))
-    assert Matrix(((2, 3, 4, 0),)).cross(Matrix(((1, 2, 3, 0),))) == Matrix(((1, -2, 1, 0),))
+    assert Matrix(((1, 2, 3, 0),)).transpose.dot(Matrix(((2, 3, 4, 0),)).transpose) == 20
+    assert Matrix(((1, 2, 3, 0),)).transpose.cross(Matrix(((2, 3, 4, 0),)).transpose) == Matrix(((-1, 2, -1, 0),)).transpose
+    assert Matrix(((2, 3, 4, 0),)).transpose.cross(Matrix(((1, 2, 3, 0),)).transpose) == Matrix(((1, -2, 1, 0),)).transpose
     # matrix multiplication
     m1 = Matrix(((1, 2, 3, 4), (5, 6, 7, 8), (9, 8, 7, 6), (5, 4, 3, 2)))
     m2 = Matrix(((-2, 1, 2, 3), (3, 2, 1, -1), (4, 3, 6, 5), (1, 2, 7, 8)))

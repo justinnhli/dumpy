@@ -33,7 +33,7 @@ class PointsMatrix(RootClass):
     def __rmatmul__(self, other):
         # type: (Transform) -> Self
         assert isinstance(other, Transform)
-        return type(self).from_matrix((other.matrix @ self.matrix.transpose).transpose)
+        return type(self).from_matrix(other.matrix @ self.matrix)
 
     def calculate_hash(self):
         # type: () -> int
@@ -43,7 +43,7 @@ class PointsMatrix(RootClass):
     def points(self):
         # type: () -> tuple[Point2D, ...]
         """Return the points of the PointsMatrix."""
-        return tuple(Point2D(row[0], row[1]) for row in self.matrix.rows)
+        return tuple(Point2D(col[0], col[1]) for col in self.matrix.cols)
 
     @classmethod
     def from_matrix(cls, matrix):
@@ -57,7 +57,7 @@ class Tuple2D(PointsMatrix):
 
     def __init__(self, x, y, w):
         # type: (float, float, int) -> None
-        super().__init__(Matrix(((x, y, 0, w),)))
+        super().__init__(Matrix(((x,), (y,), (0,), (w,))))
 
     @cached_property
     def x(self):
@@ -148,7 +148,7 @@ class Point2D(Tuple2D):
         # type: (Matrix) -> Point2D
         return Point2D(
             matrix.rows[0][0],
-            matrix.rows[0][1],
+            matrix.rows[1][0],
         )
 
 
@@ -191,7 +191,7 @@ class Vector2D(Tuple2D):
         # type: (Matrix) -> Vector2D
         return Vector2D(
             matrix.rows[0][0],
-            matrix.rows[0][1],
+            matrix.rows[1][0],
         )
 
 
@@ -203,15 +203,17 @@ class Segment(PointsMatrix):
         # type: (Point2D, Point2D) -> None
         assert point1 != point2
         super().__init__(Matrix((
-            (point1.x, point1.y, 0, 1),
-            (point2.x, point2.y, 0, 1),
+            (point1.x, point2.x),
+            (point1.y, point2.y),
+            (0, 0),
+            (1, 1),
         )))
 
     @cached_property
     def point1(self):
         # type: () -> Point2D
         """The source point."""
-        return Point2D(self.matrix.rows[0][0], self.matrix.rows[0][1])
+        return Point2D(self.matrix.rows[0][0], self.matrix.rows[1][0])
 
     @cached_property
     def point2(self):
@@ -472,8 +474,8 @@ class Segment(PointsMatrix):
     def from_matrix(matrix):
         # type: (Matrix) -> Segment
         return Segment(
-            Point2D(matrix.rows[0][0], matrix.rows[0][1]),
-            Point2D(matrix.rows[1][0], matrix.rows[1][1]),
+            Point2D(matrix.rows[0][0], matrix.rows[1][0]),
+            Point2D(matrix.rows[0][1], matrix.rows[1][1]),
         )
 
 
@@ -487,28 +489,29 @@ class Triangle(PointsMatrix):
         if Segment.orientation(point1, point2, point3) != -1:
             raise ValueError(f'triangle is not counterclockwise: {points_list}')
         super().__init__(Matrix((
-            (point1.x, point1.y, 0, 1),
-            (point2.x, point2.y, 0, 1),
-            (point3.x, point3.y, 0, 1),
+            (point1.x, point2.x, point3.x),
+            (point1.y, point2.y, point3.y),
+            (0, 0, 0),
+            (1, 1, 1),
         )))
 
     @cached_property
     def point1(self):
         # type: () -> Point2D
         """Return the "first" point of the triangle."""
-        return Point2D(self.matrix.rows[0][0], self.matrix.rows[0][1])
+        return Point2D(self.matrix.rows[0][0], self.matrix.rows[1][0])
 
     @cached_property
     def point2(self):
         # type: () -> Point2D
         """Return the "second" point of the triangle."""
-        return Point2D(self.matrix.rows[1][0], self.matrix.rows[1][1])
+        return Point2D(self.matrix.rows[0][1], self.matrix.rows[1][1])
 
     @cached_property
     def point3(self):
         # type: () -> Point2D
         """Return the "third" point of the triangle."""
-        return Point2D(self.matrix.rows[2][0], self.matrix.rows[2][1])
+        return Point2D(self.matrix.rows[0][2], self.matrix.rows[1][2])
 
     @cached_property
     def segments(self):
@@ -548,9 +551,9 @@ class Triangle(PointsMatrix):
     def from_matrix(matrix):
         # type: (Matrix) -> Triangle
         return Triangle(
-            Point2D(matrix.rows[0][0], matrix.rows[0][1]),
-            Point2D(matrix.rows[1][0], matrix.rows[1][1]),
-            Point2D(matrix.rows[2][0], matrix.rows[2][1]),
+            Point2D(matrix.rows[0][0], matrix.rows[1][0]),
+            Point2D(matrix.rows[0][1], matrix.rows[1][1]),
+            Point2D(matrix.rows[0][2], matrix.rows[1][2]),
         )
 
     @staticmethod

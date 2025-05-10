@@ -49,16 +49,14 @@ class Camera(GameObject):
         instead. The creation of the matrix is put in a separate function to
         take advantage of caching.
         """
-        return (
-            projection_matrix(
-                self.canvas.width,
-                self.canvas.height,
-                self.position.x,
-                self.position.y,
-                self.theta,
-                self.zoom,
-            ) @ matrix.transpose
-        ).transpose
+        return projection_matrix(
+            self.canvas.width,
+            self.canvas.height,
+            self.position.x,
+            self.position.y,
+            self.theta,
+            self.zoom,
+        ) @ matrix
 
     def draw_points_matrix(self, points_matrix, transform=None, fill_color=None, line_color=None):
         # type: (PointsMatrix, Transform, Color, Color) -> None
@@ -66,22 +64,25 @@ class Camera(GameObject):
         if transform is None:
             matrix = points_matrix.matrix
         else:
-            matrix = (transform.matrix @ points_matrix.matrix.transpose).transpose
+            matrix = transform.matrix @ points_matrix.matrix
         matrix = self._project(matrix)
-        if matrix.height == 1:
+        if matrix.width == 1:
             self.canvas.draw_pixel(
-                (matrix[0][0], matrix[0][1]),
+                (matrix[0][0], matrix[1][0]),
                 fill_color=fill_color,
             )
-        elif matrix.height == 2:
+        elif matrix.width == 2:
             self.canvas.draw_line(
-                (matrix[0][0], matrix[0][1]),
-                (matrix[1][0], matrix[1][1]),
+                (matrix[0][0], matrix[1][0]),
+                (matrix[0][1], matrix[1][1]),
                 line_color=line_color,
             )
         else:
             self.canvas.draw_poly(
-                tuple((row[0], row[1]) for row in matrix.rows),
+                tuple(
+                    (matrix[0][i], matrix[1][i])
+                    for i in range(matrix.width)
+                ),
                 fill_color=fill_color,
                 line_color=line_color,
             )

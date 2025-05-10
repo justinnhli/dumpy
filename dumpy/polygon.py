@@ -22,7 +22,7 @@ class Polygon(PointsMatrix):
         super().__init__(Matrix(tuple(
             (point.x, point.y, 0, 1)
             for point in points
-        )))
+        )).transpose)
 
     @cached_property
     def init_args(self):
@@ -105,6 +105,6 @@ class Polygon(PointsMatrix):
     def from_matrix(matrix):
         # type: (Matrix) -> Polygon
         return Polygon(tuple(
-            Point2D(row[0], row[1])
-            for row in matrix.rows
+            Point2D(col[0], col[1])
+            for col in matrix.cols
         ))

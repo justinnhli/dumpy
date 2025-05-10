@@ -45,19 +45,19 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
     def y(self):
         # type: () -> float
         """Return the y value of a 4-tuple."""
-        return self.rows[0][1]
+        return self.rows[1][0]
 
     @cached_property
     def z(self):
         # type: () -> float
         """Return the z value of a 4-tuple."""
-        return self.rows[0][2]
+        return self.rows[2][0]
 
     @cached_property
     def w(self): # pylint: disable = invalid-name
         # type: () -> float
         """Return the w value of a 4-tuple."""
-        return self.rows[0][3]
+        return self.rows[3][0]
 
     @cached_property
     def magnitude(self):
@@ -70,12 +70,12 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
         # type: () -> Matrix
         """Normalize a graphics point/vector."""
         magnitude = self.magnitude
-        return Matrix(((
-            self.x / magnitude,
-            self.y / magnitude,
-            self.z / magnitude,
-            self.w,
-        ),))
+        return Matrix((
+            (self.x / magnitude,),
+            (self.y / magnitude,),
+            (self.z / magnitude,),
+            (self.w,),
+        ))
 
     @cached_property
     def transpose(self):
@@ -231,18 +231,16 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
     def dot(self, other):
         # type: (Matrix) -> float
         """Take the dot product with another 4-tuple."""
-        return (self @ other.transpose).rows[0][0]
+        return (other.transpose @ self).rows[0][0]
 
     def cross(self, other):
         # type: (Matrix) -> Matrix
         """Take the cross product with another matrix."""
         return Matrix((
-            (
-                self.y * other.z - self.z * other.y,
-                self.z * other.x - self.x * other.z,
-                self.x * other.y - self.y * other.x,
-                0,
-            ),
+            (self.y * other.z - self.z * other.y,),
+            (self.z * other.x - self.x * other.z,),
+            (self.x * other.y - self.y * other.x,),
+            (0,),
         ))
 
     def submatrix(self, dr, dc): # pylint: disable = invalid-name
