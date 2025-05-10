@@ -228,12 +228,6 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
         # type: () -> int
         return hash(self.rows)
 
-    def reflect(self, other):
-        # type: (Matrix) -> Matrix
-        """Reflect across another 4-tuple."""
-        normal = other.normalized
-        return self - normal * 2 * self.dot(normal)
-
     def dot(self, other):
         # type: (Matrix) -> float
         """Take the dot product with another 4-tuple."""
