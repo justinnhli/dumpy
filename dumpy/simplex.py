@@ -39,11 +39,11 @@ class PointsMatrix(RootClass):
         # type: () -> int
         return hash(self.matrix)
 
-    @property
+    @cached_property
     def points(self):
         # type: () -> tuple[Point2D, ...]
         """Return the points of the PointsMatrix."""
-        raise NotImplementedError()
+        return tuple(Point2D(row[0], row[1]) for row in self.matrix.rows)
 
     @cached_property
     def x_reflection(self):
@@ -104,11 +104,6 @@ class Tuple2D(PointsMatrix):
         """Return the w component of the tuple."""
         return self.matrix.w
 
-    @property
-    def points(self):
-        # type: () -> tuple[Point2D, ...]
-        raise NotImplementedError()
-
     def __sub__(self, other):
         # type: (Point2D | Vector2D) -> Vector2D
         assert isinstance(other, type(self))
@@ -159,11 +154,6 @@ class Point2D(Tuple2D):
         # type: () -> tuple[Any, ...]
         return self.x, self.y
 
-    @cached_property
-    def points(self):
-        # type: () -> tuple[Point2D, ...]
-        return (self,)
-
     def __add__(self, other):
         # type: (Vector2D) -> Point2D
         return Point2D(self.x + other.x, self.y + other.y)
@@ -206,11 +196,6 @@ class Vector2D(Tuple2D):
     def init_args(self):
         # type: () -> tuple[Any, ...]
         return self.x, self.y
-
-    @cached_property
-    def points(self):
-        # type: () -> tuple[Point2D, ...]
-        return (Point2D(self.x, self.y),)
 
     @cached_property
     def magnitude(self):
@@ -259,13 +244,7 @@ class Segment(PointsMatrix):
     def point2(self):
         # type: () -> Point2D
         """The destination point."""
-        return Point2D(self.matrix.rows[1][0], self.matrix.rows[1][1])
-
-    @cached_property
-    def points(self):
-        # type: () -> tuple[Point2D, Point2D]
-        """Return the points of the segment."""
-        return (self.point1, self.point2)
+        return Point2D(self.matrix.rows[0][1], self.matrix.rows[1][1])
 
     @cached_property
     def min(self):
@@ -557,12 +536,6 @@ class Triangle(PointsMatrix):
         # type: () -> Point2D
         """Return the "third" point of the triangle."""
         return Point2D(self.matrix.rows[2][0], self.matrix.rows[2][1])
-
-    @cached_property
-    def points(self):
-        # type: () -> tuple[Point2D, Point2D, Point2D]
-        """Return the points of the triangle."""
-        return (self.point1, self.point2, self.point3)
 
     @cached_property
     def segments(self):

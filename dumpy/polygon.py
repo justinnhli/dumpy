@@ -30,15 +30,6 @@ class Polygon(PointsMatrix):
         return (self.points,)
 
     @cached_property
-    def points(self):
-        # type: () -> tuple[Point2D, ...]
-        """Return the points of the polygon."""
-        return tuple(
-            Point2D(row[0], row[1])
-            for row in self.matrix.rows
-        )
-
-    @cached_property
     def segments(self):
         # type: () -> tuple[Segment, ...]
         """Return the segments of the polygon."""
