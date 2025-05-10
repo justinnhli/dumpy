@@ -55,6 +55,8 @@ class cached_property: # pylint: disable = invalid-name
 
     def __get__(self, obj, objtype=None):
         # type: (Any, Any) -> Any
+        if obj is None:
+            return self
         if not hasattr(obj, '_cached_properties'):
             obj._cached_properties = {}
         upstream_vals = self.collect_upstream_vals(obj)
@@ -84,3 +86,10 @@ class cached_property: # pylint: disable = invalid-name
         # type: (Any) -> tuple[Any, ...]
         """Create a dictionary of upstream values."""
         return tuple(getattr(obj, attr) for attr in self.upstream_attrs)
+
+    def is_cached(self, obj):
+        # type: (Any) -> bool
+        return (
+            hasattr(obj, '_cached_properties')
+            and self.function_name in obj._cached_properties
+        )
