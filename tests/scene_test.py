@@ -1,5 +1,7 @@
 """Tests for scene.py."""
 
+from collections import Counter
+
 from dumpy.game_object import GameObject
 from dumpy.polygon import Polygon
 from dumpy.scene import HierarchicalHashGrid
@@ -17,7 +19,7 @@ def test_hierarchical_hash_grid():
     data = [
         (60, 110, 20, 5),
         (60, 120, 20, 5),
-        (60, 70, 20, 5),
+        (60, 65, 20, 5),
         (60, 170, 35, 6),
     ]
     for x, y, radius, _ in data:
@@ -38,11 +40,13 @@ def test_hierarchical_hash_grid():
                 grid_objects.append(grid_object)
         assert obj in grid_objects
     collisions = list(hhg.collisions)
-    assert len(collisions) == 2
-    colliding_objects = set()
+    assert len(collisions) == 4
+    colliding_objects = Counter()
     for obj1, obj2, _ in collisions:
-        colliding_objects.add(obj1)
-        colliding_objects.add(obj2)
-    assert len(colliding_objects) == 2
-    assert objects[0] in colliding_objects
-    assert objects[1] in colliding_objects
+        colliding_objects.update([obj1])
+        colliding_objects.update([obj2])
+    assert len(colliding_objects) == 3
+    # divide by two since each pair is added twice
+    assert colliding_objects[objects[0]] // 2 == 1
+    assert colliding_objects[objects[1]] // 2 == 2
+    assert colliding_objects[objects[3]] // 2 == 1
