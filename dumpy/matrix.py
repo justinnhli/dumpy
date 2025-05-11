@@ -4,27 +4,29 @@
 
 from functools import lru_cache as cache, cached_property
 from math import floor, ceil, sqrt, sin, cos
-from typing import Any
+from typing import Any, NamedTuple
 
 from .metaprogramming import cached_class
-from .root_class import RootClass
 
 
 EPSILON = 0.00001
 
 
+class _Matrix(NamedTuple):
+    rows: tuple[tuple[float, ...], ...]
+
+
 @cached_class
-class Matrix(RootClass): # pylint: disable = too-many-public-methods
+class Matrix(_Matrix): # pylint: disable = too-many-public-methods
     """A matrix."""
 
-    def __init__(self, values):
-        # type: (tuple[tuple[float, ...], ...]) -> None
-        """Initialize a matrix."""
-        super().__init__()
-        self.rows = values
-        self.height = len(values)
-        self.width = len(values[0])
-        self._hash = None
+    @cached_property
+    def height(self):
+        return len(self.rows)
+
+    @cached_property
+    def width(self):
+        return len(self.rows[0])
 
     @cached_property
     def cols(self):
@@ -224,10 +226,6 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
             result.append(tuple(result_row))
         return Matrix(tuple(result))
 
-    def calculate_hash(self):
-        # type: () -> int
-        return hash(self.rows)
-
     def dot(self, other):
         # type: (Matrix) -> float
         """Take the dot product with another 4-tuple."""
@@ -325,11 +323,6 @@ class Matrix(RootClass): # pylint: disable = too-many-public-methods
             (z_x, z_y, 1, 0),
             (0, 0, 0, 1),
         )) @ self
-
-    @cached_property
-    def init_args(self):
-        # type: () -> tuple[Any, ...]
-        return (self.rows,)
 
 
 @cache

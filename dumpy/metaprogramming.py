@@ -1,7 +1,6 @@
 """Utility code for metaprogramming."""
 
 from collections import namedtuple
-from dataclasses import is_dataclass
 from functools import lru_cache, wraps
 from typing import Any, Callable, Self
 
@@ -18,10 +17,7 @@ def cached_class(cls, max_size=1024):
 
     @lru_cache(max_size)
     def __cache__(cls, args, kwargs): # pylint: disable = unused-argument
-        if is_dataclass(cls):
-            return object.__new__(cls)
-        else:
-            return cls.__orig_new__(cls)
+        return cls.__orig_new__(cls, *args, **dict(kwargs))
 
     cls.__cache__ = __cache__
     cls.__orig_new__ = cls.__new__

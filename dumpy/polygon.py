@@ -2,7 +2,7 @@
 
 from functools import cached_property
 from math import sin, cos, pi as PI
-from typing import Any, Sequence
+from typing import Any, Sequence, NamedTuple, Self
 
 from .algorithms import monotone_triangulation
 from .matrix import Matrix
@@ -14,8 +14,8 @@ from .simplex import PointsMatrix, Point2D, Vector2D, Segment, Triangle
 class Polygon(PointsMatrix):
     """A (potentially non-convex) polygon."""
 
-    def __init__(self, points=None, matrix=None):
-        # type: (Sequence[Point2D], Matrix) -> None
+    def __new__(cls, points=None, matrix=None):
+        # type: (Sequence[Point2D], Matrix) -> Self
         if matrix is None:
             # rotate points so the minimum point is first
             min_index = min(enumerate(points), key=(lambda pair: pair[1]))[0] # pylint: disable = superfluous-parens
@@ -24,12 +24,7 @@ class Polygon(PointsMatrix):
                 (point.x, point.y, 0, 1)
                 for point in points
             )).transpose
-        super().__init__(matrix)
-
-    @cached_property
-    def init_args(self):
-        # type: () -> tuple[Any, ...]
-        return (self.points,)
+        return super(Polygon, cls).__new__(cls, matrix)
 
     @cached_property
     def segments(self):

@@ -2,14 +2,22 @@
 
 from collections.abc import Iterator
 from functools import cached_property
+from typing import NamedTuple, Self
 
 from ._okhsv import RGB as _RGB, HSV as _HSV
 from ._okhsv import okhsv_to_rgb as _okhsv_to_rgb, rgb_to_okhsv as _rgb_to_okhsv
 from .metaprogramming import cached_class
-from .root_class import RootClass
+
+
+class _Color(NamedTuple):
+    h: float
+    s: float
+    v: float
+    a: float
+
 
 @cached_class
-class Color(RootClass):
+class Color(_Color):
     """A color, canonically represented as in OkHSVA."""
 
     # pylint: disable = invalid-name
@@ -19,31 +27,18 @@ class Color(RootClass):
     MAX_V = 100
     MAX_A = 256
 
-    def __init__(self, h, s, v, a=1):
-        # type: (float, float, float, float) -> None
+    def __new__(cls, h=0, s=0, v=0, a=1):
+        # type: (float, float, float, float) -> Self
         """Initialize the Color."""
-        super().__init__()
         assert 0 <= h <= 1
         assert 0 <= s <= 1
         assert 0 <= v <= 1
         assert 0 <= a <= 1
-        self.h = h
-        self.s = s
-        self.v = v
-        self.a = a
+        return super(Color, cls).__new__(cls, h, s, v, a)
 
     def __iter__(self):
         # type: () -> Iterator[float]
         yield from self.to_hsva_tuple()
-
-    @cached_property
-    def init_args(self):
-        # type: () -> tuple[float, float, float, float]
-        return self.to_hsva_tuple(integer=False)
-
-    def calculate_hash(self):
-        # type: () -> int
-        return hash((self.h, self.s, self.v, self.a))
 
     def to_hsva_tuple(self, integer=True):
         # type: (bool) -> tuple[float, float, float, float]

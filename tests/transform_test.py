@@ -14,7 +14,6 @@ def test_transform():
     assert t1.x == 3
     assert t1.y == 2
     assert t1.theta == 0.5
-    assert t1.init_args == (3, 2, 0.5, 0.25)
     assert t1.radians == 0.5 * PI
     assert t1.scale == 0.25
     assert t1.inverse == Transform(-8, 12, -0.5, 4)

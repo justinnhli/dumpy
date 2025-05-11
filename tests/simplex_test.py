@@ -8,12 +8,10 @@ def test_point():
     # type: () -> None
     """Test Tuple2D and children."""
     point = Point2D(1, 2)
-    assert point.init_args == (1, 2)
     assert Point2D.from_matrix(point.matrix) == point
     assert point + Point2D(-1, -2) == Point2D()
     assert point + Vector2D(-1, -2) == Point2D()
     vector = Vector2D(1, 2)
-    assert vector.init_args == (1, 2)
     assert Vector2D.from_matrix(vector.matrix) == vector
     assert vector + Point2D(-1, -2) == Point2D()
     assert vector + Vector2D(-1, -2) == Vector2D()

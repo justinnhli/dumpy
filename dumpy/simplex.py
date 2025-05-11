@@ -2,21 +2,19 @@
 
 from functools import cached_property
 from math import sqrt, atan2
-from typing import TypeVar, Self, Any, Optional
+from typing import TypeVar, Self, Any, Optional, NamedTuple
 
 from .matrix import Matrix
 from .metaprogramming import cached_class
-from .root_class import RootClass
 from .transform import Transform
 
 
-class PointsMatrix(RootClass):
-    """Abstract class for a sequence of points."""
+class _PointsMatrix(NamedTuple):
+    matrix: Matrix
 
-    def __init__(self, matrix):
-        # type: (Matrix) -> None
-        super().__init__()
-        self.matrix = matrix
+
+class PointsMatrix(_PointsMatrix):
+    """Abstract class for a sequence of points."""
 
     def __round__(self, ndigits=0):
         # type: (int) -> Self
@@ -35,10 +33,6 @@ class PointsMatrix(RootClass):
         assert isinstance(other, Transform)
         return type(self).from_matrix(other.matrix @ self.matrix)
 
-    def calculate_hash(self):
-        # type: () -> int
-        return hash(self.matrix)
-
     @cached_property
     def points(self):
         # type: () -> tuple[Point2D, ...]
@@ -55,11 +49,11 @@ class PointsMatrix(RootClass):
 class Tuple2D(PointsMatrix):
     """Abstract class for 2D points and vectors."""
 
-    def __init__(self, x=0, y=0, w=0, matrix=None):
-        # type: (float, float, int, Matrix) -> None
+    def __new__(cls, x=0, y=0, w=0, matrix=None):
+        # type: (float, float, int, Matrix) -> Self
         if matrix is None:
             matrix = Matrix(((x,), (y,), (0,), (w,)))
-        super().__init__(matrix)
+        return super(Tuple2D, cls).__new__(cls, matrix)
 
     @cached_property
     def x(self):
@@ -120,18 +114,17 @@ class Tuple2D(PointsMatrix):
 class Point2D(Tuple2D):
     """A 2D point."""
 
-    def __init__(self, x=0, y=0, matrix=None):
-        # type: (float, float, Matrix) -> None
-        super().__init__(x, y, 1, matrix)
-
-    @cached_property
-    def init_args(self):
-        # type: () -> tuple[Any, ...]
-        return self.x, self.y
+    def __new__(cls, x=0, y=0, matrix=None):
+        # type: (float, float, Matrix) -> Self
+        return super(Point2D, cls).__new__(cls, x, y, 1, matrix)
 
     def __add__(self, other):
         # type: (Vector2D) -> Point2D
         return Point2D(self.x + other.x, self.y + other.y)
+
+    def __str__(self):
+        # type: () -> str
+        return f'Point2D({self.x}, {self.y})'
 
     def distance(self, other):
         # type: (Point2D) -> float
@@ -152,17 +145,16 @@ class Vector2D(Tuple2D):
 
     RT = TypeVar('RT', Point2D, 'Vector2D')
 
-    def __init__(self, x=0, y=0, matrix=None):
-        # type: (float, float, Matrix) -> None
-        super().__init__(x, y, 0, matrix)
+    def __new__(cls, x=0, y=0, matrix=None):
+        # type: (float, float, Matrix) -> Self
+        return super(Vector2D, cls).__new__(cls, x, y, 0, matrix)
 
     def __neg__(self):
         return Vector2D.from_matrix(-self.matrix)
 
-    @cached_property
-    def init_args(self):
-        # type: () -> tuple[Any, ...]
-        return self.x, self.y
+    def __str__(self):
+        # type: () -> str
+        return f'Vector2D({self.x}, {self.y})'
 
     @cached_property
     def magnitude(self):
@@ -185,8 +177,8 @@ class Vector2D(Tuple2D):
 class Segment(PointsMatrix):
     """A line segment."""
 
-    def __init__(self, point1=None, point2=None, matrix=None):
-        # type: (Point2D, Point2D, Matrix) -> None
+    def __new__(cls, point1=None, point2=None, matrix=None):
+        # type: (Point2D, Point2D, Matrix) -> Self
         if matrix is None:
             assert point1 != point2
             matrix = Matrix((
@@ -195,7 +187,11 @@ class Segment(PointsMatrix):
                 (0, 0),
                 (1, 1),
             ))
-        super().__init__(matrix)
+        return super(Segment, cls).__new__(cls, matrix)
+
+    def __str__(self):
+        # type: () -> str
+        return f'Segment({self.point1}, {self.point2})'
 
     @cached_property
     def point1(self):
@@ -284,12 +280,6 @@ class Segment(PointsMatrix):
             -(self.point2.y - self.point1.y),
             (self.point2.x - self.point1.x),
         ).normalized
-
-    @cached_property
-    def init_args(self):
-        # type: () -> tuple[Any, ...]
-        """Return the components of this object."""
-        return self.point1, self.point2
 
     def is_parallel(self, other):
         # type: (Segment) -> bool
@@ -463,8 +453,8 @@ class Segment(PointsMatrix):
 class Triangle(PointsMatrix):
     """A triangle."""
 
-    def __init__(self, point1=None, point2=None, point3=None, matrix=None):
-        # type: (Point2D, Point2D, Point2D, Matrix) -> None
+    def __new__(cls, point1=None, point2=None, point3=None, matrix=None):
+        # type: (Point2D, Point2D, Point2D, Matrix) -> Self
         if matrix is None:
             points_list = [point1, point2, point3]
             if Segment.orientation(point1, point2, point3) != -1:
@@ -475,7 +465,11 @@ class Triangle(PointsMatrix):
                 (0, 0, 0),
                 (1, 1, 1),
             ))
-        super().__init__(matrix)
+        return super(Triangle, cls).__new__(cls, matrix)
+
+    def __str__(self):
+        # type: () -> str
+        return f'Triangle({self.point1}, {self.point2}, {self.point3})'
 
     @cached_property
     def point1(self):
@@ -523,11 +517,6 @@ class Triangle(PointsMatrix):
         """The centroid of the Triangle."""
         result = sum(self.points, start=Point2D()) / 3
         return Point2D(result.x, result.y)
-
-    @cached_property
-    def init_args(self):
-        # type: () -> tuple[Any, ...]
-        return self.point1, self.point2, self.point3
 
     @staticmethod
     def from_segments(segment1, segment2, segment3):

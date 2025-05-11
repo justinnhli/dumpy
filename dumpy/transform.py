@@ -2,29 +2,27 @@
 
 from functools import cached_property
 from math import sin, cos, pi as PI
-from typing import Any
+from typing import Any, NamedTuple, Self
 
 from .matrix import Matrix, identity
-from .root_class import RootClass
+from .metaprogramming import cached_class
 
 
-class Transform(RootClass):
+class _Transform(NamedTuple):
+    x: float
+    y: float
+    theta: float
+    scale: float
+
+
+@cached_class
+class Transform(_Transform):
     """A transform."""
 
-    def __init__(self, x=0, y=0, theta=0, scale=1):
-        # type: (float, float, float, float) -> None
+    def __new__(cls, x=0, y=0, theta=0, scale=1):
+        # type: (float, float, float, float) -> Self
         """Initialize the Transform."""
-        super().__init__()
-        self.x = x
-        self.y = y
-        self.theta = theta
-        self.scale = scale
-
-    @cached_property
-    def init_args(self):
-        # type: () -> tuple[Any, ...]
-        """Return the components of this object."""
-        return self.x, self.y, self.theta, self.scale
+        return super(Transform, cls).__new__(cls, x, y, theta, scale)
 
     @cached_property
     def radians(self):
@@ -91,7 +89,3 @@ class Transform(RootClass):
             )
         else:
             return NotImplemented
-
-    def calculate_hash(self):
-        # type: () -> int
-        return hash((self.x, self.y, self.theta, self.scale))

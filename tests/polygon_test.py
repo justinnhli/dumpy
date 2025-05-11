@@ -10,7 +10,6 @@ def test_polygon():
     rectangle = Polygon.rectangle(2, 2)
     assert rectangle.area == 4
     assert rectangle.centroid == Point2D()
-    assert Polygon(*rectangle.init_args) == rectangle
     ellipse = round(Polygon.ellipse(20, 10, num_points=4), 3)
     point1 = Point2D(-20, 0)
     point2 = Point2D(-0, -10)

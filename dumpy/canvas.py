@@ -3,7 +3,7 @@
 from collections.abc import Collection, Sequence
 from functools import cached_property
 from tkinter import CENTER, Tk, Canvas as TKCanvas, NW
-from typing import Any, Callable
+from typing import Any, Callable, NamedTuple, Self
 
 from PIL.Image import Image, new as new_image
 from PIL.ImageDraw import Draw
@@ -11,7 +11,6 @@ from PIL.ImageTk import PhotoImage
 
 from .color import Color
 from .metaprogramming import cached_class
-from .root_class import RootClass
 from .simplex import Point2D
 
 _CHAR_KEYSYM_MAP = {
@@ -78,19 +77,24 @@ _EVENT_TYPES = set([
 FloatCoord = tuple[float, float]
 
 
+class _Input(NamedTuple):
+    event_type: str
+    key_button: str
+    modifiers: Collection[str] | str
+
+
 @cached_class
-class Input(RootClass):
+class Input(_Input):
     """A class to represent keyboard and mouse input."""
 
-    def __init__(self, event_type, key_button=None, modifiers=None):
-        # type: (str, str, Collection[str]|str) -> None
+    def __new__(cls, event_type, key_button=None, modifiers=None):
+        # type: (str, str, Collection[str]|str) -> Self
         """Initialize the Input.
 
         Note: MouseWheel does not exist on Linux; instead, use Button4 or Button5.
 
         The event pattern is based on https://www.tcl-lang.org/man/tcl/TkCmd/bind.htm
         """
-        super().__init__()
         if modifiers is None:
             modifiers = frozenset()
         elif isinstance(modifiers, str):
@@ -98,9 +102,7 @@ class Input(RootClass):
         else:
             modifiers = frozenset(modifiers)
         Input._validate(event_type, key_button, modifiers)
-        self.event_type = event_type
-        self.key_button = key_button
-        self.modifiers = modifiers
+        return super(Input, cls).__new__(cls, event_type, key_button, modifiers)
 
     @cached_property
     def event_pattern(self):
@@ -123,15 +125,6 @@ class Input(RootClass):
         else:
             event_pattern = self.event_type
         return f'<{event_pattern}>'
-
-    def calculate_hash(self):
-        # type: () -> int
-        return hash((self.event_type, self.key_button, self.modifiers))
-
-    @cached_property
-    def init_args(self):
-        # type: () -> tuple[Any, ...]
-        return self.event_type, self.key_button, self.modifiers
 
     @staticmethod
     def _validate(event_type, key_button, modifiers):
