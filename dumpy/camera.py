@@ -11,12 +11,12 @@ from .transform import Transform
 
 
 @lru_cache
-def projection_matrix(width, height, x, y, theta, zoom): # pylint: disable = too-many-positional-arguments
+def projection_matrix(width, height, x, y, rotation, zoom): # pylint: disable = too-many-positional-arguments
     # type: (int, int, float, float, float, float) -> Matrix
     """Create the projection matrix."""
     return (
         Transform(width // 2, height // 2).matrix
-        @ Transform(x, y, theta, 1 / zoom).matrix.inverse.y_reflection
+        @ Transform(x, y, rotation, 1 / zoom).matrix.inverse.y_reflection
     )
 
 
@@ -54,7 +54,7 @@ class Camera(GameObject):
             self.canvas.height,
             self.position.x,
             self.position.y,
-            self.theta,
+            self.rotation,
             self.zoom,
         ) @ matrix
 

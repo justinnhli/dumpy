@@ -19,7 +19,7 @@ class GameObject:
         self.line_color = None # type: Color
         self.fill_color = None # type: Color
         self._position = Point2D()
-        self._theta = 0 # type: float
+        self._rotation = 0 # type: float
         self.collision_groups = set() # type: set[str]
 
     def __hash__(self):
@@ -37,22 +37,22 @@ class GameObject:
         return self._position
 
     @property
-    def theta(self):
+    def rotation(self):
         # type: () -> float
         """Return the rotation in 2pi radians."""
-        return self._theta
+        return self._rotation
 
     @property
     def radians(self):
         # type: () -> float
         """Return the rotation in radians."""
-        return self.theta * PI
+        return self.rotation * PI
 
     @property
     def transform(self):
         # type: () -> Transform
         """The transform defined by the position of this object."""
-        return Transform(self.position.x, self.position.y, self.theta)
+        return Transform(self.position.x, self.position.y, self.rotation)
 
     @cached_property('transform', 'points_matrix')
     def transformed_points_matrix(self):
@@ -70,15 +70,15 @@ class GameObject:
         """Move the object by the vector."""
         self._position += vector
 
-    def rotate_to(self, theta):
+    def rotate_to(self, rotation):
         # type: (float) -> None
         """Rotate the object to the angle."""
-        self._theta = theta
+        self._rotation = rotation
 
-    def rotate_by(self, theta):
+    def rotate_by(self, rotation):
         # type: (float) -> None
         """Rotate the object by the angle."""
-        self._theta += theta
+        self._rotation += rotation
 
     def update(self):
         # type: () -> None
