@@ -134,7 +134,7 @@ class Point2D(Tuple2D):
         # type: (Vector2D) -> Point2D
         return Point2D(self.x + other.x, self.y + other.y)
 
-    def __str__(self):
+    def __repr__(self):
         # type: () -> str
         return f'Point2D({self.x}, {self.y})'
 
@@ -164,7 +164,7 @@ class Vector2D(Tuple2D):
     def __neg__(self):
         return Vector2D.from_matrix(-self.matrix)
 
-    def __str__(self):
+    def __repr__(self):
         # type: () -> str
         return f'Vector2D({self.x}, {self.y})'
 
@@ -201,7 +201,7 @@ class Segment(PointsMatrix):
             ))
         return super(Segment, cls).__new__(cls, matrix)
 
-    def __str__(self):
+    def __repr__(self):
         # type: () -> str
         return f'Segment({self.point1}, {self.point2})'
 
@@ -479,7 +479,7 @@ class Triangle(PointsMatrix):
             ))
         return super(Triangle, cls).__new__(cls, matrix)
 
-    def __str__(self):
+    def __repr__(self):
         # type: () -> str
         return f'Triangle({self.point1}, {self.point2}, {self.point3})'
 

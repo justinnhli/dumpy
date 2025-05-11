@@ -26,7 +26,7 @@ class GameObject:
         # type: () -> int
         return id(self)
 
-    def __str__(self):
+    def __repr__(self):
         # type: () -> str
         return f'{type(self).__name__}({self.position})'
 
