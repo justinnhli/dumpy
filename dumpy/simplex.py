@@ -39,6 +39,18 @@ class PointsMatrix(_PointsMatrix):
         """Return the points of the PointsMatrix."""
         return tuple(Point2D(col[0], col[1]) for col in self.matrix.cols)
 
+    @cached_property
+    def segments(self):
+        # type: () -> tuple[Point2D, ...]
+        """Return the points of the PointsMatrix."""
+        if self.matrix.width < 2:
+            return
+        points = self.points + (self.points[0],)
+        return tuple(
+            Segment(point1, point2)
+            for point1, point2 in zip(points[:-1], points[1:])
+        )
+
     @classmethod
     def from_matrix(cls, matrix):
         # type: (Matrix) -> Self
@@ -500,17 +512,6 @@ class Triangle(PointsMatrix):
         # type: () -> Point2D
         """Return the "third" point of the triangle."""
         return Point2D(self.matrix.rows[0][2], self.matrix.rows[1][2])
-
-    @cached_property
-    def segments(self):
-        # type: () -> tuple[Segment, Segment, Segment]
-        """Return the segments of the triangle."""
-        point1, point2, point3 = self.points
-        return (
-            Segment(point1, point2),
-            Segment(point2, point3),
-            Segment(point3, point1),
-        )
 
     @cached_property
     def area(self):

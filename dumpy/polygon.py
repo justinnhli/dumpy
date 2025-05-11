@@ -7,7 +7,7 @@ from typing import Any, Sequence, NamedTuple, Self
 from .algorithms import monotone_triangulation
 from .matrix import Matrix
 from .metaprogramming import cached_class
-from .simplex import PointsMatrix, Point2D, Vector2D, Segment, Triangle
+from .simplex import PointsMatrix, Point2D, Vector2D, Triangle
 
 
 @cached_class
@@ -22,16 +22,6 @@ class Polygon(PointsMatrix):
                 for point in points
             )).transpose
         return super(Polygon, cls).__new__(cls, matrix)
-
-    @cached_property
-    def segments(self):
-        # type: () -> tuple[Segment, ...]
-        """Return the segments of the polygon."""
-        points = self.points + (self.points[0],)
-        return tuple(
-            Segment(point1, point2)
-            for point1, point2 in zip(points[:-1], points[1:])
-        )
 
     @cached_property
     def triangles(self):
