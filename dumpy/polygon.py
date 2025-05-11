@@ -23,11 +23,28 @@ class Polygon(PointsMatrix):
             )).transpose
         return super(Polygon, cls).__new__(cls, matrix)
 
+    def __init__(self, matrix): # pylint: disable = unused-argument
+        # type: (Matrix) -> None
+        self._triangle_index = [] # type: list[tuple[int, int, int]]
+
     @cached_property
     def triangles(self):
         # type: () -> list[Triangle]
         """Return the triangles of the polygon."""
-        return monotone_triangulation(self.points)
+        if self._triangle_index:
+            return [
+                Triangle(self.points[i], self.points[j], self.points[k])
+                for i, j, k in self._triangle_index
+            ]
+        triangles = monotone_triangulation(self.points)
+        points_map = {point: index for index, point in enumerate(self.points)}
+        for triangle in triangles:
+            self._triangle_index.append((
+                points_map[triangle.point1],
+                points_map[triangle.point2],
+                points_map[triangle.point3],
+            ))
+        return triangles
 
     @cached_property
     def area(self):
