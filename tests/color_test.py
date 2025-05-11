@@ -4,6 +4,7 @@ from dumpy.color import Color
 
 
 def test_color():
+    # type: () -> None
     """Test Color."""
     color = Color.from_hex('#73D21680')
     assert color.to_rgb_hex() == '#73D216'

@@ -1,7 +1,6 @@
 """The Color class."""
 
 from collections.abc import Iterator
-from functools import cached_property
 from typing import NamedTuple, Self
 
 from ._okhsv import RGB as _RGB, HSV as _HSV

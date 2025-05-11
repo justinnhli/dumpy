@@ -1,5 +1,6 @@
 """Tests for algorithms.py."""
 
+from collections.abc import Sequence
 from itertools import product
 from typing import Iterator
 
@@ -42,7 +43,7 @@ def _no_duplicates_coord_segments(num_segments):
 
 
 def _naive_all_intersects(segments, include_end=False):
-    # type: (Sequence[Segment], bool) -> list[Matrix]
+    # type: (Sequence[Segment], bool) -> list[Point2D]
     """Calculate all intersects naively (in O(n^2) time)."""
     results = []
     for i, segment1 in enumerate(segments):
@@ -131,9 +132,9 @@ def test_bentley_ottmann():
         include_end=True,
     ) == [Point2D(54, 8)]
 
+
 def _test_triangulation(points):
-    # type: (Sequence[Matrix]) -> None
-    print(points)
+    # type: (Sequence[Point2D]) -> None
     triangles = monotone_triangulation(points)
     # initialize the segments with the _clockwise_ perimeter
     # which will be "canceled out" during the verification
@@ -169,6 +170,7 @@ def _test_triangulation(points):
 
 def test_monotone_triangulation():
     # type: () -> None
+    """Test monotone triangulation."""
     shapes = (
         # start, add, end
         (

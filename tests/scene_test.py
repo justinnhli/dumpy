@@ -41,7 +41,7 @@ def test_hierarchical_hash_grid():
         assert obj in grid_objects
     collisions = list(hhg.collisions)
     assert len(collisions) == 4
-    colliding_objects = Counter()
+    colliding_objects = Counter() # type: Counter[GameObject]
     for obj1, obj2, _ in collisions:
         colliding_objects.update([obj1])
         colliding_objects.update([obj2])

@@ -2,7 +2,7 @@
 
 from functools import cached_property
 from math import sin, cos, pi as PI
-from typing import Any, Sequence, NamedTuple, Self
+from typing import Sequence, Self
 
 from .algorithms import monotone_triangulation
 from .matrix import Matrix

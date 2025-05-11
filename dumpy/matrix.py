@@ -4,7 +4,7 @@
 
 from functools import lru_cache as cache, cached_property
 from math import floor, ceil, sqrt, sin, cos
-from typing import Any, NamedTuple
+from typing import NamedTuple
 
 from .metaprogramming import cached_class
 
@@ -22,10 +22,14 @@ class Matrix(_Matrix): # pylint: disable = too-many-public-methods
 
     @cached_property
     def height(self):
+        # type: () -> int
+        """Return the height of the matrix."""
         return len(self.rows)
 
     @cached_property
     def width(self):
+        # type: () -> int
+        """Return the width of the matrix."""
         return len(self.rows[0])
 
     @cached_property

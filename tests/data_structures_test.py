@@ -25,7 +25,7 @@ def test_sorteddict():
     # type: () -> None
     """Test SortedDict."""
     # pylint: disable = use-implicit-booleaness-not-comparison
-    sorted_dict = SortedDict()
+    sorted_dict = SortedDict() # type: SortedDict[int, int]
     assert not sorted_dict
     assert 0 not in sorted_dict
     assert list(sorted_dict) == list(sorted_dict.keys()) == list(sorted_dict.values()) == list(sorted_dict.items()) == []
@@ -69,15 +69,15 @@ def test_sorteddict():
     src_dict = {num: num * num for num in range(101)}
     assert SortedDict.from_dict(src_dict).to_dict() == src_dict
     # defaultdict check
-    sorted_dict = SortedDict(factory=set)
+    sorted_dict_set = SortedDict(factory=set)
     for i in range(10):
         for j in range(i, i + 5):
-            sorted_dict[i].add(j)
+            sorted_dict_set[i].add(j)
     for i in range(10):
-        assert sorted_dict[i] == set(range(i, i + 5))
-    sorted_dict.clear()
-    assert len(sorted_dict) == 0
-    assert list(sorted_dict) == []
+        assert sorted_dict_set[i] == set(range(i, i + 5))
+    sorted_dict_set.clear()
+    assert len(sorted_dict_set) == 0
+    assert list(sorted_dict_set) == []
     # 2020-06-05
     sorted_dict = SortedDict()
     for i in [5, 2, 9, 1, 4, 7, 11, 0, 3, 6, 8, 10, 12]:
@@ -91,7 +91,7 @@ def test_sorteddict_views():
     """Test SortedDict views."""
     # adapted from Python documentation on dictionary view objects
     # https://docs.python.org/dev/library/stdtypes.html#dict-views
-    dishes = SortedDict()
+    dishes = SortedDict() # type: SortedDict[str, int]
     dishes['bacon'] = 1
     dishes['eggs'] = 2
     dishes['sausage'] = 1
@@ -120,7 +120,7 @@ def test_sortedset():
     """Test SortedSet."""
     size = 7
     for permutation in permutations(range(size)):
-        sorted_set = SortedSet()
+        sorted_set = SortedSet() # type: SortedSet[int]
         for element in permutation:
             sorted_set.add(element)
         assert len(sorted_set) == size
@@ -139,7 +139,7 @@ def test_sortedset():
 def test_priorityqueue():
     # type: () -> None
     """Test PriorityQueue."""
-    queue = PriorityQueue()
+    queue = PriorityQueue() # type: PriorityQueue[int, int]
     try:
         queue.peek()
         assert False

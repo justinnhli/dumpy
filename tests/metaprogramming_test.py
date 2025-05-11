@@ -1,7 +1,7 @@
 """Tests for metaprogramming.py."""
 # pylint: disable = comparison-with-callable, too-few-public-methods
 
-from typing import NamedTuple
+from typing import NamedTuple, Self
 
 from dumpy.metaprogramming import cached_class, cached_property
 
@@ -14,6 +14,7 @@ class CachedClassDummy(_CachedClassDummy):
     """A dummy class to test cached_class."""
 
     def __new__(cls, x):
+        # type: (int) -> Self
         return super(CachedClassDummy, cls).__new__(cls, x)
 
     def __init__(self, x): # pylint: disable = unused-argument

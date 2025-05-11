@@ -61,6 +61,8 @@ class GameObject:
         return self.transform @ self.points_matrix
 
     def _clear_cache(self):
+        # type: () -> None
+        """Clear the cached_property cache."""
         self.__dict__.pop('transform', None)
         self.__dict__.pop('transformed_points_matrix', None)
 

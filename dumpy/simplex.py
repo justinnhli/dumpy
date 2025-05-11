@@ -2,7 +2,7 @@
 
 from functools import cached_property
 from math import sqrt, atan2
-from typing import TypeVar, Self, Any, Optional, NamedTuple
+from typing import TypeVar, Self, Optional, NamedTuple
 
 from .matrix import Matrix
 from .metaprogramming import cached_class
@@ -48,10 +48,10 @@ class PointsMatrix(_PointsMatrix):
 
     @cached_property
     def segments(self):
-        # type: () -> tuple[Point2D, ...]
+        # type: () -> tuple[Segment, ...]
         """Return the points of the PointsMatrix."""
         if self.matrix.width < 2:
-            return
+            return ()
         points = self.points + (self.points[0],)
         return tuple(
             Segment(point1, point2)
@@ -181,6 +181,7 @@ class Vector2D(Tuple2D):
         return super(Vector2D, cls).__new__(cls, x, y, 0, matrix)
 
     def __neg__(self):
+        # type: () -> Vector2D
         return Vector2D.from_matrix(-self.matrix)
 
     def __repr__(self):

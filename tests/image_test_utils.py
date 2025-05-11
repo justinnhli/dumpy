@@ -65,7 +65,7 @@ def check_image(image, filename):
 
 
 def save_image(image, filename):
-    # type: (Canvas, str) -> None
+    # type: (Image, str) -> None
     """Save an image to file."""
     ppm_path = Path(__file__).parent / 'images' / filename
     pixels = image.getdata()
