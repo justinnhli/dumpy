@@ -31,7 +31,12 @@ class PointsMatrix(_PointsMatrix):
     def __rmatmul__(self, other):
         # type: (Transform) -> Self
         assert isinstance(other, Transform)
-        return type(self).from_matrix(other.matrix @ self.matrix)
+        self_type = type(self)
+        result = self_type.from_matrix(other.matrix @ self.matrix)
+        # manually update cached_properties more cheaply than recalculating from scratch
+        if hasattr(self_type, 'centroid'):
+            result.centroid = Point2D.from_matrix(other.matrix @ self.centroid.matrix)
+        return result
 
     @cached_property
     def points(self):
