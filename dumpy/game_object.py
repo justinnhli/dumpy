@@ -1,11 +1,11 @@
 """GameObject and its hierarchy."""
 
+from functools import cached_property
 from math import pi as PI
 
 from .color import Color
 from .simplex import PointsMatrix, Point2D, Vector2D
 from .transform import Transform
-from .metaprogramming import cached_property
 
 
 class GameObject:
@@ -48,37 +48,45 @@ class GameObject:
         """Return the rotation in radians."""
         return self.rotation * PI
 
-    @property
+    @cached_property
     def transform(self):
         # type: () -> Transform
         """The transform defined by the position of this object."""
         return Transform(self.position.x, self.position.y, self.rotation)
 
-    @cached_property('transform', 'points_matrix')
+    @cached_property
     def transformed_points_matrix(self):
         # type: () -> PointsMatrix
         """The transformed PointsMatrix."""
         return self.transform @ self.points_matrix
 
+    def _clear_cache(self):
+        self.__dict__.pop('transform', None)
+        self.__dict__.pop('transformed_points_matrix', None)
+
     def move_to(self, point):
         # type: (Point2D) -> None
         """Move the object to the point."""
         self._position = point
+        self._clear_cache()
 
     def move_by(self, vector):
         # type: (Vector2D) -> None
         """Move the object by the vector."""
         self._position += vector
+        self._clear_cache()
 
     def rotate_to(self, rotation):
         # type: (float) -> None
         """Rotate the object to the angle."""
         self._rotation = rotation
+        self._clear_cache()
 
     def rotate_by(self, rotation):
         # type: (float) -> None
         """Rotate the object by the angle."""
         self._rotation += rotation
+        self._clear_cache()
 
     def update(self):
         # type: () -> None
