@@ -6,7 +6,7 @@ from .canvas import Input
 from .color import Color
 from .game import Game
 from .game_object import GameObject
-from .simplex import PointsMatrix, Point2D
+from .simplex import PointsMatrix, Point2D, Vector2D
 
 
 class DummyGameObject(GameObject):
@@ -49,19 +49,19 @@ class BasicWindow(Game):
         """Deal with key presses."""
         translation = 25 / self.camera.zoom
         if input_event.key_button == 'w':
-            self.camera.move_by(translation * sin(-self.camera.radians), translation * cos(-self.camera.radians))
+            self.camera.move_by(translation * Vector2D(sin(-self.camera.radians), cos(-self.camera.radians)))
         elif input_event.key_button == 's':
-            self.camera.move_by(-translation * sin(-self.camera.radians), -translation * cos(-self.camera.radians))
+            self.camera.move_by(-translation * Vector2D(sin(-self.camera.radians), cos(-self.camera.radians)))
         elif input_event.key_button == 'a':
-            self.camera.move_by(-translation * cos(self.camera.radians), -translation * sin(self.camera.radians))
+            self.camera.move_by(-translation * Vector2D(cos(self.camera.radians), sin(self.camera.radians)))
         elif input_event.key_button == 'd':
-            self.camera.move_by(translation * cos(self.camera.radians), translation * sin(self.camera.radians))
+            self.camera.move_by(translation * Vector2D(cos(self.camera.radians), sin(self.camera.radians)))
         elif input_event.key_button == 'q':
             self.camera.rotate_by(0.125)
         elif input_event.key_button == 'e':
             self.camera.rotate_by(-0.125)
         elif input_event.key_button == ' ':
-            self.camera.move_to(0, 0)
+            self.camera.move_to(Point2D(0, 0))
             self.camera.rotate_to(0)
             self.camera.zoom_level = 0
         elif input_event.key_button == 'r':

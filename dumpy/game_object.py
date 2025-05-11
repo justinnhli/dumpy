@@ -18,8 +18,8 @@ class GameObject:
         self.radius = 0 # type: float
         self.line_color = None # type: Color
         self.fill_color = None # type: Color
-        self.position = Point2D()
-        self.theta = 0 # type: float
+        self._position = Point2D()
+        self._theta = 0 # type: float
         self.collision_groups = set() # type: set[str]
 
     def __hash__(self):
@@ -29,6 +29,18 @@ class GameObject:
     def __repr__(self):
         # type: () -> str
         return f'{type(self).__name__}({self.position})'
+
+    @property
+    def position(self):
+        # type: () -> Point2D
+        """Return the position."""
+        return self._position
+
+    @property
+    def theta(self):
+        # type: () -> float
+        """Return the rotation in 2pi radians."""
+        return self._theta
 
     @property
     def radians(self):
@@ -48,25 +60,25 @@ class GameObject:
         """The transformed PointsMatrix."""
         return self.transform @ self.points_matrix
 
-    def move_to(self, x, y):
-        # type: (float, float) -> None
+    def move_to(self, point):
+        # type: (Point2D) -> None
         """Move the object to the point."""
-        self.position = Point2D(x, y)
+        self._position = point
 
-    def move_by(self, x, y):
-        # type: (float, float) -> None
+    def move_by(self, vector):
+        # type: (Vector2D) -> None
         """Move the object by the vector."""
-        self.position += Vector2D(x, y)
+        self._position += vector
 
     def rotate_to(self, theta):
         # type: (float) -> None
         """Rotate the object to the angle."""
-        self.theta = theta
+        self._theta = theta
 
     def rotate_by(self, theta):
         # type: (float) -> None
         """Rotate the object by the angle."""
-        self.theta += theta
+        self._theta += theta
 
     def update(self):
         # type: () -> None
@@ -157,5 +169,5 @@ class PhysicsObject(GameObject):
         """Update the velocity and the position."""
         self.velocity += self.acceleration
         self.angular_velocity += self.angular_acceleration
-        self.position += self.velocity
-        self.theta += self.angular_velocity
+        self.move_by(self.velocity)
+        self.rotate_by(self.angular_velocity)
