@@ -36,6 +36,8 @@ class PointsMatrix(_PointsMatrix):
         # manually update cached_properties more cheaply than recalculating from scratch
         if hasattr(self_type, 'centroid'):
             result.centroid = Point2D.from_matrix(other.matrix @ self.centroid.matrix)
+        if self_type.__name__ == 'Polygon':
+            result._triangle_index = self._triangle_index
         return result
 
     @cached_property
