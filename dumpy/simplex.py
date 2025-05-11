@@ -80,19 +80,31 @@ class Tuple2D(PointsMatrix):
 
     def __mul__(self, other):
         # type: (float) -> Self
-        return type(self).from_matrix(other * self.matrix)
+        return type(self)(
+            self.x * other,
+            self.y * other,
+        )
 
     def __rmul__(self, other):
         # type: (float) -> Self
-        return type(self).from_matrix(other * self.matrix)
+        return type(self)(
+            self.x * other,
+            self.y * other,
+        )
 
     def __truediv__(self, other):
         # type: (float) -> Self
-        return type(self).from_matrix(self.matrix / other)
+        return type(self)(
+            self.x / other,
+            self.y / other,
+        )
 
     def __floordiv__(self, other):
         # type: (float) -> Self
-        return type(self).from_matrix(self.matrix // other)
+        return type(self)(
+            self.x // other,
+            self.y // other,
+        )
 
     def dot(self, other):
         # type: (Point2D | Vector2D) -> float
