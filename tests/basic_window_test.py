@@ -31,18 +31,18 @@ def create_einstein():
     )
     # build the einstein tile
     einstein = Polygon((
-        left_hexagon.points[0] + (left_hexagon.points[1] - left_hexagon.points[0]) / 2,
-        left_hexagon.points[1],
-        left_hexagon.points[2],
-        left_hexagon.points[2] + (left_hexagon.points[3] - left_hexagon.points[2]) / 2,
+        left_hexagon.points[3] + (left_hexagon.points[4] - left_hexagon.points[3]) / 2,
+        left_hexagon.points[4],
+        left_hexagon.points[5],
+        left_hexagon.points[5] + (left_hexagon.points[0] - left_hexagon.points[5]) / 2,
         Point2D(3 * width / 2, -sqrt(3) * width / 2),
-        down_hexagon.points[3] + (down_hexagon.points[4] - down_hexagon.points[3]) / 2,
-        down_hexagon.points[4],
-        down_hexagon.points[4] + (down_hexagon.points[5] - down_hexagon.points[4]) / 2,
+        down_hexagon.points[0] + (down_hexagon.points[1] - down_hexagon.points[0]) / 2,
+        down_hexagon.points[1],
+        down_hexagon.points[1] + (down_hexagon.points[2] - down_hexagon.points[1]) / 2,
         Point2D(3 * width / 2, sqrt(3) * width / 2),
-        up_hexagon.points[5] + (up_hexagon.points[0] - up_hexagon.points[5]) / 2,
-        up_hexagon.points[0],
-        left_hexagon.points[4] + (left_hexagon.points[5] - left_hexagon.points[4]) / 2,
+        up_hexagon.points[2] + (up_hexagon.points[3] - up_hexagon.points[2]) / 2,
+        up_hexagon.points[3],
+        left_hexagon.points[1] + (left_hexagon.points[2] - left_hexagon.points[1]) / 2,
         Point2D(),
     ))
     return left_hexagon, down_hexagon, up_hexagon, einstein
