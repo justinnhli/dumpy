@@ -84,11 +84,3 @@ class Polygon(PointsMatrix):
             Point2D(width_radius * cos(i * step), height_radius * sin(i * step))
             for i in range(num_points)
         ))
-
-    @staticmethod
-    def from_matrix(matrix):
-        # type: (Matrix) -> Polygon
-        return Polygon(tuple(
-            Point2D(col[0], col[1])
-            for col in matrix.cols
-        ))
