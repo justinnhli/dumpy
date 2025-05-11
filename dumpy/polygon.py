@@ -17,9 +17,6 @@ class Polygon(PointsMatrix):
     def __new__(cls, points=None, matrix=None):
         # type: (Sequence[Point2D], Matrix) -> Self
         if matrix is None:
-            # rotate points so the minimum point is first
-            min_index = min(enumerate(points), key=(lambda pair: pair[1]))[0] # pylint: disable = superfluous-parens
-            points = list(points[min_index:]) + list(points[:min_index])
             matrix = Matrix(tuple(
                 (point.x, point.y, 0, 1)
                 for point in points

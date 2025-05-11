@@ -15,12 +15,12 @@ def test_polygon():
     point2 = Point2D(-0, -10)
     point3 = Point2D(20, 0)
     point4 = Point2D(0, 10)
-    assert ellipse.points == (
+    assert set(ellipse.points) == set([
         point1, point2, point3, point4
-    )
-    assert ellipse.segments == (
+    ])
+    assert set(ellipse.segments) == set([
         Segment(point1, point2),
         Segment(point2, point3),
         Segment(point3, point4),
         Segment(point4, point1),
-    )
+    ])
