@@ -84,6 +84,8 @@ class HashGrid:
     def get_collisions_with(self, game_object, half_neighbors=False):
         # type: (GameObject, bool) -> Iterator[tuple[GameObject, GameObject]]
         """Get collisions with an object."""
+        if self.num_objects == 0:
+            return
         coord = self.to_cell_coord(game_object)
         if half_neighbors:
             offsets = HashGrid.HALF_OFFSETS
