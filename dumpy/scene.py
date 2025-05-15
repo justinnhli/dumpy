@@ -49,7 +49,10 @@ class HashGrid:
     def to_cell_coord(self, game_object):
         # type: (GameObject) -> Point2D
         """Calculate the cell for an object."""
-        return game_object.position // self.grid_size
+        return Point2D(
+            game_object.position.x // self.grid_size,
+            game_object.position.y // self.grid_size,
+        )
 
     def add(self, game_object):
         # type: (GameObject) -> None

@@ -15,8 +15,8 @@ def test_point():
     assert Vector2D.from_matrix(vector.matrix) == vector
     assert vector + Point2D(-1, -2) == Point2D()
     assert vector + Vector2D(-1, -2) == Vector2D()
-    assert point / 2 == Point2D(0.5, 1)
-    assert point // 2 == Point2D(0, 1)
+    assert vector / 2 == Vector2D(0.5, 1)
+    assert vector // 2 == Vector2D(0, 1)
 
 
 def test_segment():
