@@ -125,6 +125,8 @@ class GameObject:
         for points_matrix in (points_matrix1, points_matrix2):
             for segment in points_matrix.segments:
                 normal = segment.normal
+                if normal.x < 0:
+                    normal = -normal
                 if normal in checked:
                     continue
                 checked.add(normal)
