@@ -7,11 +7,11 @@ from typing import Sequence, Self
 from .algorithms import monotone_triangulation
 from .matrix import Matrix
 from .metaprogramming import cached_class
-from .simplex import PointsMatrix, Point2D, Vector2D, Triangle
+from .simplex import Geometry, Point2D, Vector2D, Triangle
 
 
 @cached_class
-class Polygon(PointsMatrix):
+class Polygon(Geometry):
     """A (potentially non-convex) polygon."""
 
     def __new__(cls, points=None, matrix=None):
@@ -25,26 +25,8 @@ class Polygon(PointsMatrix):
 
     def __init__(self, matrix): # pylint: disable = unused-argument
         # type: (Matrix) -> None
+        # pylint: disable = super-init-not-called
         self._triangle_index = [] # type: list[tuple[int, int, int]]
-
-    @cached_property
-    def convex_partitions(self):
-        # type: () -> list[Triangle]
-        """Return the triangles of the polygon."""
-        if self._triangle_index:
-            return [
-                Triangle(self.points[i], self.points[j], self.points[k])
-                for i, j, k in self._triangle_index
-            ]
-        triangles = monotone_triangulation(self.points)
-        points_map = {point: index for index, point in enumerate(self.points)}
-        for triangle in triangles:
-            self._triangle_index.append((
-                points_map[triangle.point1],
-                points_map[triangle.point2],
-                points_map[triangle.point3],
-            ))
-        return triangles
 
     @cached_property
     def area(self):
@@ -62,6 +44,26 @@ class Polygon(PointsMatrix):
             total_area += partition.area
             centroid += partition.area * partition.centroid.to_vector()
         return (centroid / total_area).to_point()
+
+    @cached_property
+    def convex_partitions(self):
+        # type: () -> tuple[Geometry, ...]
+        """Return a convex partition of the polygon."""
+        if not self._triangle_index:
+            triangles = tuple(monotone_triangulation(self.points))
+            points_map = {point: index for index, point in enumerate(self.points)}
+            for triangle in triangles:
+                self._triangle_index.append((
+                    points_map[triangle.point1],
+                    points_map[triangle.point2],
+                    points_map[triangle.point3],
+                ))
+        else:
+            triangles = tuple(
+                Triangle(self.points[i], self.points[j], self.points[k])
+                for i, j, k in self._triangle_index
+            )
+        return triangles
 
     def union(self, *polygons):
         # type: (*Polygon) -> Polygon

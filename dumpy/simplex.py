@@ -1,5 +1,7 @@
 """2D geometry primitives."""
 
+# mypy: disable-error-code="override"
+
 from functools import cached_property
 from math import sqrt, atan2
 from typing import TypeVar, Self, Optional, NamedTuple
@@ -31,9 +33,23 @@ class PointsMatrix(_PointsMatrix):
     def __rmatmul__(self, other):
         # type: (Transform) -> Self
         assert isinstance(other, Transform)
+        return type(self).from_matrix(other.matrix @ self.matrix)
+
+    @classmethod
+    def from_matrix(cls, matrix):
+        # type: (Matrix) -> Self
+        """Create the class from a matrix."""
+        return cls(matrix=matrix)
+
+
+class Geometry(PointsMatrix):
+    """A shape, broadly defined."""
+
+    def __rmatmul__(self, other):
+        # type: (Transform) -> Self
+        result = super().__rmatmul__(other)
         self_type = type(self)
-        result = self_type.from_matrix(other.matrix @ self.matrix)
-        # manually update cached_properties more cheaply than recalculating from scratch
+        # manually update cached_properties is cheaper than recalculating from scratch
         if hasattr(self_type, 'area'):
             result.area = self.area
         if hasattr(self_type, 'centroid'):
@@ -41,6 +57,30 @@ class PointsMatrix(_PointsMatrix):
         if self_type.__name__ == 'Polygon':
             result._triangle_index = self._triangle_index
         return result
+
+    @cached_property
+    def min_x(self):
+        # type: () -> float
+        """The smallest x-coordinate."""
+        return min(self.matrix.rows[0])
+
+    @cached_property
+    def min_y(self):
+        # type: () -> float
+        """The smallest y-coordinate."""
+        return min(self.matrix.rows[1])
+
+    @cached_property
+    def max_x(self):
+        # type: () -> float
+        """The largest x-coordinate."""
+        return max(self.matrix.rows[0])
+
+    @cached_property
+    def max_y(self):
+        # type: () -> float
+        """The largest y-coordinate."""
+        return max(self.matrix.rows[1])
 
     @cached_property
     def points(self):
@@ -60,43 +100,120 @@ class PointsMatrix(_PointsMatrix):
             for point1, point2 in zip(points[:-1], points[1:])
         )
 
-    @classmethod
-    def from_matrix(cls, matrix):
-        # type: (Matrix) -> Self
-        """Create the class from a matrix."""
-        return cls(matrix=matrix)
+    @cached_property
+    def area(self):
+        # type: () -> float
+        """Calculate the area of the PointsMatrix."""
+        return 0
+
+    @cached_property
+    def centroid(self):
+        # type: () -> Point2D
+        """Calculate the centroid of the PointsMatrix."""
+        raise NotImplementedError()
+
+    @cached_property
+    def convex_partitions(self):
+        # type: () -> tuple[Geometry, ...]
+        """Return a convex partition of the PointsMatrix."""
+        return (self,)
 
 
-class Tuple2D(PointsMatrix):
-    """Abstract class for 2D points and vectors."""
+@cached_class
+class Point2D(Geometry):
+    """A 2D point."""
 
-    def __new__(cls, x=0, y=0, w=0, matrix=None):
-        # type: (float, float, int, Matrix) -> Self
+    def __new__(cls, x=0, y=0, matrix=None):
+        # type: (float, float, Matrix) -> Self
         if matrix is None:
-            matrix = Matrix(((x,), (y,), (0,), (w,)))
-        return super(Tuple2D, cls).__new__(cls, matrix)
+            matrix = Matrix(((x,), (y,), (0,), (1,)))
+        return super(Point2D, cls).__new__(cls, matrix)
 
     @cached_property
     def x(self):
         # type: () -> float
-        """Return the x component of the tuple."""
+        """Return the x component of the point."""
         return self.matrix.x
 
     @cached_property
     def y(self):
         # type: () -> float
-        """Return the y component of the tuple."""
+        """Return the y component of the point."""
         return self.matrix.y
 
+    def __neg__(self):
+        # type: () -> Point2D
+        return Point2D(-self.x, -self.y)
+
+    def __add__(self, other):
+        # type: (Vector2D) -> Point2D
+        return Point2D(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other):
+        # type: (Point2D | Vector2D) -> Vector2D
+        # FIXME Point2D - Vector2D is not currently supported
+        assert isinstance(other, type(self))
+        return Vector2D(self.x - other.x, self.y - other.y)
+
+    def __repr__(self):
+        # type: () -> str
+        return f'Point2D({self.x}, {self.y})'
+
     @cached_property
-    def w(self):
+    def centroid(self):
+        # type: () -> Point2D
+        """Calculate the centroid of the PointsMatrix."""
+        return self
+
+    def distance(self, other):
+        # type: (Point2D) -> float
+        """Calculate the distance to another point."""
+        return sqrt(self.squared_distance(other))
+
+    def squared_distance(self, other):
+        # type: (Point2D) -> float
+        """Calculate the squared distance to another point."""
+        dx = self.x - other.x
+        dy = self.y - other.y
+        return dx * dx + dy * dy
+
+    def to_vector(self):
+        # type: () -> Vector2D
+        """Convert to a Vector2D."""
+        return Vector2D(self.x, self.y)
+
+
+@cached_class
+class Vector2D(PointsMatrix):
+    """A 2D Vector."""
+
+    RT = TypeVar('RT', Point2D, 'Vector2D')
+
+    def __new__(cls, x=0, y=0, matrix=None):
+        # type: (float, float, Matrix) -> Self
+        if matrix is None:
+            matrix = Matrix(((x,), (y,), (0,), (0,)))
+        return super(Vector2D, cls).__new__(cls, matrix)
+
+    @cached_property
+    def x(self):
         # type: () -> float
-        """Return the w component of the tuple."""
-        return self.matrix.w
+        """Return the x component of the vector."""
+        return self.matrix.x
+
+    @cached_property
+    def y(self):
+        # type: () -> float
+        """Return the y component of the vector."""
+        return self.matrix.y
 
     def __neg__(self):
-        # type: () -> Self
-        return type(self)(-self.x, -self.y)
+        # type: () -> Vector2D
+        return Vector2D(-self.x, -self.y)
+
+    def __add__(self, other):
+        # type: (Vector2D.RT) -> Vector2D.RT
+        return type(other)(self.x + other.x, self.y + other.y)
 
     def __sub__(self, other):
         # type: (Point2D | Vector2D) -> Vector2D
@@ -131,61 +248,6 @@ class Tuple2D(PointsMatrix):
             self.y // other,
         )
 
-    def dot(self, other):
-        # type: (Point2D | Vector2D) -> float
-        """Return the dot product."""
-        return self.matrix.dot(other.matrix)
-
-    def to_point(self):
-        # type: () -> Point2D
-        """Convert to a Point2D."""
-        return Point2D(self.x, self.y)
-
-    def to_vector(self):
-        # type: () -> Vector2D
-        """Convert to a Vector2D."""
-        return Vector2D(self.x, self.y)
-
-
-@cached_class
-class Point2D(Tuple2D):
-    """A 2D point."""
-
-    def __new__(cls, x=0, y=0, matrix=None):
-        # type: (float, float, Matrix) -> Self
-        return super(Point2D, cls).__new__(cls, x, y, 1, matrix)
-
-    def __add__(self, other):
-        # type: (Vector2D) -> Point2D
-        return Point2D(self.x + other.x, self.y + other.y)
-
-    def __repr__(self):
-        # type: () -> str
-        return f'Point2D({self.x}, {self.y})'
-
-    def distance(self, other):
-        # type: (Point2D) -> float
-        """Calculate the distance to another point."""
-        return sqrt(self.squared_distance(other))
-
-    def squared_distance(self, other):
-        # type: (Point2D) -> float
-        """Calculate the squared distance to another point."""
-        dx = self.x - other.x
-        dy = self.y - other.y
-        return dx * dx + dy * dy
-
-
-@cached_class
-class Vector2D(Tuple2D):
-    """A 2D Vector."""
-
-    RT = TypeVar('RT', Point2D, 'Vector2D')
-
-    def __new__(cls, x=0, y=0, matrix=None):
-        # type: (float, float, Matrix) -> Self
-        return super(Vector2D, cls).__new__(cls, x, y, 0, matrix)
-
     def __repr__(self):
         # type: () -> str
         return f'Vector2D({self.x}, {self.y})'
@@ -202,13 +264,14 @@ class Vector2D(Tuple2D):
         """The normalized vector."""
         return self / self.magnitude
 
-    def __add__(self, other):
-        # type: (Vector2D.RT) -> Vector2D.RT
-        return type(other)(self.x + other.x, self.y + other.y)
+    def to_point(self):
+        # type: () -> Point2D
+        """Convert to a Point2D."""
+        return Point2D(self.x, self.y)
 
 
 @cached_class
-class Segment(PointsMatrix):
+class Segment(Geometry):
     """A line segment."""
 
     def __new__(cls, point1=None, point2=None, matrix=None):
@@ -258,28 +321,13 @@ class Segment(PointsMatrix):
             return self.point1
 
     @cached_property
-    def min_x(self):
-        # type: () -> float
-        """The smaller x-coordinate."""
-        return min(self.point1.x, self.point2.x)
-
-    @cached_property
-    def max_x(self):
-        # type: () -> float
-        """The larger x-coordinate."""
-        return max(self.point1.x, self.point2.x)
-
-    @cached_property
-    def min_y(self):
-        # type: () -> float
-        """The smaller y-coordinate."""
-        return min(self.point1.y, self.point2.y)
-
-    @cached_property
-    def max_y(self):
-        # type: () -> float
-        """The larger y-coordinate."""
-        return max(self.point1.y, self.point2.y)
+    def centroid(self):
+        # type: () -> Point2D
+        """Calculate the centroid of the Segment."""
+        return Point2D(
+            (self.point1.x + self.point2.x) / 2,
+            (self.point1.y + self.point2.y) / 2,
+        )
 
     @cached_property
     def twin(self):
@@ -484,7 +532,7 @@ class Segment(PointsMatrix):
 
 
 @cached_class
-class Triangle(PointsMatrix):
+class Triangle(Geometry):
     """A triangle."""
 
     def __new__(cls, point1=None, point2=None, point3=None, matrix=None):
@@ -538,8 +586,10 @@ class Triangle(PointsMatrix):
     def centroid(self):
         # type: () -> Point2D
         """The centroid of the Triangle."""
-        result = sum(self.points, start=Point2D()) / 3
-        return Point2D(result.x, result.y)
+        return Point2D(
+            (self.point1.x + self.point2.x + self.point3.x) / 3,
+            (self.point1.y + self.point2.y + self.point3.y) / 3,
+        )
 
     @staticmethod
     def from_segments(segment1, segment2, segment3):

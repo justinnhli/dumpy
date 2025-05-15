@@ -4,7 +4,7 @@ from functools import cached_property
 from math import pi as PI
 
 from .color import Color
-from .simplex import PointsMatrix, Point2D, Vector2D
+from .simplex import Geometry, Point2D, Vector2D
 from .transform import Transform
 
 
@@ -14,7 +14,7 @@ class GameObject:
     def __init__(self): # pylint: disable = unused-argument
         # type: () -> None
         """Initialize the GameObject."""
-        self.points_matrix = None # type: PointsMatrix
+        self.geometry = None # type: Geometry
         self.radius = 0 # type: float
         self.line_color = None # type: Color
         self.fill_color = None # type: Color
@@ -55,16 +55,16 @@ class GameObject:
         return Transform(self.position.x, self.position.y, self.rotation)
 
     @cached_property
-    def transformed_points_matrix(self):
-        # type: () -> PointsMatrix
-        """The transformed PointsMatrix."""
-        return self.transform @ self.points_matrix
+    def transformed_geometry(self):
+        # type: () -> Geometry 
+        """The transformed Geometry."""
+        return self.transform @ self.geometry
 
     def _clear_cache(self):
         # type: () -> None
         """Clear the cached_property cache."""
         self.__dict__.pop('transform', None)
-        self.__dict__.pop('transformed_points_matrix', None)
+        self.__dict__.pop('transformed_geometry', None)
 
     def move_to(self, point):
         # type: (Point2D) -> None
@@ -93,7 +93,7 @@ class GameObject:
     def update(self):
         # type: () -> None
         """Update the object."""
-        pass
+        pass # pylint: disable = unnecessary-pass
 
     def squared_distance(self, other):
         # type: (GameObject) -> float
@@ -115,45 +115,45 @@ class GameObject:
         potential shortcut.
         """
         # try the vector between centroids first
-        points_matrix1 = self.transformed_points_matrix
-        points_matrix2 = other.transformed_points_matrix
-        vector = points_matrix1.centroid - points_matrix2.centroid
-        if GameObject.separated_on_axis(points_matrix1, points_matrix2, vector):
+        geometry1 = self.transformed_geometry
+        geometry2 = other.transformed_geometry
+        vector = geometry1.centroid - geometry2.centroid
+        if GameObject.separated_on_axis(geometry1, geometry2, vector):
             return False
         # revert to the standard approach of trying all segment normals
         checked = set() # type: set[Vector2D]
-        for points_matrix in (points_matrix1, points_matrix2):
-            for segment in points_matrix.segments:
+        for geometry in (geometry1, geometry2):
+            for segment in geometry.segments:
                 normal = segment.normal
                 if normal.x < 0:
                     normal = -normal
                 if normal in checked:
                     continue
                 checked.add(normal)
-                if GameObject.separated_on_axis(points_matrix1, points_matrix2, normal):
+                if GameObject.separated_on_axis(geometry1, geometry2, normal):
                     return False
         return True
 
     @staticmethod
-    def separated_on_axis(points_matrix1, points_matrix2, vector):
-        # type: (PointsMatrix, PointsMatrix, Vector2D) -> bool
+    def separated_on_axis(geometry1, geometry2, vector):
+        # type: (Geometry, Geometry, Vector2D) -> bool
         """Check if an axis separates two points matrices.
 
         This function does not use Triangle.is_colliding() to take advantage of caching.
         """
         denominator = (vector.x * vector.x + vector.y * vector.y) ** (1/2)
         cache = {}
-        for convex1 in points_matrix1.convex_partitions:
+        for partition1 in geometry1.convex_partitions:
             projected1 = []
-            for point in convex1.points:
+            for point in partition1.points:
                 if point not in cache:
                     cache[point] = (vector.x * point.x + vector.y * point.y) / denominator
                 projected1.append(cache[point])
             min1 = min(projected1)
             max1 = max(projected1)
-            for convex2 in points_matrix2.convex_partitions:
+            for partition2 in geometry2.convex_partitions:
                 projected2 = []
-                for point in convex2.points:
+                for point in partition2.points:
                     if point not in cache:
                         cache[point] = (vector.x * point.x + vector.y * point.y) / denominator
                     projected2.append(cache[point])

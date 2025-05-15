@@ -20,7 +20,7 @@ class Ball(PhysicsObject):
     def __init__(self):
         # type: () -> None
         super().__init__()
-        self.points_matrix = Ball.ELLIPSE
+        self.geometry = Ball.ELLIPSE
         self.radius = 15
 
     def bounce_vertical(self, _):
@@ -42,7 +42,7 @@ class Wall(GameObject):
         super().__init__()
         self.width = width
         self.height = height
-        self.points_matrix = Polygon.rectangle(width, height)
+        self.geometry = Polygon.rectangle(width, height)
         self.radius = max(width, height) / 2
 
 

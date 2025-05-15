@@ -6,7 +6,7 @@ from .canvas import Canvas
 from .color import Color
 from .game_object import GameObject
 from .matrix import Matrix
-from .simplex import PointsMatrix
+from .simplex import Geometry
 from .transform import Transform
 
 
@@ -58,13 +58,13 @@ class Camera(GameObject):
             self.zoom,
         ) @ matrix
 
-    def draw_points_matrix(self, points_matrix, transform=None, fill_color=None, line_color=None):
-        # type: (PointsMatrix, Transform, Color, Color) -> None
-        """Draw a PointsMatrix."""
+    def draw_geometry(self, geometry, transform=None, fill_color=None, line_color=None):
+        # type: (Geometry, Transform, Color, Color) -> None
+        """Draw a Geometry."""
         if transform is None:
-            matrix = points_matrix.matrix
+            matrix = geometry.matrix
         else:
-            matrix = transform.matrix @ points_matrix.matrix
+            matrix = transform.matrix @ geometry.matrix
         matrix = self._project(matrix)
         if matrix.width == 1:
             self.canvas.draw_pixel(

@@ -62,8 +62,8 @@ class Game:
             self.collision_callbacks[group_pair](obj1, obj2)
         # draw all objects
         for game_object in self.scene.get_in_view(self.camera):
-            self.camera.draw_points_matrix(
-                game_object.transformed_points_matrix,
+            self.camera.draw_geometry(
+                game_object.transformed_geometry,
                 fill_color=game_object.fill_color,
                 line_color=game_object.line_color,
             )
