@@ -28,7 +28,7 @@ class Polygon(PointsMatrix):
         self._triangle_index = [] # type: list[tuple[int, int, int]]
 
     @cached_property
-    def triangles(self):
+    def convex_partitions(self):
         # type: () -> list[Triangle]
         """Return the triangles of the polygon."""
         if self._triangle_index:
@@ -50,7 +50,7 @@ class Polygon(PointsMatrix):
     def area(self):
         # type: () -> float
         """Calculate the area of the polygon."""
-        return sum(triangle.area for triangle in self.triangles)
+        return sum(partition.area for partition in self.convex_partitions)
 
     @cached_property
     def centroid(self):
@@ -58,9 +58,9 @@ class Polygon(PointsMatrix):
         """Calculate the centroid of the polygon."""
         total_area = 0 # type: float
         centroid = Vector2D()
-        for triangle in self.triangles:
-            total_area += triangle.area
-            centroid += triangle.area * triangle.centroid.to_vector()
+        for partition in self.convex_partitions:
+            total_area += partition.area
+            centroid += partition.area * partition.centroid.to_vector()
         return (centroid / total_area).to_point()
 
     def union(self, *polygons):

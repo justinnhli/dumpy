@@ -143,7 +143,7 @@ class GameObject:
         """
         denominator = (vector.x * vector.x + vector.y * vector.y) ** (1/2)
         cache = {}
-        for convex1 in points_matrix1.triangles:
+        for convex1 in points_matrix1.convex_partitions:
             projected1 = []
             for point in convex1.points:
                 if point not in cache:
@@ -151,7 +151,7 @@ class GameObject:
                 projected1.append(cache[point])
             min1 = min(projected1)
             max1 = max(projected1)
-            for convex2 in points_matrix2.triangles:
+            for convex2 in points_matrix2.convex_partitions:
                 projected2 = []
                 for point in convex2.points:
                     if point not in cache:
