@@ -77,7 +77,6 @@ def save_image(image, filename):
             row = []
             for c in range(600):
                 index = r * image.width + c
-                print(r, c, index)
                 row.append(' '.join(str(n) for n in pixels[index]))
             fd.write('  '.join(row))
             fd.write('\n')
