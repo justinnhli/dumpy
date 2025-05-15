@@ -258,7 +258,7 @@ class Canvas:
     def draw_text(self, point, text, anchor=None):
         # type: (FloatCoord, Color, Color) -> None
         """Draw text."""
-        pass # FIXME
+        raise NotImplementedError()
 
     # interaction functions
 
