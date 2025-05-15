@@ -34,6 +34,8 @@ class PointsMatrix(_PointsMatrix):
         self_type = type(self)
         result = self_type.from_matrix(other.matrix @ self.matrix)
         # manually update cached_properties more cheaply than recalculating from scratch
+        if hasattr(self_type, 'area'):
+            result.area = self.area
         if hasattr(self_type, 'centroid'):
             result.centroid = Point2D.from_matrix(other.matrix @ self.centroid.matrix)
         if self_type.__name__ == 'Polygon':
