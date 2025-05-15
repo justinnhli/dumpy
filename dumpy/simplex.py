@@ -92,6 +92,10 @@ class Tuple2D(PointsMatrix):
         """Return the w component of the tuple."""
         return self.matrix.w
 
+    def __neg__(self):
+        # type: () -> Self
+        return type(self)(-self.x, -self.y)
+
     def __sub__(self, other):
         # type: (Point2D | Vector2D) -> Vector2D
         assert isinstance(other, type(self))
@@ -179,10 +183,6 @@ class Vector2D(Tuple2D):
     def __new__(cls, x=0, y=0, matrix=None):
         # type: (float, float, Matrix) -> Self
         return super(Vector2D, cls).__new__(cls, x, y, 0, matrix)
-
-    def __neg__(self):
-        # type: () -> Vector2D
-        return Vector2D.from_matrix(-self.matrix)
 
     def __repr__(self):
         # type: () -> str
