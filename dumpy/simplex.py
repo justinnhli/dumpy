@@ -210,6 +210,9 @@ class Vector2D(PointsMatrix):
         """Return the y component of the vector."""
         return self.matrix.y
 
+    def __bool__(self):
+        return self.x != 0 or self.y != 0
+
     def __neg__(self):
         # type: () -> Vector2D
         return Vector2D(-self.x, -self.y)
