@@ -11,12 +11,9 @@ from .metaprogramming import cached_class
 from .transform import Transform
 
 
-class _PointsMatrix(NamedTuple):
-    matrix: Matrix
-
-
-class PointsMatrix(_PointsMatrix):
+class PointsMatrix(NamedTuple):
     """Abstract class for a sequence of points."""
+    matrix: Matrix
 
     def __round__(self, ndigits=0):
         # type: (int) -> Self
