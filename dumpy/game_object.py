@@ -20,6 +20,7 @@ class GameObject:
         self.fill_color = None # type: Color
         self._position = Point2D()
         self._rotation = 0 # type: float
+        self._axis_projection_cache = {} # type: dict[Vector2D, tuple[float, float]]
         self.collision_groups = set() # type: set[str]
 
     def __hash__(self):
@@ -60,11 +61,49 @@ class GameObject:
         """The transformed Geometry."""
         return self.transform @ self.geometry
 
-    def _clear_cache(self):
+    @cached_property
+    def segment_normals(self):
+        result = set() # type: set[Vector2D]
+        for segment in self.transformed_geometry.segments:
+            normal = segment.normal
+            if normal.x < 0:
+                normal = -normal
+            result.add(normal)
+        return result
+
+    def axis_projections(self, vector, update_cache=False):
+        cache = {}
+        denominator = (vector.x * vector.x + vector.y * vector.y) ** (1/2)
+        for partition in self.transformed_geometry.convex_partitions:
+            key = (partition, vector)
+            if key in self._axis_projection_cache:
+                projected_min, projected_max = self._axis_projection_cache[key]
+            else:
+                projected = []
+                for point in partition.points:
+                    if point not in cache:
+                        cache[point] = (vector.x * point.x + vector.y * point.y) / denominator
+                    projected.append(cache[point])
+                projected_min = min(projected)
+                projected_max = max(projected)
+                if update_cache:
+                    self._axis_projection_cache[key] = (projected_min, projected_max)
+            yield partition, projected_min, projected_max
+
+    def cache_axis_projections(self):
+        if self._axis_projection_cache:
+            return
+        for vector in self.segment_normals:
+            self.axis_projections(vector, update_cache=True)
+
+    def _clear_cache(self, rotated=False):
         # type: () -> None
         """Clear the cached_property cache."""
         self.__dict__.pop('transform', None)
         self.__dict__.pop('transformed_geometry', None)
+        self.__dict__.pop('segment_normals', None)
+        if rotated:
+            self._axis_projection_cache.clear()
 
     def move_to(self, point):
         # type: (Point2D) -> None
@@ -82,13 +121,13 @@ class GameObject:
         # type: (float) -> None
         """Rotate the object to the angle."""
         self._rotation = rotation
-        self._clear_cache()
+        self._clear_cache(rotated=True)
 
     def rotate_by(self, rotation):
         # type: (float) -> None
         """Rotate the object by the angle."""
         self._rotation += rotation
-        self._clear_cache()
+        self._clear_cache(rotated=True)
 
     def update(self):
         # type: () -> None
@@ -114,51 +153,42 @@ class GameObject:
         Additionally, the vector between the two centroids is tried first as a
         potential shortcut.
         """
-        # try the vector between centroids first
+        # trigger caching of axis projections
+        self.cache_axis_projections()
+        other.cache_axis_projections()
+        # define convenience variables
         geometry1 = self.transformed_geometry
         geometry2 = other.transformed_geometry
-        vector = geometry1.centroid - geometry2.centroid
-        if GameObject.separated_on_axis(geometry1, geometry2, vector):
+        # try the vector between centroids first
+        vector = (geometry1.centroid - geometry2.centroid).normalized
+        if self.separated_on_axis(other, vector):
             return False
         # revert to the standard approach of trying all segment normals
         checked = set() # type: set[Vector2D]
-        for geometry in (geometry1, geometry2):
-            for segment in geometry.segments:
-                normal = segment.normal
-                if normal.x < 0:
-                    normal = -normal
+        for obj in (self, other):
+            for normal in obj.segment_normals:
                 if normal in checked:
                     continue
                 checked.add(normal)
-                if GameObject.separated_on_axis(geometry1, geometry2, normal):
+                if self.separated_on_axis(other, normal):
                     return False
         return True
 
-    @staticmethod
-    def separated_on_axis(geometry1, geometry2, vector):
-        # type: (Geometry, Geometry, Vector2D) -> bool
-        """Check if an axis separates two points matrices.
-
-        This function does not use Triangle.is_colliding() to take advantage of caching.
-        """
-        denominator = (vector.x * vector.x + vector.y * vector.y) ** (1/2)
-        cache = {}
-        for partition1 in geometry1.convex_partitions:
-            projected1 = []
-            for point in partition1.points:
-                if point not in cache:
-                    cache[point] = (vector.x * point.x + vector.y * point.y) / denominator
-                projected1.append(cache[point])
-            min1 = min(projected1)
-            max1 = max(projected1)
-            for partition2 in geometry2.convex_partitions:
-                projected2 = []
-                for point in partition2.points:
-                    if point not in cache:
-                        cache[point] = (vector.x * point.x + vector.y * point.y) / denominator
-                    projected2.append(cache[point])
-                min2 = min(projected2)
-                max2 = max(projected2)
+    def separated_on_axis(self, other, vector):
+        # type: (GameObject, Vector2D) -> bool
+        """Check if an axis separates two points matrices."""
+        projections1 = self.axis_projections(vector)
+        projections2 = other.axis_projections(vector)
+        # this is essentially itertools.product(projections1, projections2),
+        # but modified to not consume the entire generator unnecessarily
+        partition1, min1, max1 = next(projections1)
+        cache = []
+        for partition2, min2, max2 in projections2:
+            if min1 <= max2 and min2 <= max1:
+                return False
+            cache.append((partition2, min2, max2))
+        for partition1, min1, max1 in projections1:
+            for partition2, min2, max2 in cache:
                 if min1 <= max2 and min2 <= max1:
                     return False
         return True
@@ -181,5 +211,7 @@ class PhysicsObject(GameObject):
         """Update the velocity and the position."""
         self.velocity += self.acceleration
         self.angular_velocity += self.angular_acceleration
-        self.move_by(self.velocity)
-        self.rotate_by(self.angular_velocity)
+        if self.velocity:
+            self.move_by(self.velocity)
+        if self.angular_velocity:
+            self.rotate_by(self.angular_velocity)
