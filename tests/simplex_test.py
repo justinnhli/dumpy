@@ -6,17 +6,25 @@ from dumpy.transform import Transform
 
 def test_point():
     # type: () -> None
-    """Test Tuple2D and children."""
+    """Test Point2D and Vector2D."""
     point = Point2D(1, 2)
     assert Point2D.from_matrix(point.matrix) == point
-    assert point + Point2D(-1, -2) == Point2D()
+    try:
+        new_point = point + Point2D(-1, -2)
+        assert False
+    except AssertionError:
+        pass
     assert point + Vector2D(-1, -2) == Point2D()
+    assert point - point == Vector2D()
     vector = Vector2D(1, 2)
     assert Vector2D.from_matrix(vector.matrix) == vector
     assert vector + Point2D(-1, -2) == Point2D()
     assert vector + Vector2D(-1, -2) == Vector2D()
+    assert 2 * vector == Vector2D(2, 4)
     assert vector / 2 == Vector2D(0.5, 1)
     assert vector // 2 == Vector2D(0, 1)
+    assert point - vector == Point2D()
+    assert vector - vector == Vector2D()
 
 
 def test_segment():

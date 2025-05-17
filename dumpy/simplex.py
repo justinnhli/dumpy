@@ -147,13 +147,16 @@ class Point2D(Geometry):
 
     def __add__(self, other):
         # type: (Vector2D) -> Point2D
+        assert isinstance(other, Vector2D)
         return Point2D(self.x + other.x, self.y + other.y)
 
     def __sub__(self, other):
-        # type: (Point2D | Vector2D) -> Vector2D
-        # FIXME Point2D - Vector2D is not currently supported
-        assert isinstance(other, type(self))
-        return Vector2D(self.x - other.x, self.y - other.y)
+        # type: (Point2D) -> Vector2D
+        if isinstance(other, Point2D):
+            return Vector2D(self.x - other.x, self.y - other.y)
+        else:
+            # allow other classes to implement the reciprocal dunder method
+            return NotImplemented
 
     def __repr__(self):
         # type: () -> str
@@ -219,6 +222,10 @@ class Vector2D(PointsMatrix):
         # type: (Point2D | Vector2D) -> Vector2D
         assert isinstance(other, type(self))
         return Vector2D(self.x - other.x, self.y - other.y)
+
+    def __rsub__(self, other):
+        # type: (Vector2D.RT) -> Vector2D.RT
+        return type(other)(other.x - self.x, other.y - self.y)
 
     def __mul__(self, other):
         # type: (float) -> Self
