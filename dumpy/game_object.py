@@ -74,8 +74,8 @@ class GameObject:
             result.add(normal)
         return result
 
-    def axis_projections(self, vector, update_cache=False):
-        # type: (Vector2D, bool) -> Iterator[tuple[Geometry, float, float]]
+    def axis_projections(self, vector):
+        # type: (Vector2D) -> Iterator[tuple[Geometry, float, float]]
         """Yield the min and max values of the points projected onto the vector."""
         cache = {} # type: dict[Point2D, float]
         denominator = (vector.x * vector.x + vector.y * vector.y) ** (1/2)
@@ -91,8 +91,6 @@ class GameObject:
                     projected.append(cache[point])
                 projected_min = min(projected)
                 projected_max = max(projected)
-                if update_cache:
-                    self._axis_projection_cache[key] = (projected_min, projected_max)
             yield partition, projected_min, projected_max
 
     def cache_axis_projections(self):
@@ -101,7 +99,8 @@ class GameObject:
         if self._axis_projection_cache:
             return
         for vector in self.segment_normals:
-            self.axis_projections(vector, update_cache=True)
+            for partition, projected_min, projected_max in self.axis_projections(vector):
+                self._axis_projection_cache[(partition, vector)] = (projected_min, projected_max)
 
     def _clear_cache(self, rotated=False):
         # type: (bool) -> None
