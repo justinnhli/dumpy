@@ -211,6 +211,7 @@ class Vector2D(PointsMatrix):
         return self.matrix.y
 
     def __bool__(self):
+        # type: () -> bool
         return self.x != 0 or self.y != 0
 
     def __neg__(self):

@@ -5,7 +5,6 @@ from itertools import product
 from typing import Iterator
 
 from dumpy.algorithms import bentley_ottmann, monotone_triangulation
-from dumpy.matrix import Matrix
 from dumpy.simplex import Point2D, Segment
 
 

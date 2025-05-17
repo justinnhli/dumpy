@@ -75,10 +75,7 @@ class Transform(_Transform):
 
     def __matmul__(self, other):
         # type: (Any) -> Any
-        """Matrix multiplication.
-
-        Returning NotImplemented allows other classes to implement __rmatmul__.
-        """
+        """Matrix multiplication."""
         if isinstance(other, Transform):
             # from https://gamedev.stackexchange.com/a/207764
             return Transform(
@@ -88,4 +85,5 @@ class Transform(_Transform):
                 other.scale * self.scale,
             )
         else:
+            # allow other classes to implement the reciprocal dunder method
             return NotImplemented

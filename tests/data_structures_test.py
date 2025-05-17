@@ -69,7 +69,7 @@ def test_sorteddict():
     src_dict = {num: num * num for num in range(101)}
     assert SortedDict.from_dict(src_dict).to_dict() == src_dict
     # defaultdict check
-    sorted_dict_set = SortedDict(factory=set)
+    sorted_dict_set = SortedDict(factory=set) # type: SortedDict[set[int]]
     for i in range(10):
         for j in range(i, i + 5):
             sorted_dict_set[i].add(j)

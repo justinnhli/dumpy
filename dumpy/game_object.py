@@ -2,6 +2,7 @@
 
 from functools import cached_property
 from math import pi as PI
+from typing import Iterator
 
 from .color import Color
 from .simplex import Geometry, Point2D, Vector2D
@@ -20,7 +21,7 @@ class GameObject:
         self.fill_color = None # type: Color
         self._position = Point2D()
         self._rotation = 0 # type: float
-        self._axis_projection_cache = {} # type: dict[Vector2D, tuple[float, float]]
+        self._axis_projection_cache = {} # type: dict[tuple[Geometry, Vector2D], tuple[float, float]]
         self.collision_groups = set() # type: set[str]
 
     def __hash__(self):
@@ -57,12 +58,14 @@ class GameObject:
 
     @cached_property
     def transformed_geometry(self):
-        # type: () -> Geometry 
+        # type: () -> Geometry
         """The transformed Geometry."""
         return self.transform @ self.geometry
 
     @cached_property
     def segment_normals(self):
+        # type: () -> set[Vector2D]
+        """Return the set of normal vectors to the perimeter."""
         result = set() # type: set[Vector2D]
         for segment in self.transformed_geometry.segments:
             normal = segment.normal
@@ -72,14 +75,16 @@ class GameObject:
         return result
 
     def axis_projections(self, vector, update_cache=False):
-        cache = {}
+        # type: (Vector2D, bool) -> Iterator[tuple[Geometry, float, float]]
+        """Yield the min and max values of the points projected onto the vector."""
+        cache = {} # type: dict[Point2D, float]
         denominator = (vector.x * vector.x + vector.y * vector.y) ** (1/2)
         for partition in self.transformed_geometry.convex_partitions:
             key = (partition, vector)
             if key in self._axis_projection_cache:
                 projected_min, projected_max = self._axis_projection_cache[key]
             else:
-                projected = []
+                projected = [] # type: list[float]
                 for point in partition.points:
                     if point not in cache:
                         cache[point] = (vector.x * point.x + vector.y * point.y) / denominator
@@ -91,13 +96,15 @@ class GameObject:
             yield partition, projected_min, projected_max
 
     def cache_axis_projections(self):
+        # type: () -> None
+        """Cache the projections onto segment normals."""
         if self._axis_projection_cache:
             return
         for vector in self.segment_normals:
             self.axis_projections(vector, update_cache=True)
 
     def _clear_cache(self, rotated=False):
-        # type: () -> None
+        # type: (bool) -> None
         """Clear the cached_property cache."""
         self.__dict__.pop('transform', None)
         self.__dict__.pop('transformed_geometry', None)
@@ -181,14 +188,14 @@ class GameObject:
         projections2 = other.axis_projections(vector)
         # this is essentially itertools.product(projections1, projections2),
         # but modified to not consume the entire generator unnecessarily
-        partition1, min1, max1 = next(projections1)
+        _, min1, max1 = next(projections1)
         cache = []
         for partition2, min2, max2 in projections2:
             if min1 <= max2 and min2 <= max1:
                 return False
             cache.append((partition2, min2, max2))
-        for partition1, min1, max1 in projections1:
-            for partition2, min2, max2 in cache:
+        for _, min1, max1 in projections1:
+            for _, min2, max2 in cache:
                 if min1 <= max2 and min2 <= max1:
                     return False
         return True

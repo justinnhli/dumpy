@@ -16,7 +16,7 @@ def cached_class(cls, max_size=1024):
         return cls.__cache__(cls, args, tuple(sorted(kwargs.items())))
 
     @lru_cache(max_size)
-    def __cache__(cls, args, kwargs): # pylint: disable = unused-argument
+    def __cache__(cls, args, kwargs):
         return cls.__orig_new__(cls, *args, **dict(kwargs))
 
     cls.__cache__ = __cache__
