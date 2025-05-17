@@ -188,7 +188,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
             intersect_key = (segment2, segment1)
         if intersect_key not in intersect_cache:
             intersect = segment1.intersect(segment2, include_end=True)
-            if intersect:
+            if intersect is not None:
                 intersect = round(intersect, ndigits=ndigits)
                 segment_intersect_map[segment1][intersect] = (
                     intersect not in (segment1.point1, segment1.point2)
@@ -212,7 +212,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
     def schedule_intersect(segment1, segment2):
         # type: (Segment, Segment) -> None
         intersect = get_intersect(segment1, segment2)
-        if not intersect:
+        if intersect is None:
             return
         # check that intersection is after sweep line
         if intersect.x < BOSegmentWrapper.sweep_x:
@@ -228,7 +228,7 @@ def bentley_ottmann(segments, include_end=False, ndigits=9): # pylint: disable =
     def unschedule_intersect(segment1, segment2):
         # type: (Segment, Segment) -> None
         intersect = get_intersect(segment1, segment2)
-        if not intersect:
+        if intersect is None:
             return
         if intersect.x <= BOSegmentWrapper.sweep_x:
             return
