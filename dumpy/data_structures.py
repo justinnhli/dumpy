@@ -48,6 +48,16 @@ class UnionFind:
         # type: () -> Iterator[Hashable]
         return iter(self.parents)
 
+    def add(self, node, parent=None):
+        # type: (Hashable, Optional[Hashable]) -> bool
+        """Add a node."""
+        if node in self.parents:
+            return False
+        if parent is None:
+            parent = node
+        self.parents[node] = parent
+        return True
+
     def union(self, node1, node2):
         # type: (Hashable, Hashable) -> None
         """Join two discrete sets."""
@@ -62,16 +72,6 @@ class UnionFind:
         """Check if two members are in the same set."""
         return self[node1] == self[node2]
 
-    def add(self, node, parent=None):
-        # type: (Hashable, Optional[Hashable]) -> bool
-        """Add a node."""
-        if node in self.parents:
-            return False
-        if parent is None:
-            parent = node
-        self.parents[node] = parent
-        return True
-
 
 class _AVLView(Generic[KT, VT]):
 
@@ -79,13 +79,6 @@ class _AVLView(Generic[KT, VT]):
         # type: (SortedDict[KT, VT]) -> None
         self.tree = tree
         self.node = None # type: Optional[_AVLNode[KT, VT]]
-
-    @property
-    def mapping(self):
-        # type: () -> Mapping[KT, VT]
-        """Return the original dictionary."""
-        # FIXME should in theory be read only
-        return self.tree
 
     def __len__(self):
         # type: () -> int
@@ -104,6 +97,13 @@ class _AVLView(Generic[KT, VT]):
         # type: () -> Iterator[Any]
         self._set_reverse()
         yield from self._yield_prev()
+
+    @property
+    def mapping(self):
+        # type: () -> Mapping[KT, VT]
+        """Return the original dictionary."""
+        # FIXME should in theory be read only
+        return self.tree
 
     def _set_forward(self):
         # type: () -> None
@@ -188,6 +188,17 @@ class _AVLCursor(Generic[KT, VT]):
         self.tree = tree
         self.node = node
 
+    def __bool__(self):
+        # type: () -> bool
+        return self.node is not None
+
+    def __repr__(self):
+        # type: () -> str
+        if self.node:
+            return f'_AVLCursor({self.key}, {self.value})'
+        else:
+            return '_AVLCursor(None)'
+
     @property
     def key(self):
         # type: () -> KT
@@ -216,21 +227,6 @@ class _AVLCursor(Generic[KT, VT]):
         # type: () -> bool
         """Return whether the cursor has a next node."""
         return self.node.next is not None
-
-    def __bool__(self):
-        # type: () -> bool
-        return self.node is not None
-
-    def __str__(self):
-        # type: () -> str
-        return self.__repr__()
-
-    def __repr__(self):
-        # type: () -> str
-        if self.node:
-            return f'_AVLCursor({self.key}, {self.value})'
-        else:
-            return '_AVLCursor(None)'
 
     def prev(self, relative_index=1):
         # type: (int) -> _AVLCursor[KT, VT]

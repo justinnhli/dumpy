@@ -2,7 +2,7 @@
 
 from functools import cached_property
 from math import sin, cos, pi as PI
-from typing import Any, NamedTuple, Self
+from typing import Any, Self, NamedTuple
 
 from .matrix import Matrix, identity
 from .metaprogramming import cached_class
@@ -23,6 +23,31 @@ class Transform(_Transform):
         # type: (float, float, float, float) -> Self
         """Initialize the Transform."""
         return super(Transform, cls).__new__(cls, x, y, theta, scale)
+
+    def __round__(self, ndigits=0):
+        # type: (int) -> Transform
+        """Round the transform."""
+        return Transform(
+            round(self.x, ndigits),
+            round(self.y, ndigits),
+            round(self.theta, ndigits),
+            round(self.scale, ndigits),
+        )
+
+    def __matmul__(self, other):
+        # type: (Any) -> Any
+        """Matrix multiplication."""
+        if isinstance(other, Transform):
+            # from https://gamedev.stackexchange.com/a/207764
+            return Transform(
+                self.x + self.scale * (other.x * cos(self.radians) - other.y * sin(self.radians)),
+                self.y + self.scale * (other.x * sin(self.radians) + other.y * cos(self.radians)),
+                other.theta + self.theta,
+                other.scale * self.scale,
+            )
+        else:
+            # allow other classes to implement the reciprocal dunder method
+            return NotImplemented
 
     @cached_property
     def radians(self):
@@ -62,28 +87,3 @@ class Transform(_Transform):
             -self.theta,
             1 / self.scale,
         )
-
-    def __round__(self, ndigits=0):
-        # type: (int) -> Transform
-        """Round the transform."""
-        return Transform(
-            round(self.x, ndigits),
-            round(self.y, ndigits),
-            round(self.theta, ndigits),
-            round(self.scale, ndigits),
-        )
-
-    def __matmul__(self, other):
-        # type: (Any) -> Any
-        """Matrix multiplication."""
-        if isinstance(other, Transform):
-            # from https://gamedev.stackexchange.com/a/207764
-            return Transform(
-                self.x + self.scale * (other.x * cos(self.radians) - other.y * sin(self.radians)),
-                self.y + self.scale * (other.x * sin(self.radians) + other.y * cos(self.radians)),
-                other.theta + self.theta,
-                other.scale * self.scale,
-            )
-        else:
-            # allow other classes to implement the reciprocal dunder method
-            return NotImplemented

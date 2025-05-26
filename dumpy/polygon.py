@@ -70,14 +70,14 @@ class Polygon(Geometry):
         """Create the union of polygons."""
         raise NotImplementedError()
 
-    def difference(self, *polygons):
-        # type: (*Polygon) -> Polygon
-        """Create the difference of polygons."""
-        raise NotImplementedError()
-
     def intersection(self, *polygons):
         # type: (*Polygon) -> Polygon
         """Create the intersection of polygons."""
+        raise NotImplementedError()
+
+    def difference(self, *polygons):
+        # type: (*Polygon) -> Polygon
+        """Create the difference of polygons."""
         raise NotImplementedError()
 
     @staticmethod

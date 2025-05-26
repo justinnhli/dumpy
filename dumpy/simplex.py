@@ -4,7 +4,7 @@
 
 from functools import cached_property
 from math import sqrt, atan2
-from typing import TypeVar, Self, Optional, NamedTuple
+from typing import TypeVar, Optional, Self, NamedTuple
 
 from .matrix import Matrix
 from .metaprogramming import cached_class
@@ -126,18 +126,6 @@ class Point2D(Geometry):
             matrix = Matrix(((x,), (y,), (0,), (1,)))
         return super(Point2D, cls).__new__(cls, matrix)
 
-    @cached_property
-    def x(self):
-        # type: () -> float
-        """Return the x component of the point."""
-        return self.matrix.x
-
-    @cached_property
-    def y(self):
-        # type: () -> float
-        """Return the y component of the point."""
-        return self.matrix.y
-
     def __neg__(self):
         # type: () -> Point2D
         return Point2D(-self.x, -self.y)
@@ -158,6 +146,18 @@ class Point2D(Geometry):
     def __repr__(self):
         # type: () -> str
         return f'Point2D({self.x}, {self.y})'
+
+    @cached_property
+    def x(self):
+        # type: () -> float
+        """Return the x component of the point."""
+        return self.matrix.x
+
+    @cached_property
+    def y(self):
+        # type: () -> float
+        """Return the y component of the point."""
+        return self.matrix.y
 
     @cached_property
     def centroid(self):
@@ -194,18 +194,6 @@ class Vector2D(PointsMatrix):
         if matrix is None:
             matrix = Matrix(((x,), (y,), (0,), (0,)))
         return super(Vector2D, cls).__new__(cls, matrix)
-
-    @cached_property
-    def x(self):
-        # type: () -> float
-        """Return the x component of the vector."""
-        return self.matrix.x
-
-    @cached_property
-    def y(self):
-        # type: () -> float
-        """Return the y component of the vector."""
-        return self.matrix.y
 
     def __bool__(self):
         # type: () -> bool
@@ -259,6 +247,18 @@ class Vector2D(PointsMatrix):
     def __repr__(self):
         # type: () -> str
         return f'Vector2D({self.x}, {self.y})'
+
+    @cached_property
+    def x(self):
+        # type: () -> float
+        """Return the x component of the vector."""
+        return self.matrix.x
+
+    @cached_property
+    def y(self):
+        # type: () -> float
+        """Return the y component of the vector."""
+        return self.matrix.y
 
     @cached_property
     def magnitude(self):
