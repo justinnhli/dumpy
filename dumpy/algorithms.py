@@ -21,27 +21,6 @@ class _SegmentWrapper:
         self._x = None # type: Optional[float]
         self._y = None # type: Optional[float]
 
-    @property
-    def key(self):
-        # type: () -> Any
-        """Return the comparison key."""
-        raise NotImplementedError()
-
-    @property
-    def y(self):
-        # type: () -> float
-        """Return the correct y value at sweep_x."""
-        if self._x != self.sweep_x:
-            self._update_y()
-        return self._y
-
-    @y.setter
-    def y(self, value):
-        # type: (float) -> None
-        """Set the value of y forcefully."""
-        self._x = self.sweep_x
-        self._y = value
-
     def __eq__(self, other):
         # type: (Any) -> bool
         assert isinstance(other, type(self))
@@ -68,6 +47,27 @@ class _SegmentWrapper:
     def __repr__(self):
         # type: () -> str
         return f'{type(self).__name__}@{self.sweep_x}({self.segment.point1}, {self.segment.point2})'
+
+    @property
+    def key(self):
+        # type: () -> Any
+        """Return the comparison key."""
+        raise NotImplementedError()
+
+    @property
+    def y(self):
+        # type: () -> float
+        """Return the correct y value at sweep_x."""
+        if self._x != self.sweep_x:
+            self._update_y()
+        return self._y
+
+    @y.setter
+    def y(self, value):
+        # type: (float) -> None
+        """Set the value of y forcefully."""
+        self._x = self.sweep_x
+        self._y = value
 
     def _update_y(self):
         # type: () -> None
@@ -358,6 +358,22 @@ class Chain:
         self.points = []
         self.points = [point]
 
+    def __eq__(self, other):
+        # type: (Any) -> bool
+        return self.points == other.points
+
+    def __len__(self):
+        # type: () -> int
+        return len(self.points)
+
+    def __getitem__(self, index):
+        # type: (slice) -> list[Point2D]
+        return self.points[index]
+
+    def __repr__(self):
+        # type: () -> str
+        return f'Chain({self.points})'
+
     def prev(self, index=1):
         # type: (int) -> Point2D
         """The nth point in the previous direction."""
@@ -377,22 +393,6 @@ class Chain:
         # type: () -> tuple[Point2D, Point2D]
         """The first two points in the next direction."""
         return (self.points[-2], self.points[-1])
-
-    def __eq__(self, other):
-        # type: (Any) -> bool
-        return self.points == other.points
-
-    def __len__(self):
-        # type: () -> int
-        return len(self.points)
-
-    def __getitem__(self, index):
-        # type: (slice) -> list[Point2D]
-        return self.points[index]
-
-    def __repr__(self):
-        # type: () -> str
-        return f'Chain({self.points})'
 
     def add_prev(self, point):
         # type: (Point2D) -> None

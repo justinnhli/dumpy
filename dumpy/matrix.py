@@ -20,6 +20,90 @@ class _Matrix(NamedTuple):
 class Matrix(_Matrix): # pylint: disable = too-many-public-methods
     """A matrix."""
 
+    def __getitem__(self, index):
+        # type: (int) -> tuple[float, ...]
+        return self.rows[index]
+
+    def __round__(self, ndigits=None):
+        # type: (int) -> Matrix
+        return Matrix(tuple(
+            tuple(round(val, ndigits) for val in row)
+            for row in self.rows
+        ))
+
+    def __floor__(self):
+        # type: () -> Matrix
+        return Matrix(tuple(
+            tuple(floor(val) for val in row)
+            for row in self.rows
+        ))
+
+    def __ceil__(self):
+        # type: () -> Matrix
+        return Matrix(tuple(
+            tuple(ceil(val) for val in row)
+            for row in self.rows
+        ))
+
+    def __neg__(self):
+        # type: () -> Matrix
+        return Matrix(tuple(
+            tuple(-val for val in row)
+            for row in self.rows
+        ))
+
+    def __add__(self, other):
+        # type: (Matrix) -> Matrix
+        return Matrix(tuple(
+            tuple(val1 + val2 for val1, val2 in zip(row1, row2))
+            for row1, row2 in zip(self.rows, other.rows)
+        ))
+
+    def __sub__(self, other):
+        # type: (Matrix) -> Matrix
+        return Matrix(tuple(
+            tuple(val1 - val2 for val1, val2 in zip(row1, row2))
+            for row1, row2 in zip(self.rows, other.rows)
+        ))
+
+    def __mul__(self, other):
+        # type: (float) -> Matrix
+        return Matrix(tuple(
+            tuple(val * other for val in row)
+            for row in self.rows
+        ))
+
+    def __rmul__(self, other):
+        # type: (float) -> Matrix
+        return self * other
+
+    def __truediv__(self, other):
+        # type: (float) -> Matrix
+        return Matrix(tuple(
+            tuple(val / other for val in row)
+            for row in self.rows
+        ))
+
+    def __floordiv__(self, other):
+        # type: (float) -> Matrix
+        return Matrix(tuple(
+            tuple(val // other for val in row)
+            for row in self.rows
+        ))
+
+    def __matmul__(self, other):
+        # type: (Matrix) -> Matrix
+        assert self.width == other.height, f'({self.height}, {self.width}) x ({other.height}, {other.width})'
+        result = []
+        for r in range(self.height):
+            row = self.rows[r]
+            result_row = []
+            for c in range(other.width):
+                col = other.cols[c]
+                result_row.append(sum(a * b for a, b in zip(row, col)))
+            result.append(tuple(result_row))
+        return Matrix(tuple(result))
+
     @cached_property
     def height(self):
         # type: () -> int
@@ -145,90 +229,6 @@ class Matrix(_Matrix): # pylint: disable = too-many-public-methods
         for r in range(self.height):
             result.append(tuple(self.cofactor(r, c) for c in range(self.width)))
         return Matrix(tuple(result)).transpose / self.determinant
-
-    def __getitem__(self, index):
-        # type: (int) -> tuple[float, ...]
-        return self.rows[index]
-
-    def __round__(self, ndigits=None):
-        # type: (int) -> Matrix
-        return Matrix(tuple(
-            tuple(round(val, ndigits) for val in row)
-            for row in self.rows
-        ))
-
-    def __floor__(self):
-        # type: () -> Matrix
-        return Matrix(tuple(
-            tuple(floor(val) for val in row)
-            for row in self.rows
-        ))
-
-    def __ceil__(self):
-        # type: () -> Matrix
-        return Matrix(tuple(
-            tuple(ceil(val) for val in row)
-            for row in self.rows
-        ))
-
-    def __add__(self, other):
-        # type: (Matrix) -> Matrix
-        return Matrix(tuple(
-            tuple(val1 + val2 for val1, val2 in zip(row1, row2))
-            for row1, row2 in zip(self.rows, other.rows)
-        ))
-
-    def __sub__(self, other):
-        # type: (Matrix) -> Matrix
-        return Matrix(tuple(
-            tuple(val1 - val2 for val1, val2 in zip(row1, row2))
-            for row1, row2 in zip(self.rows, other.rows)
-        ))
-
-    def __neg__(self):
-        # type: () -> Matrix
-        return Matrix(tuple(
-            tuple(-val for val in row)
-            for row in self.rows
-        ))
-
-    def __mul__(self, other):
-        # type: (float) -> Matrix
-        return Matrix(tuple(
-            tuple(val * other for val in row)
-            for row in self.rows
-        ))
-
-    def __rmul__(self, other):
-        # type: (float) -> Matrix
-        return self * other
-
-    def __truediv__(self, other):
-        # type: (float) -> Matrix
-        return Matrix(tuple(
-            tuple(val / other for val in row)
-            for row in self.rows
-        ))
-
-    def __floordiv__(self, other):
-        # type: (float) -> Matrix
-        return Matrix(tuple(
-            tuple(val // other for val in row)
-            for row in self.rows
-        ))
-
-    def __matmul__(self, other):
-        # type: (Matrix) -> Matrix
-        assert self.width == other.height, f'({self.height}, {self.width}) x ({other.height}, {other.width})'
-        result = []
-        for r in range(self.height):
-            row = self.rows[r]
-            result_row = []
-            for c in range(other.width):
-                col = other.cols[c]
-                result_row.append(sum(a * b for a, b in zip(row, col)))
-            result.append(tuple(result_row))
-        return Matrix(tuple(result))
 
     def dot(self, other):
         # type: (Matrix) -> float

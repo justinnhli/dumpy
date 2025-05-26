@@ -3,7 +3,7 @@
 from collections.abc import Collection, Sequence
 from functools import cached_property
 from tkinter import CENTER, Tk, Canvas as TKCanvas, NW
-from typing import Callable, NamedTuple, Self
+from typing import Callable, Self, NamedTuple
 
 from PIL.Image import Image, new as new_image
 from PIL.ImageDraw import Draw
