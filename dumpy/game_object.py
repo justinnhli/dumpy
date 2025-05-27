@@ -239,6 +239,7 @@ class PhysicsObject(GameObject):
     def update(self, elapsed_msec):
         # type: (int) -> None
         """Update the velocity and the position."""
+        super().update(elapsed_msec)
         self.velocity += self.acceleration * elapsed_msec / 1000
         self.angular_velocity += self.angular_acceleration * elapsed_msec / 1000
         if self.velocity:
