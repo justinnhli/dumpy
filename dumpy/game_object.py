@@ -2,7 +2,7 @@
 
 from functools import cached_property
 from math import pi as PI
-from typing import Iterator
+from typing import Iterator, Sequence
 
 from .color import Color
 from .simplex import Geometry, Point2D, Vector2D
@@ -12,17 +12,29 @@ from .transform import Transform
 class GameObject:
     """A basic game object."""
 
-    def __init__(self): # pylint: disable = unused-argument
-        # type: () -> None
+    def __init__(
+        self,
+        geometry=None,
+        line_color=None, fill_color=None,
+        position=None, rotation=0,
+        collision_groups=None
+    ): # pylint: disable = unused-argument
+        # type: (Geometry, Color, Color, Point2D, float, Sequence[str]) -> None
         """Initialize the GameObject."""
-        self.geometry = None # type: Geometry
+        self.geometry = geometry
         self.radius = 0 # type: float
-        self.line_color = None # type: Color
-        self.fill_color = None # type: Color
-        self._position = Point2D()
-        self._rotation = 0 # type: float
+        self.line_color = line_color
+        self.fill_color = fill_color
+        if position is None:
+            self._position = Point2D()
+        else:
+            self._position = position
+        self._rotation = rotation
         self._axis_projection_cache = {} # type: dict[tuple[Geometry, Vector2D], tuple[float, float]]
         self._collision_groups = frozenset() # type: frozenset[str]
+        if collision_groups:
+            for group in collision_groups:
+                self.add_to_collision_group(group)
 
     def __hash__(self):
         # type: () -> int
