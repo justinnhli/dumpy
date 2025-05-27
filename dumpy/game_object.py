@@ -22,7 +22,7 @@ class GameObject:
         self._position = Point2D()
         self._rotation = 0 # type: float
         self._axis_projection_cache = {} # type: dict[tuple[Geometry, Vector2D], tuple[float, float]]
-        self.collision_groups = set() # type: set[str]
+        self._collision_groups = frozenset() # type: frozenset[str]
 
     def __hash__(self):
         # type: () -> int
@@ -73,6 +73,10 @@ class GameObject:
                 normal = -normal
             result.add(normal)
         return result
+
+    @property
+    def collision_groups(self):
+        return self._collision_groups
 
     def axis_projections(self, vector):
         # type: (Vector2D) -> Iterator[tuple[Geometry, float, float]]
@@ -144,6 +148,14 @@ class GameObject:
         # type: (GameObject) -> float
         """Calculate the squared distance to another object."""
         return self.position.squared_distance(other.position)
+
+    def add_to_collision_group(self, group):
+        # type: (str) -> None
+        self._collision_groups |= set([group])
+
+    def remove_from_collision_group(self, group):
+        # type: (str) -> None
+        self._collision_groups -= set([group])
 
     def is_colliding(self, other):
         # type: (GameObject) -> bool

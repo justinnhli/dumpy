@@ -27,7 +27,7 @@ def test_hierarchical_hash_grid():
         obj.geometry = Polygon.ellipse(radius, radius)
         obj.move_to(Point2D(x, y))
         obj.radius = radius
-        obj.collision_groups.add('test')
+        obj.add_to_collision_group('test')
         hhg.add(obj)
         objects.append(obj)
     # test that the objects are in the appropriate grid

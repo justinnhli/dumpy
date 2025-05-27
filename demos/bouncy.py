@@ -65,25 +65,25 @@ class Bouncy(Game):
         window_width = self.window_width - (wall_thickness // 2)
         window_height = self.window_height - (wall_thickness // 2)
         top_wall = Wall(window_width + 2 * wall_thickness, wall_thickness)
-        top_wall.collision_groups.add('h_walls')
+        top_wall.add_to_collision_group('h_walls')
         top_wall.move_to(Point2D(0, (window_height + wall_thickness) // 2))
         self.add_object(top_wall)
         bottom_wall = Wall(window_width + 2 * wall_thickness, wall_thickness)
-        bottom_wall.collision_groups.add('h_walls')
+        bottom_wall.add_to_collision_group('h_walls')
         bottom_wall.move_to(Point2D(0, -(window_height + wall_thickness) // 2))
         self.add_object(bottom_wall)
         left_wall = Wall(wall_thickness, window_height)
-        left_wall.collision_groups.add('v_walls')
+        left_wall.add_to_collision_group('v_walls')
         left_wall.move_to(Point2D(-(window_width + wall_thickness) // 2, 0))
         self.add_object(left_wall)
         right_wall = Wall(wall_thickness, window_height)
-        right_wall.collision_groups.add('v_walls')
+        right_wall.add_to_collision_group('v_walls')
         right_wall.move_to(Point2D((window_width + wall_thickness) // 2, 0))
         self.add_object(right_wall)
         # add the balls
         for _ in range(self.num_balls):
             ball = Ball()
-            ball.collision_groups.add('balls')
+            ball.add_to_collision_group('balls')
             ball.move_to(Point2D(
                 self.rng.randrange(
                     -(window_width // 2),
