@@ -28,9 +28,10 @@ class HashGrid:
         Vector2D(1, 1),
     ]
 
-    def __init__(self, grid_size):
-        # type: (int) -> None
+    def __init__(self, grid_size, hierarchy):
+        # type: (int, HierarchicalHashGrid) -> None
         self.grid_size = grid_size
+        self.hierarchy = hierarchy
         self.num_objects = 0
         self.cells = defaultdict(list) # type: dict[Point2D, list[GameObject]]
         self.populated_coords = set() # type: set[Point2D]
@@ -79,6 +80,8 @@ class HashGrid:
             for i, obj1 in enumerate(cell):
                 # find collisions in the current cell
                 for obj2 in cell[i + 1:]:
+                    if not self.hierarchy.has_collision_group_pairs(obj1, obj2):
+                        continue
                     if obj1.is_colliding(obj2):
                         yield (obj1, obj2)
                 # find collisions in the adjacent cells
@@ -99,7 +102,11 @@ class HashGrid:
             if neighbor_coord not in self.cells:
                 continue
             for obj2 in self.cells[neighbor_coord]:
-                if game_object != obj2 and game_object.is_colliding(obj2):
+                if game_object == obj2:
+                    continue
+                if not self.hierarchy.has_collision_group_pairs(game_object, obj2):
+                    continue
+                if game_object.is_colliding(obj2):
                     yield (game_object, obj2)
 
 
@@ -118,9 +125,10 @@ class HierarchicalHashGrid:
         for exponent in range(min_exponent):
             self.grids.append(None)
         for exponent in range(min_exponent, max_exponent + 1):
-            self.grids.append(HashGrid(2 ** exponent))
+            self.grids.append(HashGrid(2 ** exponent, self))
         self.objects = [] # type: list[GameObject]
         self.collision_group_pairs = set() # type: set[tuple[str, str]]
+        self.collision_groups_cache = {} # type: dict[tuple[frozenset[str], frozenset[str]], bool]
 
     @cached_property
     def exponent_grids(self):
@@ -146,11 +154,32 @@ class HierarchicalHashGrid:
         # type: () -> Iterator[tuple[GameObject, GameObject, tuple[str, str]]]
         """Yield all collisions of registered group pairs."""
         for obj1, obj2 in self.all_collisions:
-            for group1, group2 in self.collision_group_pairs:
-                if group1 in obj1.collision_groups and group2 in obj2.collision_groups:
-                    yield obj1, obj2, (group1, group2)
-                if group1 in obj2.collision_groups and group2 in obj1.collision_groups:
-                    yield obj2, obj1, (group1, group2)
+            for pair in self.get_collision_group_pairs(obj1, obj2):
+                yield obj1, obj2, pair 
+            for pair in self.get_collision_group_pairs(obj2, obj1):
+                yield obj2, obj1, pair 
+
+    def has_collision_group_pairs(self, obj1, obj2):
+        # type: (GameObject, GameObject) -> bool
+        return (
+            bool(self._get_collision_group_pair(obj1.collision_groups, obj2.collision_groups))
+            or bool(self._get_collision_group_pair(obj2.collision_groups, obj1.collision_groups))
+        )
+
+    def get_collision_group_pairs(self, obj1, obj2):
+        # type: (GameObject, GameObject) -> list[tuple[str, str]]
+        return self._get_collision_group_pair(obj1.collision_groups, obj2.collision_groups)
+
+    def _get_collision_group_pair(self, collision_groups1, collision_groups2):
+        # type: (frozenset[str], frozenset[str]) -> tuple[tuple[str, str], ...]
+        key = (collision_groups1, collision_groups2)
+        if key not in self.collision_groups_cache:
+            self.collision_groups_cache[key] = tuple(
+                (group1, group2)
+                for group1, group2 in self.collision_group_pairs
+                if group1 in collision_groups1 and group2 in collision_groups2
+            )
+        return self.collision_groups_cache[key]
 
     def add(self, game_object):
         # type: (GameObject) -> None
