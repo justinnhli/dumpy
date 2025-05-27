@@ -128,7 +128,7 @@ class HierarchicalHashGrid:
             self.grids.append(HashGrid(2 ** exponent, self))
         self.objects = [] # type: list[GameObject]
         self.collision_group_pairs = set() # type: set[tuple[str, str]]
-        self.collision_groups_cache = {} # type: dict[tuple[frozenset[str], frozenset[str]], bool]
+        self.collision_groups_cache = {} # type: dict[tuple[frozenset[str], frozenset[str]], tuple[tuple[str, str], ...]]
 
     @cached_property
     def exponent_grids(self):
@@ -155,23 +155,26 @@ class HierarchicalHashGrid:
         """Yield all collisions of registered group pairs."""
         for obj1, obj2 in self.all_collisions:
             for pair in self.get_collision_group_pairs(obj1, obj2):
-                yield obj1, obj2, pair 
-            for pair in self.get_collision_group_pairs(obj2, obj1):
-                yield obj2, obj1, pair 
+                yield obj1, obj2, pair
+            for pair in self.get_collision_group_pairs(obj2, obj1): # pylint: disable = arguments-out-of-order
+                yield obj2, obj1, pair
 
     def has_collision_group_pairs(self, obj1, obj2):
         # type: (GameObject, GameObject) -> bool
+        """Determine if the two objects are part of a collision group pair."""
         return (
             bool(self._get_collision_group_pair(obj1.collision_groups, obj2.collision_groups))
             or bool(self._get_collision_group_pair(obj2.collision_groups, obj1.collision_groups))
         )
 
     def get_collision_group_pairs(self, obj1, obj2):
-        # type: (GameObject, GameObject) -> list[tuple[str, str]]
+        # type: (GameObject, GameObject) -> tuple[tuple[str, str], ...]
+        """Get the collision group pairs for the two objects."""
         return self._get_collision_group_pair(obj1.collision_groups, obj2.collision_groups)
 
     def _get_collision_group_pair(self, collision_groups1, collision_groups2):
         # type: (frozenset[str], frozenset[str]) -> tuple[tuple[str, str], ...]
+        """Get the collision group pairs for the two collision groups."""
         key = (collision_groups1, collision_groups2)
         if key not in self.collision_groups_cache:
             self.collision_groups_cache[key] = tuple(
